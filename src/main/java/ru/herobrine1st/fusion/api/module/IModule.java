@@ -3,7 +3,11 @@ package ru.herobrine1st.fusion.api.module;
 import net.dv8tion.jda.api.JDA;
 import ru.herobrine1st.fusion.api.manager.CommandManager;
 
-public interface IModule {
-    void registerCommands(CommandManager commandManager);
-    void registerListener(JDA jda);
+public abstract class IModule {
+    public abstract void registerCommands(CommandManager commandManager);
+
+    public abstract void registerListener(JDA jda);
+
+    public IModule() {
+    }
 }
