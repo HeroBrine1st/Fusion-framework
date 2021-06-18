@@ -48,4 +48,6 @@ public interface CommandContext {
         return getFooter(1, 0, "");
     }
     String getFooter(int successCount, int totalCount, String textInFooter);
+
+    void reply(CommandResult result);
 }

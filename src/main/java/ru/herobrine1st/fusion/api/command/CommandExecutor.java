@@ -5,5 +5,5 @@ import org.jetbrains.annotations.NotNull;
 
 @FunctionalInterface
 public interface CommandExecutor {
-    @NotNull CommandResult execute(@NotNull CommandContext ctx) throws CommandException;
+    void execute(@NotNull CommandContext ctx) throws CommandException;
 }

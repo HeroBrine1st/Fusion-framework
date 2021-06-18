@@ -10,21 +10,25 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.CommandContext;
+import ru.herobrine1st.fusion.api.command.CommandResult;
 import ru.herobrine1st.fusion.api.command.declare.FusionBaseCommand;
 
 import java.awt.*;
 import java.util.List;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class CommandContextImpl implements CommandContext {
     private static final Logger logger = LoggerFactory.getLogger(CommandContextImpl.class);
     private final Map<String, List<Object>> arguments = new HashMap<>();
     private final Event event;
     private final FusionBaseCommand<?> command;
+    private final Consumer<CommandResult> replyHandler;
 
-    public CommandContextImpl(Event event, FusionBaseCommand<?> command) {
+    public CommandContextImpl(Event event, FusionBaseCommand<?> command, Consumer<CommandResult> replyHandler) {
         this.event = event;
         this.command = command;
+        this.replyHandler = replyHandler;
     }
 
     @Nullable
@@ -140,5 +144,10 @@ public class CommandContextImpl implements CommandContext {
         if (!textInFooter.isBlank())
             text += textInFooter;
         return text;
+    }
+
+    @Override
+    public void reply(CommandResult result) {
+        replyHandler.accept(result);
     }
 }

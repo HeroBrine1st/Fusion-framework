@@ -49,7 +49,6 @@ public class SlashCommandBuilder {
             );
         }
         throw new IllegalArgumentException();
-
     }
 
     public static boolean hasSlashSupport(FusionCommandData commandData) {
