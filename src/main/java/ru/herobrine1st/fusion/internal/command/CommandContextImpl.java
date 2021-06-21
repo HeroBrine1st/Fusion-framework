@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.CommandContext;
 import ru.herobrine1st.fusion.api.command.CommandResult;
+import ru.herobrine1st.fusion.api.command.args.ParserElement;
 import ru.herobrine1st.fusion.api.command.declare.FusionBaseCommand;
 
 import java.awt.*;
@@ -52,6 +53,12 @@ public class CommandContextImpl implements CommandContext {
     }
 
 
+    public void putArg(String key, Collection<ParserElement> value) {
+        arguments.computeIfAbsent(key, k -> new ArrayList<>());
+        arguments.get(key).addAll(value);
+    }
+
+
     @Override
     @SuppressWarnings("unchecked")
     public <T> Optional<T> getOne(String key) {
@@ -66,8 +73,10 @@ public class CommandContextImpl implements CommandContext {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> Collection<T> getAll(String key) {
-        return null;
+        List<Object> all = arguments.get(key);
+        return Objects.requireNonNullElse((List<T>) all, Collections.emptyList());
     }
 
     @Override

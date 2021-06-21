@@ -2,6 +2,7 @@ package ru.herobrine1st.fusion.module.test;
 
 import net.dv8tion.jda.api.JDA;
 import ru.herobrine1st.fusion.api.command.CommandResult;
+import ru.herobrine1st.fusion.api.command.args.GenericArguments;
 import ru.herobrine1st.fusion.api.command.declare.FusionCommandData;
 import ru.herobrine1st.fusion.api.manager.CommandManager;
 import ru.herobrine1st.fusion.api.module.AbstractModule;
@@ -12,10 +13,11 @@ public class TestModule extends AbstractModule {
     @Override
     public void registerCommands(CommandManager commandManager) {
         var command = new FusionCommandData("fusiontest", "description")
+                .addArguments(GenericArguments.remainingJoinedStrings("string", "Пиши блять сюда текст"))
                 .setExecutor(ctx -> ctx.reply(
                         new CommandResult.Builder()
                                 .embed(ctx.getEmbedBase()
-                                        .setDescription("Успешный тест!")
+                                        .setDescription("Успешный тест! " + ctx.<String>getOne("string").orElse("Да хуй он там успешный блять"))
                                         .setColor(ctx.getColor())
                                         .setFooter(ctx.getFooter())
                                         .build())

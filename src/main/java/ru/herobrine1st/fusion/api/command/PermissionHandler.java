@@ -1,6 +1,6 @@
 package ru.herobrine1st.fusion.api.command;
 
-import net.dv8tion.jda.api.events.Event;
+import net.dv8tion.jda.api.entities.Guild;
 
 public abstract class PermissionHandler {
     public static PermissionHandler DEFAULT = new Default();
@@ -8,7 +8,7 @@ public abstract class PermissionHandler {
     private static class Default extends PermissionHandler {
 
         @Override
-        public boolean shouldBeFound(Event event) {
+        public boolean shouldBeFound(Guild guild) {
             return true;
         }
 
@@ -37,7 +37,7 @@ public abstract class PermissionHandler {
         }
 
         @Override
-        public boolean shouldBeFound(Event event) {
+        public boolean shouldBeFound(Guild guild) {
             return true;
         }
 
@@ -63,12 +63,8 @@ public abstract class PermissionHandler {
         BOTH
     }
 
-    /**
-     * Должна ли команда быть найденной (влияет на help и на поиск команд после ввода пользователем)
-     * @param event Контекст выполнения
-     * @return true, если команда должна быть найдена, иначе false
-     */
-    public abstract boolean shouldBeFound(Event event);
+
+    public abstract boolean shouldBeFound(Guild guild);
     /**
      * Исполняется перед выполнением команды. Определяет, выполнять команду или выкинуть ошибку прав
      * @param ctx Контекст выполнения
