@@ -113,6 +113,14 @@ public class CommandContextImpl implements CommandContext {
         UNKNOWN
     }
 
+    @Override
+    public EmbedBuilder getEmbedBase() {
+        return new EmbedBuilder()
+                .setTitle(getCommand().getShortName())
+                .setFooter(getFooter())
+                .setColor(getColor());
+    }
+
     static Type getResult(int successCount, int totalCount) {
         if (successCount != 0) {
             if (totalCount != 0) {
@@ -127,22 +135,17 @@ public class CommandContextImpl implements CommandContext {
         return Type.UNKNOWN;
     }
 
-    @Override
-    public EmbedBuilder getEmbedBase() {
-        EmbedBuilder embed = new EmbedBuilder();
-        embed.setTitle(this.getCommand().getShortName());
-        embed.setFooter(getFooter());
-        embed.setColor(getColor());
-        return embed;
-    }
-
-    @Override
-    public Color getColor(int successCount, int totalCount) {
+    public static Color getEmbedColor(int successCount, int totalCount) {
         return switch (getResult(successCount, totalCount)) {
             case SUCCESS -> Color.GREEN;
             case ERROR, PARTIAL_SUCCESS -> Color.RED;
             case UNKNOWN -> Color.BLACK;
         };
+    }
+
+    @Override
+    public Color getColor(int successCount, int totalCount) {
+        return getEmbedColor(successCount, totalCount);
     }
 
     @Override
@@ -177,24 +180,29 @@ public class CommandContextImpl implements CommandContext {
 
     public void applyButtonClickEvent(ButtonClickEvent event, BiFunction<Message, CommandContextImpl, RestAction<Message>> replyHandler) {
         Objects.requireNonNull(buttonClickEventCompletableFuture, "No buttons in this context");
-        if(buttonClickEventCompletableFuture.isDone()) return;
+        if (buttonClickEventCompletableFuture.isDone()) return;
         this.replyHandler = replyHandler;
         this.event = event;
         buttonClickEventCompletableFuture.complete(event);
     }
 
     @Override
+    public RestAction<Message> reply(Message message) {
+        return replyHandler.apply(message, this);
+    }
+
+    @Override
     public RestAction<Message> reply(MessageEmbed embed) {
-        return replyHandler.apply(new MessageBuilder().setEmbed(embed).build(), this);
+        return reply(new MessageBuilder().setEmbed(embed).build());
     }
 
     @Override
     public RestAction<Message> reply(MessageEmbed embed, ActionRow... rows) {
         buttonClickEventCompletableFuture = new CompletableFuture<>();
-        return replyHandler.apply(new MessageBuilder()
+        return reply(new MessageBuilder()
                 .setEmbed(embed)
                 .setActionRows(rows)
-                .build(), this);
+                .build());
     }
 
     @Override
@@ -208,6 +216,6 @@ public class CommandContextImpl implements CommandContext {
             embed.setDescription("Неизвестная ошибка. Дополнительные данные отправлены в журнал.");
             logger.error("Error executing command", t);
         }
-        replyHandler.apply(new MessageBuilder().setEmbed(embed.build()).build(), this).queue();
+        reply(new MessageBuilder().setEmbed(embed.build()).build()).queue();
     }
 }

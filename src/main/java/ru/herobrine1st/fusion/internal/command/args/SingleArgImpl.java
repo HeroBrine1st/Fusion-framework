@@ -1,8 +1,10 @@
 package ru.herobrine1st.fusion.internal.command.args;
 
+import ru.herobrine1st.fusion.api.command.args.SingleArg;
+
 import java.util.Objects;
 
-public record SingleArg(int start, int end, String value) {
+public record SingleArgImpl(int start, int end, String value) implements SingleArg {
 
     public String getValue() {
         return this.value;
@@ -21,9 +23,9 @@ public record SingleArg(int start, int end, String value) {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof SingleArg singleArg)) {
+        if (!(o instanceof SingleArgImpl singleArgImpl)) {
             return false;
         }
-        return this.start == singleArg.start && this.end == singleArg.end && Objects.equals(this.value, singleArg.value);
+        return this.start == singleArgImpl.start && this.end == singleArgImpl.end && Objects.equals(this.value, singleArgImpl.value);
     }
 }

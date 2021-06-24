@@ -1,7 +1,7 @@
 package ru.herobrine1st.fusion.api.exception;
 
-import ru.herobrine1st.fusion.internal.command.args.CommandArgs;
-import ru.herobrine1st.fusion.internal.command.args.SingleArg;
+import ru.herobrine1st.fusion.api.command.args.CommandArgs;
+import ru.herobrine1st.fusion.api.command.args.SingleArg;
 
 public class ArgumentParseException extends CommandException {
     public ArgumentParseException(String message) {

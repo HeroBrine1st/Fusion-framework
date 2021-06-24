@@ -56,6 +56,7 @@ public interface CommandContext {
 
     ButtonClickEvent waitForButtonClick() throws CancellationException;
 
+    RestAction<Message> reply(Message message);
     RestAction<Message> reply(MessageEmbed embed);
     RestAction<Message> reply(MessageEmbed embed, ActionRow... rows);
     default RestAction<ButtonClickEvent> replyWaitingClick(MessageEmbed embed, ActionRow... rows) {

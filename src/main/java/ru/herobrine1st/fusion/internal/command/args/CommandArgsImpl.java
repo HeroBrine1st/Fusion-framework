@@ -1,27 +1,30 @@
 package ru.herobrine1st.fusion.internal.command.args;
 
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.herobrine1st.fusion.api.command.args.CommandArgs;
 import ru.herobrine1st.fusion.api.command.args.ParserElement;
+import ru.herobrine1st.fusion.api.command.args.SingleArg;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CommandArgs {
+public class CommandArgsImpl implements CommandArgs {
     private static final Pattern regex =
             Pattern.compile("\"([^\"]*)\"|--(\\S+)=\"([^\"]*)\"|--(\\S+)=(\\S+)|--(\\S+)|-(\\S+)|(\\S+\n?)",
                     Pattern.MULTILINE);
     private final String source;
-    private final List<SingleArg> args = new ArrayList<>();
-    private final Map<String, CommandArgs> keys = new CaseInsensitiveMap<>();
+    private final List<SingleArgImpl> args = new ArrayList<>();
+    private final Map<String, CommandArgsImpl> keys = new CaseInsensitiveMap<>();
     private int pos = -1;
 
-    public CommandArgs(String str) {
+    public CommandArgsImpl(String str) {
         this(str, true);
     }
 
-    public CommandArgs(String str, boolean parseKeys) {
+    public CommandArgsImpl(String str, boolean parseKeys) {
         source = str;
         Matcher m = regex.matcher(str);
         while (m.find()) {
@@ -47,7 +50,7 @@ public class CommandArgs {
 
     private void appendSingleArg(Matcher m, int group) {
         String value = m.group(group);
-        args.add(new SingleArg(m.start(group), m.end(group)-1, value));
+        args.add(new SingleArgImpl(m.start(group), m.end(group)-1, value));
     }
 
     public String getSource() {
@@ -59,10 +62,10 @@ public class CommandArgs {
      * @see ru.herobrine1st.fusion.api.command.args.GenericArguments#key(ParserElement element)
      **/
     private void processKey(String key, @Nullable String value) {
-        keys.computeIfAbsent(key, it -> new CommandArgs(Objects.requireNonNullElse(value, "true"), false));
+        keys.computeIfAbsent(key, it -> new CommandArgsImpl(Objects.requireNonNullElse(value, "true"), false));
     }
 
-    public Optional<CommandArgs> getKey(String key) {
+    public Optional<CommandArgsImpl> getKey(String key) {
         return Optional.ofNullable(keys.get(key));
     }
 
@@ -78,7 +81,7 @@ public class CommandArgs {
         return args.size() - 1 > pos;
     }
 
-    public SingleArg next() {
+    public SingleArgImpl next() {
         if (!hasNext()) throw new NoSuchElementException();
         return args.get(++pos);
     }

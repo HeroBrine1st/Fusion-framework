@@ -6,8 +6,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ru.herobrine1st.fusion.api.command.CommandContext;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
-import ru.herobrine1st.fusion.internal.command.args.CommandArgs;
-import ru.herobrine1st.fusion.internal.command.args.SingleArg;
+import ru.herobrine1st.fusion.internal.command.args.CommandArgsImpl;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -251,7 +250,7 @@ public final class GenericArguments {
 
         @Override
         public Object parseValue(CommandArgs args, CommandContext ctx) throws ArgumentParseException {
-            Optional<CommandArgs> value = args.getKey(getKey());
+            Optional<CommandArgsImpl> value = args.getKey(getKey());
             if (value.isEmpty())
                 if (!optional)
                     throw new ArgumentParseException(String.format("Ключ %s отсутствует", getKey()));
