@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
 import ru.herobrine1st.fusion.api.command.CommandContext;
+import ru.herobrine1st.fusion.internal.command.args.CommandArgs;
 
 import java.util.NoSuchElementException;
 
@@ -41,7 +42,12 @@ public abstract class ParserElement {
     public abstract OptionData getOptionData();
 
     public void parseSlash(CommandContext ctx) throws ArgumentParseException {
-        Object value = parseSlash(ctx, (CommandInteraction) ctx.getEvent());
+        Object value;
+        try {
+            value = parseSlash(ctx, (CommandInteraction) ctx.getEvent());
+        } catch(NoSuchElementException e) {
+            throw new ArgumentParseException("Обработчик не обнаружил ключа " + e.getMessage());
+        }
         if(key != null && value != null) {
             ctx.putArg(key, value);
         }

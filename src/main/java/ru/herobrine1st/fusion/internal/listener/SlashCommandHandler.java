@@ -1,8 +1,11 @@
 package ru.herobrine1st.fusion.internal.listener;
 
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,16 +13,19 @@ import ru.herobrine1st.fusion.api.command.declare.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.command.declare.FusionSubcommandData;
 import ru.herobrine1st.fusion.api.command.declare.FusionSubcommandGroupData;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
-import ru.herobrine1st.fusion.api.exception.CommandException;
 import ru.herobrine1st.fusion.internal.command.CommandContextImpl;
 import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiFunction;
+
 public class SlashCommandHandler extends ListenerAdapter {
     private final static Logger logger = LoggerFactory.getLogger(SlashCommandHandler.class);
+    private final Map<Long, CommandContextImpl> interactionCache = new HashMap<>();
     @Override
     public void onSlashCommand(@NotNull SlashCommandEvent event) { // TODO CONCEPT; что-то с optional сделать, явно не все его возможности используются
-        event.deferReply(false).queue();
-        InteractionHook hook = event.getHook();
+        InteractionHook hook = event.getHook().setEphemeral(true);
         String groupName = event.getSubcommandGroup();
         String subcommandName = event.getSubcommandName();
         String commandName = event.getName();
@@ -30,7 +36,7 @@ public class SlashCommandHandler extends ListenerAdapter {
             hook.sendMessage("Команда не найдена").queue();
             return;
         }
-        FusionBaseCommand<?> targetCommand;
+        FusionBaseCommand<?> targetCommand; // TODO говнокод
         if (groupName != null) {
             if(!command.get().hasSubcommandGroups()) {
                 hook.sendMessage("Команда не имеет групп субкоманд").queue();
@@ -65,7 +71,21 @@ public class SlashCommandHandler extends ListenerAdapter {
         } else {
             targetCommand = command.get();
         }
-        var context = new CommandContextImpl(event, targetCommand, it -> hook.sendMessageEmbeds(it.embed()).queue());
+        BiFunction<Message, CommandContextImpl, RestAction<Message>> replyHandler = (message, ctx) -> {
+            var rows = message.getActionRows();
+            return hook.sendMessage(message).map(msg -> {
+                if(!rows.isEmpty()) {
+                    interactionCache.put(msg.getIdLong(), ctx);
+                }
+                return msg;
+            });
+        };
+
+        CommandContextImpl context = new CommandContextImpl(event, targetCommand, replyHandler);
+        if(!targetCommand.getPermissionHandler().shouldBeExecuted(context)) {
+            hook.sendMessage("Нет прав!").queue();
+            return;
+        }
         targetCommand.getArguments().forEach(it -> {
             try {
                 it.parseSlash(context);
@@ -73,11 +93,34 @@ public class SlashCommandHandler extends ListenerAdapter {
                 hook.sendMessage("Ошибка обработки аргументов!\n" + e.getMessage()).queue();
             }
         });
+        event.deferReply(false).queue();
         try {
             targetCommand.getExecutor().execute(context);
-        } catch (CommandException e) {
-            hook.sendMessage("Ошибка выполнения команды. Дополнительные данные отправлены в журнал.").queue();
-            logger.error("Error executing command %s %s %s".formatted(commandName, groupName, subcommandName), e);
+        } catch (Throwable t) {
+            context.replyException(t);
         }
+    }
+
+    @Override
+    public void onButtonClick(@NotNull ButtonClickEvent event) {
+        var hook = event.getHook();
+        if(!interactionCache.containsKey(event.getMessageIdLong())) {
+            hook.setEphemeral(true).sendMessage("Данное сообщение отсуствует в кеше.").queue();
+            return;
+        }
+        var context = interactionCache.get(event.getMessageIdLong());
+        if(context.getUser().getIdLong() != event.getUser().getIdLong()) {
+            hook.setEphemeral(true).sendMessage("Вы не являетесь автором команды.").queue();
+            return;
+        }
+        if(event.getMessage() != null) {
+            if(event.getMessage().getButtonById(event.getComponentId()) == null) {
+                return;
+            }
+        }
+        interactionCache.remove(event.getMessageIdLong());
+        event.deferReply().queue();
+        logger.info(String.valueOf(event.getMessage()));
+        context.applyButtonClickEvent(event, (message, ctx) -> hook.sendMessage(message));
     }
 }

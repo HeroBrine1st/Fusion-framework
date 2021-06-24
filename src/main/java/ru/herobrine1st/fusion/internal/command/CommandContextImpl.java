@@ -1,32 +1,41 @@
 package ru.herobrine1st.fusion.internal.command;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.Event;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.CommandContext;
-import ru.herobrine1st.fusion.api.command.CommandResult;
-import ru.herobrine1st.fusion.api.command.args.ParserElement;
 import ru.herobrine1st.fusion.api.command.declare.FusionBaseCommand;
+import ru.herobrine1st.fusion.api.exception.CommandException;
 
 import java.awt.*;
 import java.util.List;
 import java.util.*;
-import java.util.function.Consumer;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.function.BiFunction;
 
 public class CommandContextImpl implements CommandContext {
     private static final Logger logger = LoggerFactory.getLogger(CommandContextImpl.class);
-    private final Map<String, List<Object>> arguments = new HashMap<>();
-    private final Event event;
-    private final FusionBaseCommand<?> command;
-    private final Consumer<CommandResult> replyHandler;
 
-    public CommandContextImpl(Event event, FusionBaseCommand<?> command, Consumer<CommandResult> replyHandler) {
+    private final Map<String, List<Object>> arguments = new HashMap<>();
+    private final FusionBaseCommand<?> command;
+    private Event event;
+    private BiFunction<Message, CommandContextImpl, RestAction<Message>> replyHandler;
+    private CompletableFuture<ButtonClickEvent> buttonClickEventCompletableFuture = null;
+
+    public CommandContextImpl(Event event, FusionBaseCommand<?> command, BiFunction<Message, CommandContextImpl, RestAction<Message>> replyHandler) {
         this.event = event;
         this.command = command;
         this.replyHandler = replyHandler;
@@ -37,6 +46,8 @@ public class CommandContextImpl implements CommandContext {
     public Optional<Message> getMessage() {
         if (getEvent() instanceof MessageReceivedEvent messageReceivedEvent) {
             return Optional.of(messageReceivedEvent.getMessage());
+        } else if (getEvent() instanceof ButtonClickEvent buttonClickEvent) {
+            return Optional.ofNullable(buttonClickEvent.getMessage());
         }
         return Optional.empty();
     }
@@ -50,12 +61,6 @@ public class CommandContextImpl implements CommandContext {
     public void putArg(String key, Object value) {
         arguments.computeIfAbsent(key, k -> new ArrayList<>());
         arguments.get(key).add(value);
-    }
-
-
-    public void putArg(String key, Collection<ParserElement> value) {
-        arguments.computeIfAbsent(key, k -> new ArrayList<>());
-        arguments.get(key).addAll(value);
     }
 
 
@@ -80,17 +85,19 @@ public class CommandContextImpl implements CommandContext {
     }
 
     @Override
-    public User getAuthor() {
+    public User getUser() {
         if (this.getEvent() instanceof MessageReceivedEvent messageReceivedEvent) {
             return messageReceivedEvent.getAuthor();
-        } else if(this.getEvent() instanceof SlashCommandEvent slashCommandEvent) {
+        } else if (this.getEvent() instanceof SlashCommandEvent slashCommandEvent) {
             return slashCommandEvent.getUser();
+        } else if (this.getEvent() instanceof ButtonClickEvent buttonClickEvent) {
+            return buttonClickEvent.getUser();
         } else {
-            logger.error("================== STRANGE THING HAPPENED ==================");
-            logger.error("Event is neither MessageReceivedEvent nor SlashCommandEvent");
-            logger.error("Exception with a stacktrace will be shown below");
+            logger.error("============================= STRANGE THING HAPPENED =============================");
+            logger.error("Event is neither MessageReceivedEvent, nor SlashCommandEvent, nor ButtonClickEvent");
+            logger.error("Exception with stacktrace will be shown below");
             logger.error("============================================================");
-            throw new RuntimeException("Event is neither MessageReceivedEvent nor SlashCommandEvent");
+            throw new RuntimeException("Unexpected event");
         }
     }
 
@@ -124,6 +131,8 @@ public class CommandContextImpl implements CommandContext {
     public EmbedBuilder getEmbedBase() {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle(this.getCommand().getShortName());
+        embed.setFooter(getFooter());
+        embed.setColor(getColor());
         return embed;
     }
 
@@ -140,7 +149,7 @@ public class CommandContextImpl implements CommandContext {
     public String getFooter(int successCount, int totalCount, String textInFooter) {
         String text = "";
         if (!this.isExecutedAsSlashCommand()) {
-            User user = getAuthor();
+            User user = getUser();
             text += String.format("Запросил: %s\n", user.getAsTag());
         }
         if (successCount > 0 && (successCount != 1 || totalCount > 0)) {
@@ -156,7 +165,49 @@ public class CommandContextImpl implements CommandContext {
     }
 
     @Override
-    public void reply(CommandResult result) {
-        replyHandler.accept(result);
+    public ButtonClickEvent waitForButtonClick() throws CancellationException {
+        Objects.requireNonNull(buttonClickEventCompletableFuture, "No buttons in this context");
+        try {
+            return buttonClickEventCompletableFuture.get();
+        } catch (ExecutionException | InterruptedException e) {
+            logger.error("Strange exception occurred", e); // Should not occur
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void applyButtonClickEvent(ButtonClickEvent event, BiFunction<Message, CommandContextImpl, RestAction<Message>> replyHandler) {
+        Objects.requireNonNull(buttonClickEventCompletableFuture, "No buttons in this context");
+        if(buttonClickEventCompletableFuture.isDone()) return;
+        this.replyHandler = replyHandler;
+        this.event = event;
+        buttonClickEventCompletableFuture.complete(event);
+    }
+
+    @Override
+    public RestAction<Message> reply(MessageEmbed embed) {
+        return replyHandler.apply(new MessageBuilder().setEmbed(embed).build(), this);
+    }
+
+    @Override
+    public RestAction<Message> reply(MessageEmbed embed, ActionRow... rows) {
+        buttonClickEventCompletableFuture = new CompletableFuture<>();
+        return replyHandler.apply(new MessageBuilder()
+                .setEmbed(embed)
+                .setActionRows(rows)
+                .build(), this);
+    }
+
+    @Override
+    public void replyException(Throwable t) {
+        var embed = getEmbedBase()
+                .setColor(getColor(0, 1))
+                .setFooter(getFooter(0, 1));
+        if (t instanceof CommandException) {
+            embed.setDescription("Ошибка выполнения команды: " + t.getMessage());
+        } else {
+            embed.setDescription("Неизвестная ошибка. Дополнительные данные отправлены в журнал.");
+            logger.error("Error executing command", t);
+        }
+        replyHandler.apply(new MessageBuilder().setEmbed(embed.build()).build(), this).queue();
     }
 }

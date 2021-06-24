@@ -15,20 +15,16 @@ import ru.herobrine1st.fusion.internal.listener.SlashCommandHandler;
 import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 
 import javax.security.auth.login.LoginException;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Fusion {
     private static final Logger logger = LoggerFactory.getLogger(Fusion.class);
     private final List<AbstractModule> modules = new ArrayList<>();
-
+    private JDA jda;
     private void main() throws InterruptedException {
 
         logger.info("Starting Fusion Discord bot");
         logger.info("Logging in...");
-        final JDA jda;
         try {
             jda = JDABuilder.createLight(Config.INSTANCE.getToken(), EnumSet.noneOf(GatewayIntent.class))
                     .addEventListeners(new MessageCommandHandler(), new SlashCommandHandler())
@@ -58,12 +54,11 @@ public class Fusion {
         logger.info("Initializing slash command subsystem");
         logger.info("Building commands into Discord data");
         Objects.requireNonNull(jda.getGuildById("394132321839874050")).updateCommands() // TODO concept
-                //jda.updateCommands()
                 .addCommands(CommandManagerImpl.INSTANCE.commands.stream()
                         .filter(SlashCommandBuilder::hasSlashSupport)
                         .map(SlashCommandBuilder::buildCommand)
                         .toList())
-                .queue();
+                .complete();
         logger.info("Dispatched list of commands");
         logger.warn("No database is connected"); // TODO
         logger.info("Initialized Fusion Discord bot");

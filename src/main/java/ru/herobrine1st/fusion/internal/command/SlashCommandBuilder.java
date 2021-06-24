@@ -20,7 +20,7 @@ public class SlashCommandBuilder {
     private static Collection<SubcommandData> subcommandDataFromSubcommands(Stream<FusionSubcommandData> data) {
         return data.map(it -> new SubcommandData(it.getName(), it.getDescription())
                 .addOptions(it.getOptions().stream()
-                        .map(that -> (ParserElement) that)
+                        .map(ParserElement.class::cast)
                         .map(ParserElement::getOptionData).toList()
                 )).toList();
     }
@@ -31,18 +31,18 @@ public class SlashCommandBuilder {
         var commandData = new CommandData(fusionCommandData.getName(), fusionCommandData.getDescription());
         if (fusionCommandData.hasExecutor()) {
             return commandData.addOptions(fusionCommandData.getOptions().stream()
-                    .map(it -> (ParserElement) it)
+                    .map(ParserElement.class::cast)
                     .map(ParserElement::getOptionData)
                     .toList());
         }
         if (fusionCommandData.hasSubcommands()) {
             return commandData.addSubcommands(subcommandDataFromSubcommands(fusionCommandData.getOptions()
-                    .stream().map(it -> (FusionSubcommandData) it)));
+                    .stream().map(FusionSubcommandData.class::cast)));
         }
         if (fusionCommandData.hasSubcommandGroups()) {
             return commandData.addSubcommandGroups(
                     fusionCommandData.getOptions().stream()
-                            .map(it -> (FusionSubcommandGroupData) it)
+                            .map(FusionSubcommandGroupData.class::cast)
                             .map(it -> new SubcommandGroupData(it.getName(), it.getDescription())
                                     .addSubcommands(subcommandDataFromSubcommands(it.getSubcommandData().stream()))
                             ).toList()
@@ -56,20 +56,20 @@ public class SlashCommandBuilder {
             return false;
         if (commandData.hasExecutor())
             return commandData.getOptions().stream()
-                    .map(it -> (ParserElement) it)
+                    .map(ParserElement.class::cast)
                     .allMatch(ParserElement::hasSlashSupport);
         if (commandData.hasSubcommands())
             return commandData.getOptions().stream()
-                    .map(it -> (FusionSubcommandData) it)
+                    .map(FusionSubcommandData.class::cast)
                     .flatMap(it -> it.getOptions().stream())
-                    .map(it -> (ParserElement) it)
+                    .map(ParserElement.class::cast)
                     .allMatch(ParserElement::hasSlashSupport);
         if (commandData.hasSubcommandGroups())
             return commandData.getOptions().stream()
-                    .map(it -> (FusionSubcommandGroupData) it)
+                    .map(FusionSubcommandGroupData.class::cast)
                     .flatMap(it -> it.getSubcommandData().stream())
                     .flatMap(it -> it.getOptions().stream())
-                    .map(it -> (ParserElement) it)
+                    .map(ParserElement.class::cast)
                     .allMatch(ParserElement::hasSlashSupport);
         throw new IllegalArgumentException();
     }
