@@ -274,7 +274,11 @@ public final class GenericArguments {
 
         @Override
         public void parseSlash(CommandContext ctx) throws ArgumentParseException {
-            element.parseSlash(ctx);
+             try {
+                 element.parseSlash(ctx);
+             } catch (NoSuchElementException | ArgumentParseException e) {
+                 if(!optional) throw e;
+             }
         }
 
         @Override
