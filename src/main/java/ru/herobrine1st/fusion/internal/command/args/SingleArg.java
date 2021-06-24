@@ -1,4 +1,4 @@
-package ru.herobrine1st.fusion.api.command.args;
+package ru.herobrine1st.fusion.internal.command.args;
 
 import java.util.Objects;
 

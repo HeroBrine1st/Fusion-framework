@@ -6,6 +6,8 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ru.herobrine1st.fusion.api.command.CommandContext;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
+import ru.herobrine1st.fusion.internal.command.args.CommandArgs;
+import ru.herobrine1st.fusion.internal.command.args.SingleArg;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -231,7 +233,7 @@ public final class GenericArguments {
         private final ParserElement element;
         private final boolean optional;
 
-        KeyParserElement(ParserElement element, boolean optional) {
+         KeyParserElement(ParserElement element, boolean optional) {
             super(null, null);
             this.element = element;
             this.optional = optional;
@@ -252,7 +254,7 @@ public final class GenericArguments {
             Optional<CommandArgs> value = args.getKey(getKey());
             if (value.isEmpty())
                 if (!optional)
-                    throw new ArgumentParseException(String.format("Флаг %s отсутствует", getKey()));
+                    throw new ArgumentParseException(String.format("Ключ %s отсутствует", getKey()));
                 else
                     return null;
             return element.parseValue(value.get(), ctx);
@@ -260,23 +262,24 @@ public final class GenericArguments {
 
         @Override
         public boolean hasSlashSupport() {
-            return true;
+            return element.hasSlashSupport();
         }
 
         @Override
         public OptionData getOptionData() {
             return new OptionData(
-                    element.hasSlashSupport() ? element.getOptionData().getType() : OptionType.STRING,
+                    element.getOptionData().getType(),
                     getKey(), getDescription(), optional);
         }
 
         @Override
-        public Object parseSlash(CommandContext ctx, CommandInteraction interaction) throws ArgumentParseException {
-            var option = interaction.getOption(getKey());
-            if (option == null)
-                if (optional) return null;
-                else throw new NoSuchElementException(getKey());
-            return element.parseValue(new CommandArgs(option.getAsString(), false), ctx);
+        public void parseSlash(CommandContext ctx) throws ArgumentParseException {
+            element.parseSlash(ctx);
+        }
+
+        @Override
+        public Object parseSlash(CommandContext ctx, CommandInteraction interaction) {
+            return null;
         }
 
         @Override

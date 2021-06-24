@@ -1,7 +1,8 @@
-package ru.herobrine1st.fusion.api.command.args;
+package ru.herobrine1st.fusion.internal.command.args;
 
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.jetbrains.annotations.Nullable;
+import ru.herobrine1st.fusion.api.command.args.ParserElement;
 
 import java.util.*;
 import java.util.regex.Matcher;
