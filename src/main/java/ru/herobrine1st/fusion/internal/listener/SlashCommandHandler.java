@@ -105,12 +105,12 @@ public class SlashCommandHandler extends ListenerAdapter {
     public void onButtonClick(@NotNull ButtonClickEvent event) {
         var hook = event.getHook();
         if(!interactionCache.containsKey(event.getMessageIdLong())) {
-            hook.setEphemeral(true).sendMessage("Данное сообщение отсуствует в кеше.").queue();
+            event.reply("Данное сообщение больше не принимает взаимодействий.").setEphemeral(true).queue();
             return;
         }
         var context = interactionCache.get(event.getMessageIdLong());
         if(context.getUser().getIdLong() != event.getUser().getIdLong()) {
-            hook.setEphemeral(true).sendMessage("Вы не являетесь автором команды.").queue();
+            event.reply("Вы не являетесь автором команды.").setEphemeral(true).queue();
             return;
         }
         if(event.getMessage() != null) {
