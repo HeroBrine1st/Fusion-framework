@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
-import ru.herobrine1st.fusion.api.command.declare.FusionBaseCommand;
+import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
 
 import java.awt.*;
 import java.util.Collection;

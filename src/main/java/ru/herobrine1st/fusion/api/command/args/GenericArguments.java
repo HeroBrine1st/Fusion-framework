@@ -29,24 +29,24 @@ public final class GenericArguments {
     }
 
     /**
-     * Оставшиеся соединенные строки. Собирает все оставшиеся строки в одну строку и отправляет в контекст под ключом key
+     * Оставшиеся соединенные строки. Собирает все оставшиеся строки в одну строку и отправляет в контекст под ключом name
      * Не имеет backtracking. Всегда что-то возвращает.
      *
-     * @param key         ключ, которым результат будет отображаться в контексте
+     * @param name         ключ, которым результат будет отображаться в контексте
      * @param description Описание аргумента
      */
-    public static ParserElement remainingJoinedStrings(String key, String description) {
-        return new RemainingJoinedStringsParserElement(key, description, false);
+    public static ParserElement remainingJoinedStrings(String name, String description) {
+        return new RemainingJoinedStringsParserElement(name, description, false);
     }
 
     /**
-     * @param key            ключ, которым результат будет отображаться в контексте
+     * @param name            ключ, которым результат будет отображаться в контексте
      * @param description    Описание аргумента
      * @param breakOnNewLine если true, прекращает сборку строки при достижении \n (при этом \n будет добавлен в строку)
      * @see GenericArguments#remainingJoinedStrings(java.lang.String, java.lang.String)
      */
-    public static ParserElement remainingJoinedStrings(String key, String description, boolean breakOnNewLine) {
-        return new RemainingJoinedStringsParserElement(key, description, breakOnNewLine);
+    public static ParserElement remainingJoinedStrings(String name, String description, boolean breakOnNewLine) {
+        return new RemainingJoinedStringsParserElement(name, description, breakOnNewLine);
     }
 
     /**
@@ -87,58 +87,58 @@ public final class GenericArguments {
     /**
      * Позволяет пользователю выбрать из списка
      *
-     * @param key         ключ, которым результат будет отображаться в контексте
+     * @param name         ключ, которым результат будет отображаться в контексте
      * @param description Описание аргумента
      * @param choices     Выбор пользователя. Ключ карты — то, что должен ввести пользователь, значение — то, что получит команда
      */
-    public static ParserElement choices(String key, String description, Map<String, ?> choices) {
-        return new ChoicesParserElement(key, description, choices);
+    public static ParserElement choices(String name, String description, Map<String, ?> choices) {
+        return new ChoicesParserElement(name, description, choices);
     }
 
     /**
-     * @param key         ключ, которым результат будет отображаться в контексте
+     * @param name         ключ, которым результат будет отображаться в контексте
      * @param description Описание аргумента
      * @param choices     Выбор пользователя. Ключ карты — то, что должен ввести пользователь, значение — то, что получит команда
      * @param usage       строка использования, которая будет отображаться пользователю при /help
      * @see ru.herobrine1st.fusion.api.command.args.GenericArguments#choices(java.lang.String, java.lang.String, java.util.Map)
      */
-    public static ParserElement choices(String key, String description, Map<String, ?> choices, String usage) {
-        return new ChoicesParserElement(key, description, choices, usage);
+    public static ParserElement choices(String name, String description, Map<String, ?> choices, String usage) {
+        return new ChoicesParserElement(name, description, choices, usage);
     }
 
     /**
-     * @param key         ключ, которым результат будет отображаться в контексте
+     * @param name         ключ, которым результат будет отображаться в контексте
      * @param description Описание аргумента
      * @see ru.herobrine1st.fusion.api.command.args.GenericArguments#choices(java.lang.String, java.lang.String, java.util.Map)
      * Позволяет пользователю выбрать да/нет
      */
-    public static ParserElement bool(String key, String description) {
-        return new BooleanParserElement(key, description);
+    public static ParserElement bool(String name, String description) {
+        return new BooleanParserElement(name, description);
     }
 
     /**
      * Позволяет пользователю выбрать да/нет с помощью флага. Если пользователь ничего не выберет, вернется false
      *
-     * @param key         ключ, которым результат будет отображаться в контексте
+     * @param name         ключ, которым результат будет отображаться в контексте
      * @param description Описание аргумента
      * @see ru.herobrine1st.fusion.api.command.args.GenericArguments#key(ru.herobrine1st.fusion.api.command.args.ParserElement)
      */
-    public static ParserElement flag(String key, String description) {
-        return new FlagParserElement(key, description);
+    public static ParserElement flag(String name, String description) {
+        return new FlagParserElement(name, description);
     }
 
     /**
      * Одиночная строка
      *
-     * @param key         ключ, которым результат будет отображаться в контексте
+     * @param name         ключ, которым результат будет отображаться в контексте
      * @param description Описание аргумента
      */
-    public static ParserElement singleString(String key, String description) {
-        return new SingleStringParserElement(key, description);
+    public static ParserElement singleString(String name, String description) {
+        return new SingleStringParserElement(name, description);
     }
 
-    public static ParserElement singleString(String key, String description, int maxLength) {
-        return new SingleStringParserElement(key, description, maxLength);
+    public static ParserElement singleString(String name, String description, int maxLength) {
+        return new SingleStringParserElement(name, description, maxLength);
     }
 
     /**
@@ -154,11 +154,11 @@ public final class GenericArguments {
     /**
      * Упоминание пользователя Discord
      *
-     * @param key         ключ, которым результат будет отображаться в контексте
+     * @param name         ключ, которым результат будет отображаться в контексте
      * @param description Описание аргумента
      */
-    public static ParserElement discordMention(String key, String description) {
-        return new DiscordMentionParserElement(key, description);
+    public static ParserElement discordMention(String name, String description) {
+        return new DiscordMentionParserElement(name, description);
     }
 
     /**
@@ -185,8 +185,8 @@ public final class GenericArguments {
     static class RemainingJoinedStringsParserElement extends ParserElement {
         private final boolean breakOnNewLine;
 
-        RemainingJoinedStringsParserElement(String key, String description, boolean breakOnNewLine) {
-            super(key, description);
+        RemainingJoinedStringsParserElement(String name, String description, boolean breakOnNewLine) {
+            super(name, description);
             this.breakOnNewLine = breakOnNewLine;
         }
 
@@ -363,8 +363,8 @@ public final class GenericArguments {
         private final Map<String, ?> choices;
         private final String usage;
 
-        public ChoicesParserElement(String key, String description, Map<String, ?> choices) {
-            super(key, description);
+        public ChoicesParserElement(String name, String description, Map<String, ?> choices) {
+            super(name, description);
             this.choices = choices;
             StringBuilder builder = new StringBuilder();
 
@@ -375,8 +375,8 @@ public final class GenericArguments {
             usage = builder.toString();
         }
 
-        public ChoicesParserElement(String key, String description, Map<String, ?> choices, String usage) {
-            super(key, description);
+        public ChoicesParserElement(String name, String description, Map<String, ?> choices, String usage) {
+            super(name, description);
             this.choices = choices;
             this.usage = usage;
         }
@@ -424,12 +424,12 @@ public final class GenericArguments {
 
         private final int maxLength;
 
-        protected SingleStringParserElement(String key, String description) {
-            this(key, description, Integer.MAX_VALUE);
+        protected SingleStringParserElement(String name, String description) {
+            this(name, description, Integer.MAX_VALUE);
         }
 
-        protected SingleStringParserElement(String key, String description, int maxLength) {
-            super(key, description);
+        protected SingleStringParserElement(String name, String description, int maxLength) {
+            super(name, description);
             this.maxLength = maxLength;
         }
 
@@ -526,8 +526,8 @@ public final class GenericArguments {
         private final static String mentionRegex = "<@!?(\\d+)>";
         private final static Pattern mentionPattern = Pattern.compile(mentionRegex);
 
-        protected DiscordMentionParserElement(String key, String description) {
-            super(key, description);
+        protected DiscordMentionParserElement(String name, String description) {
+            super(name, description);
         }
 
         @Override
@@ -642,11 +642,11 @@ public final class GenericArguments {
     static class FlagParserElement extends ParserElement { // Обертка, потому что по отдельности все три элемента поддерживают слеш-команды, но в итоге получается полная хуйня
         private final ParserElement element;
 
-        protected FlagParserElement(String key, String description) {
-            super(key, description);
+        protected FlagParserElement(String name, String description) {
+            super(name, description);
             this.element = GenericArguments.optional(
                     GenericArguments.key(
-                            GenericArguments.choices(key, description, booleanChoices, "bool"), false),
+                            GenericArguments.choices(name, description, booleanChoices, "bool"), false),
                     false);
         }
 
@@ -686,9 +686,9 @@ public final class GenericArguments {
     static class BooleanParserElement extends ParserElement {
         private final ParserElement element;
 
-        protected BooleanParserElement(String key, String description) {
-            super(key, description);
-            this.element = GenericArguments.choices(key, description, booleanChoices);
+        protected BooleanParserElement(String name, String description) {
+            super(name, description);
+            this.element = GenericArguments.choices(name, description, booleanChoices);
         }
 
         @Override

@@ -1,10 +1,10 @@
 package ru.herobrine1st.fusion.internal.manager;
 
 import net.dv8tion.jda.internal.utils.Checks;
-import ru.herobrine1st.fusion.api.command.declare.FusionBaseCommand;
-import ru.herobrine1st.fusion.api.command.declare.FusionCommandData;
-import ru.herobrine1st.fusion.api.command.declare.FusionSubcommandData;
-import ru.herobrine1st.fusion.api.command.declare.FusionSubcommandGroupData;
+import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
+import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
+import ru.herobrine1st.fusion.api.command.build.FusionSubcommandData;
+import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroupData;
 import ru.herobrine1st.fusion.api.manager.CommandManager;
 
 import java.util.ArrayList;

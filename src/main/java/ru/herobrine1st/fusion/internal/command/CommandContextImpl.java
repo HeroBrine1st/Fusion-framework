@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.CommandContext;
-import ru.herobrine1st.fusion.api.command.declare.FusionBaseCommand;
+import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.exception.CommandException;
 
 import java.awt.*;

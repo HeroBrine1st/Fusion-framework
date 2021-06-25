@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import ru.herobrine1st.fusion.api.command.args.GenericArguments;
-import ru.herobrine1st.fusion.api.command.declare.FusionCommandData;
+import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
 import ru.herobrine1st.fusion.api.manager.CommandManager;
 import ru.herobrine1st.fusion.api.module.AbstractModule;
 import ru.herobrine1st.fusion.api.module.FutureModule;

@@ -6,9 +6,9 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import org.jetbrains.annotations.Nullable;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
 import ru.herobrine1st.fusion.api.command.args.ParserElement;
-import ru.herobrine1st.fusion.api.command.declare.FusionCommandData;
-import ru.herobrine1st.fusion.api.command.declare.FusionSubcommandData;
-import ru.herobrine1st.fusion.api.command.declare.FusionSubcommandGroupData;
+import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
+import ru.herobrine1st.fusion.api.command.build.FusionSubcommandData;
+import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroupData;
 
 import java.util.Collection;
 import java.util.stream.Stream;
