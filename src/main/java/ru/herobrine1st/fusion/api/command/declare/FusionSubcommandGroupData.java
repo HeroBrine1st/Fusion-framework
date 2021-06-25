@@ -1,15 +1,15 @@
 package ru.herobrine1st.fusion.api.command.declare;
 
-import net.dv8tion.jda.api.interactions.commands.build.BaseCommand;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
+import ru.herobrine1st.fusion.api.command.FusionOptionData;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FusionSubcommandGroupData extends BaseCommand<FusionSubcommandGroupData> {
+public class FusionSubcommandGroupData extends FusionOptionData {
     private final List<FusionSubcommandData> subcommandData = new ArrayList<>();
     private PermissionHandler permissionHandler = PermissionHandler.DEFAULT;
 

@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.CommandContext;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
 
@@ -212,18 +213,18 @@ public final class GenericArguments {
 
         @Override
         public OptionData getOptionData() {
-            return new OptionData(OptionType.STRING, getKey(), getDescription());
+            return new OptionData(OptionType.STRING, getName(), getDescription());
         }
 
         @Override
         public Object parseSlash(CommandContext ctx, CommandInteraction interaction) {
-            return interaction.getOptionsByName(getKey())
+            return interaction.getOptionsByName(getName())
                     .stream().map(OptionMapping::getAsString).collect(Collectors.joining(" "));
         }
 
         @Override
         public String getRawUsage() {
-            return getKey() + "...";
+            return getName() + "...";
         }
     }
 
@@ -238,21 +239,21 @@ public final class GenericArguments {
         }
 
         @Override
-        public String getKey() {
-            return element.getKey();
+        public @NotNull String getName() {
+            return element.getName();
         }
 
         @Override
-        public String getDescription() {
+        public @NotNull String getDescription() {
             return element.getDescription();
         }
 
         @Override
         public Object parseValue(CommandArgs args, CommandContext ctx) throws ArgumentParseException {
-            Optional<CommandArgs> value = args.getKey(getKey());
+            Optional<CommandArgs> value = args.getKey(getName());
             if (value.isEmpty())
                 if (!optional)
-                    throw new ArgumentParseException(String.format("Ключ %s отсутствует", getKey()));
+                    throw new ArgumentParseException(String.format("Ключ %s отсутствует", getName()));
                 else
                     return null;
             return element.parseValue(value.get(), ctx);
@@ -267,7 +268,7 @@ public final class GenericArguments {
         public OptionData getOptionData() {
             return new OptionData(
                     element.getOptionData().getType(),
-                    getKey(), getDescription(), optional);
+                    getName(), getDescription(), optional);
         }
 
         @Override
@@ -291,7 +292,7 @@ public final class GenericArguments {
 
         @Override
         public String getRawUsage() {
-            return "--" + getKey() + "=" + element.getRawUsage();
+            return "--" + getName() + "=" + element.getRawUsage();
         }
     }
 
@@ -300,7 +301,7 @@ public final class GenericArguments {
         private final Object defaultValue;
 
         OptionalParserElement(ParserElement element, Object defaultValue) {
-            super(element.getKey(), element.getDescription());
+            super(element.getName(), element.getDescription());
             this.element = element;
             this.defaultValue = defaultValue;
         }
@@ -312,7 +313,7 @@ public final class GenericArguments {
                 element.parse(args, ctx);
             } catch (ArgumentParseException | NoSuchElementException e) {
                 if (defaultValue != null)
-                    ctx.putArg(element.getKey(), defaultValue);
+                    ctx.putArg(element.getName(), defaultValue);
                 args.setPos(pos);
             }
         }
@@ -338,7 +339,7 @@ public final class GenericArguments {
                 element.parseSlash(ctx);
             } catch (ArgumentParseException | NoSuchElementException e) {
                 if (defaultValue != null)
-                    ctx.putArg(element.getKey(), defaultValue);
+                    ctx.putArg(element.getName(), defaultValue);
             }
         }
 
@@ -385,7 +386,7 @@ public final class GenericArguments {
             SingleArg arg = args.next();
             return choices.get(
                     choices.keySet().stream().filter((String s) -> s.equalsIgnoreCase(arg.getValue())).findAny()
-                            .orElseThrow(() -> ArgumentParseException.withPointer("Аргумент " + getKey() + " не распознан", args))
+                            .orElseThrow(() -> ArgumentParseException.withPointer("Аргумент " + getName() + " не распознан", args))
             );
 
         }
@@ -397,7 +398,7 @@ public final class GenericArguments {
 
         @Override
         public OptionData getOptionData() {
-            var optionData = new OptionData(OptionType.STRING, getKey(), getDescription(), true);
+            var optionData = new OptionData(OptionType.STRING, getName(), getDescription(), true);
             for (var choice : choices.entrySet()) {
                 optionData.addChoice(choice.getKey(), choice.getKey());
             }
@@ -406,10 +407,10 @@ public final class GenericArguments {
 
         @Override
         public Object parseSlash(CommandContext ctx, CommandInteraction interaction) throws ArgumentParseException {
-            var option = interaction.getOption(getKey());
-            if (option == null) throw new NoSuchElementException(getKey());
+            var option = interaction.getOption(getName());
+            if (option == null) throw new NoSuchElementException(getName());
             var value = choices.get(option.getAsString());
-            if (value == null) throw new ArgumentParseException("Аргумент %s не распознан".formatted(getKey()));
+            if (value == null) throw new ArgumentParseException("Аргумент %s не распознан".formatted(getName()));
             return value;
         }
 
@@ -447,21 +448,21 @@ public final class GenericArguments {
 
         @Override
         public OptionData getOptionData() {
-            return new OptionData(OptionType.STRING, getKey(), getDescription());
+            return new OptionData(OptionType.STRING, getName(), getDescription());
         }
 
         @Override
         public Object parseSlash(CommandContext ctx, CommandInteraction interaction) throws ArgumentParseException {
-            var value = interaction.getOptionsByName(getKey())
+            var value = interaction.getOptionsByName(getName())
                     .stream().map(OptionMapping::getAsString).collect(Collectors.joining(" "));
             if (value.length() > maxLength)
-                throw new ArgumentParseException("Превышена максимальная длина %d символов у аргумента %s".formatted(maxLength, getKey()));
+                throw new ArgumentParseException("Превышена максимальная длина %d символов у аргумента %s".formatted(maxLength, getName()));
             return value;
         }
 
         @Override
         public String getRawUsage() {
-            return getKey();
+            return getName();
         }
     }
 
@@ -481,12 +482,12 @@ public final class GenericArguments {
         }
 
         @Override
-        public String getKey() {
-            return element.getKey();
+        public @NotNull String getName() {
+            return element.getName();
         }
 
         @Override
-        public String getDescription() {
+        public @NotNull String getDescription() {
             return element.getDescription();
         }
 
@@ -534,7 +535,7 @@ public final class GenericArguments {
             String arg = args.next().getValue();
             Matcher mentionMatcher = mentionPattern.matcher(arg);
             if (!mentionMatcher.find()) {
-                throw ArgumentParseException.withPointer("Аргумент " + getKey() + " не распознан", args);
+                throw ArgumentParseException.withPointer("Аргумент " + getName() + " не распознан", args);
             }
             return ctx.getJDA().getUserById(mentionMatcher.group(1));
         }
@@ -546,12 +547,12 @@ public final class GenericArguments {
 
         @Override
         public OptionData getOptionData() {
-            return new OptionData(OptionType.USER, getKey(), getDescription(), true);
+            return new OptionData(OptionType.USER, getName(), getDescription(), true);
         }
 
         @Override
         public Object parseSlash(CommandContext ctx, CommandInteraction interaction) {
-            var value = interaction.getOption(getKey());
+            var value = interaction.getOption(getName());
             if (value == null) throw new NoSuchElementException();
             return value.getAsUser();
         }
@@ -584,12 +585,12 @@ public final class GenericArguments {
         }
 
         @Override
-        public String getKey() {
-            return element.getKey();
+        public @NotNull String getName() {
+            return element.getName();
         }
 
         @Override
-        public String getDescription() {
+        public @NotNull String getDescription() {
             return element.getDescription();
         }
 
@@ -666,19 +667,19 @@ public final class GenericArguments {
 
         @Override
         public OptionData getOptionData() {
-            return new OptionData(OptionType.BOOLEAN, getKey(), getDescription(), false);
+            return new OptionData(OptionType.BOOLEAN, getName(), getDescription(), false);
         }
 
         @Override
         public Object parseSlash(CommandContext ctx, CommandInteraction interaction) {
-            var value = interaction.getOption(getKey());
+            var value = interaction.getOption(getName());
             if (value == null) return false;
             return value.getAsBoolean();
         }
 
         @Override
         public String getRawUsage() {
-            return "-" + (getKey().length() > 1 ? "-" : "") + getKey();
+            return "-" + (getName().length() > 1 ? "-" : "") + getName();
         }
     }
 
@@ -707,13 +708,13 @@ public final class GenericArguments {
 
         @Override
         public OptionData getOptionData() {
-            return new OptionData(OptionType.BOOLEAN, getKey(), getDescription(), true);
+            return new OptionData(OptionType.BOOLEAN, getName(), getDescription(), true);
         }
 
         @Override
         public Object parseSlash(CommandContext ctx, CommandInteraction interaction) {
-            var value = interaction.getOption(getKey());
-            if (value == null) throw new NoSuchElementException(getKey());
+            var value = interaction.getOption(getName());
+            if (value == null) throw new NoSuchElementException(getName());
             return value.getAsBoolean();
         }
 

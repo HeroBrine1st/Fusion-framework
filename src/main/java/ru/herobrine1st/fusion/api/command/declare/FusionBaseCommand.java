@@ -2,49 +2,23 @@ package ru.herobrine1st.fusion.api.command.declare;
 
 import net.dv8tion.jda.internal.utils.Checks;
 import ru.herobrine1st.fusion.api.command.CommandExecutor;
+import ru.herobrine1st.fusion.api.command.FusionOptionData;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
 import ru.herobrine1st.fusion.api.command.args.ParserElement;
 
 import javax.annotation.Nonnull;
 import java.util.*;
 
-public abstract class FusionBaseCommand<T extends FusionBaseCommand<T>> {
+public abstract class FusionBaseCommand<T extends FusionBaseCommand<T>> extends FusionOptionData {
     private CommandExecutor executor = null;
     private PermissionHandler permissionHandler = PermissionHandler.DEFAULT;
-    private String name, description, shortName;
+    private String shortName;
 
-    protected final List<Object> options = new ArrayList<>();
+    protected final List<FusionOptionData> options = new ArrayList<>();
 
     protected FusionBaseCommand(@Nonnull String name, @Nonnull String description) {
-        Checks.notEmpty(name, "Name");
-        Checks.notEmpty(description, "Description");
-        Checks.notLonger(name, 32, "Name");
-        Checks.notLonger(description, 100, "Description");
-        Checks.matches(name, Checks.ALPHANUMERIC_WITH_DASH, "Name");
-        Checks.isLowercase(name, "Name");
-        this.name = name;
-        this.description = description;
+        super(name, description);
         this.shortName = name.substring(0, 1).toUpperCase(Locale.ROOT) + name.substring(1).toLowerCase(Locale.ROOT);
-    }
-
-    @Nonnull
-    @SuppressWarnings("unchecked")
-    public T setName(@Nonnull String name) {
-        Checks.notEmpty(name, "Name");
-        Checks.notLonger(name, 32, "Name");
-        Checks.isLowercase(name, "Name");
-        Checks.matches(name, Checks.ALPHANUMERIC_WITH_DASH, "Name");
-        this.name = name;
-        return (T) this;
-    }
-
-    @Nonnull
-    @SuppressWarnings("unchecked")
-    public T setDescription(@Nonnull String description) {
-        Checks.notEmpty(description, "Description");
-        Checks.notLonger(description, 100, "Description");
-        this.description = description;
-        return (T) this;
     }
 
 
@@ -59,7 +33,7 @@ public abstract class FusionBaseCommand<T extends FusionBaseCommand<T>> {
     }
 
     @Nonnull
-    public List<Object> getOptions() {
+    public List<FusionOptionData> getOptions() {
         return options;
     }
 
