@@ -64,7 +64,7 @@ public class CommandArgsImpl implements CommandArgs {
         keys.computeIfAbsent(key, it -> new CommandArgsImpl(Objects.requireNonNullElse(value, "true"), false));
     }
 
-    public Optional<CommandArgsImpl> getKey(String key) {
+    public Optional<CommandArgs> getKey(String key) {
         return Optional.ofNullable(keys.get(key));
     }
 

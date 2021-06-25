@@ -30,11 +30,11 @@ public class SlashCommandHandler extends ListenerAdapter {
 
     @Override
     public void onSlashCommand(@NotNull SlashCommandEvent event) { // TODO CONCEPT; что-то с optional сделать, явно не все его возможности используются
-        InteractionHook hook = event.getHook().setEphemeral(true);
-        String groupName = event.getSubcommandGroup();
-        String subcommandName = event.getSubcommandName();
-        String commandName = event.getName();
-        List<PermissionHandler> permissionHandlers = new ArrayList<>();
+        final InteractionHook hook = event.getHook().setEphemeral(true);
+        final String groupName = event.getSubcommandGroup();
+        final String subcommandName = event.getSubcommandName();
+        final String commandName = event.getName();
+        final List<PermissionHandler> permissionHandlers = new ArrayList<>();
         var command = CommandManagerImpl.INSTANCE.commands.stream()
                 .filter(it -> it.getName().equals(commandName))
                 .limit(1)
@@ -102,6 +102,7 @@ public class SlashCommandHandler extends ListenerAdapter {
 
     @Override
     public void onButtonClick(@NotNull ButtonClickEvent event) {
+        // TODO отмена через 5 минут
         if (!interactionCache.containsKey(event.getMessageIdLong())) {
             event.reply("Данное сообщение больше не принимает взаимодействий.").setEphemeral(true).queue();
             return;

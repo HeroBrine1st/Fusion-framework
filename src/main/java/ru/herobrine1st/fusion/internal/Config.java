@@ -32,6 +32,7 @@ public class Config {
                     .filter(it -> it.getKey().startsWith(DISABLE_MODULE_PREFIX))
                     .filter(it -> Boolean.parseBoolean(it.getValue()))
                     .map(it -> it.getKey().substring(DISABLE_MODULE_PREFIX.length()))
+                    .map(String::toLowerCase)
                     .toList();
         }
         return disabledModules;

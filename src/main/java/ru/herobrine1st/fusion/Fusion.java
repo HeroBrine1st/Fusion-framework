@@ -69,23 +69,11 @@ public class Fusion {
         new Reflections(Config.INSTANCE.getModuleSearchPrefix())
                 .getTypesAnnotatedWith(FutureModule.class)
                 .stream()
-                .filter(it -> {
-                    var result = AbstractModule.class.isAssignableFrom(it);
-                    if(logger.isTraceEnabled() && !result) {
-                        logger.trace("Module %s is not subclass of AbstractModule".formatted(it.getAnnotation(FutureModule.class).id()));
-                    }
-                    return result;
-                })
-                .filter(it -> {
-                    var moduleId = it.getAnnotation(FutureModule.class).id();
-                    return disabledModules.stream().noneMatch(moduleId::equals);
-                })
+                .filter(AbstractModule.class::isAssignableFrom)
+                .filter(it -> !disabledModules.contains(it.getAnnotation(FutureModule.class).id().toLowerCase()))
                 .<Class<? extends AbstractModule>>map(it -> it.asSubclass(AbstractModule.class))
-                .forEach(it -> { // Потому что нельзя совместить map и filter
-                    if (logger.isTraceEnabled()) {
-                        var moduleId = it.getAnnotation(FutureModule.class).id();
-                        logger.trace("Loading module " + moduleId);
-                    }
+                .peek(it -> logger.trace("Loading module " + it.getAnnotation(FutureModule.class).id()))
+                .forEach(it -> {
                     try {
                         this.modules.add(it.getDeclaredConstructor().newInstance());
                     } catch (Exception e) {

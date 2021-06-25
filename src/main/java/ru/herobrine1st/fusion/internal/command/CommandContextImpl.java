@@ -96,7 +96,7 @@ public class CommandContextImpl implements CommandContext {
             logger.error("============================= STRANGE THING HAPPENED =============================");
             logger.error("Event is neither MessageReceivedEvent, nor SlashCommandEvent, nor ButtonClickEvent");
             logger.error("Exception with stacktrace will be shown below");
-            logger.error("============================================================");
+            logger.error("==================================================================================");
             throw new RuntimeException("Unexpected event");
         }
     }

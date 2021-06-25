@@ -15,14 +15,18 @@ public class TestModule extends AbstractModule {
     public void registerCommands(CommandManager commandManager) {
         var command = new FusionCommandData("fusiontest", "description")
                 .addArguments(GenericArguments.remainingJoinedStrings("string", "Пиши блять сюда текст"))
-                .setExecutor(ctx -> ctx.replyWaitingClick(
-                        ctx.getEmbedBase()
-                                .setDescription("Успешный тест! " + ctx.<String>getOne("string").orElse("Да хуй он там успешный блять"))
-                                .build(), ActionRow.of(Button.primary("Test", "Test button")))
-                        .flatMap(it -> ctx.reply(ctx.getEmbedBase()
-                                .setDescription(it.getComponentId())
-                                .build()))
-                        .queue(it -> {}, ctx::replyException)
+                .setExecutor(ctx ->
+                        ctx.replyWaitingClick(
+                                ctx.getEmbedBase()
+                                        .setDescription("Успешный тест! " + ctx.<String>getOne("string").orElse("Да хуй он там успешный блять"))
+                                        .build(),
+                                ActionRow.of(Button.primary("Test", "Test button 1"), Button.secondary("Test2", "Test button 2")),
+                                ActionRow.of(Button.success("Test3", "Test button 3"), Button.danger("test4", "Test button 4")))
+                                .flatMap(event -> ctx.reply(ctx.getEmbedBase()
+                                        .setDescription(event.getComponentId())
+                                        .build()))
+                                .queue(it -> {
+                                }, ctx::replyException)
                 );
         commandManager.addCommand(command);
 
