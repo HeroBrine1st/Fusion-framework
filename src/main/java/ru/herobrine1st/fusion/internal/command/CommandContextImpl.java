@@ -80,8 +80,7 @@ public class CommandContextImpl implements CommandContext {
     @Override
     @SuppressWarnings("unchecked")
     public <T> Collection<T> getAll(String key) {
-        List<Object> all = arguments.get(key);
-        return Objects.requireNonNullElse((List<T>) all, Collections.emptyList());
+        return (Collection<T>) arguments.getOrDefault(key, Collections.emptyList());
     }
 
     @Override
@@ -188,6 +187,7 @@ public class CommandContextImpl implements CommandContext {
 
     @Override
     public RestAction<Message> reply(Message message) {
+        if(!message.getActionRows().isEmpty()) buttonClickEventCompletableFuture = new CompletableFuture<>();
         return replyHandler.apply(message, this);
     }
 
@@ -198,7 +198,6 @@ public class CommandContextImpl implements CommandContext {
 
     @Override
     public RestAction<Message> reply(MessageEmbed embed, ActionRow... rows) {
-        buttonClickEventCompletableFuture = new CompletableFuture<>();
         return reply(new MessageBuilder()
                 .setEmbed(embed)
                 .setActionRows(rows)
@@ -212,6 +211,11 @@ public class CommandContextImpl implements CommandContext {
                 .setFooter(getFooter(0, 1));
         if (t instanceof CommandException) {
             embed.setDescription("Ошибка выполнения команды: " + t.getMessage());
+        } else if(t instanceof CancellationException) {
+            return;
+        } else if(t instanceof RuntimeException) {
+            logger.trace("Runtime exception occurred when executing command", t);
+            return;
         } else {
             embed.setDescription("Неизвестная ошибка. Дополнительные данные отправлены в журнал.");
             logger.error("Error executing command", t);
