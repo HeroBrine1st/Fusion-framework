@@ -1,12 +1,10 @@
 package ru.herobrine1st.fusion.internal.listener;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.RestAction;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
@@ -88,17 +86,19 @@ public class MessageCommandHandler extends ListenerAdapter {
             if (subcommandData.isEmpty()) return;
             targetCommand = subcommandData.get();
         }
-        if(!permissionHandlers.get(0).shouldBeFound(event.getGuild())) {
+        if (!permissionHandlers.get(0).shouldBeFound(event.getGuild())) {
             return;
         }
         BiFunction<Message, CommandContextImpl, RestAction<Message>> replyHandler = (message, ctx) ->
-                event.getMessage().reply(message).map(msg -> {
-                    if (!message.getActionRows().isEmpty()) {
-                        ButtonInteractionHandler.INSTANCE.open(msg.getIdLong(), ctx);
-                        logger.trace("Opening interaction listener to messageId=%s".formatted(msg.getIdLong()));
-                    }
-                    return msg;
-                });
+                event.getMessage().reply(message)
+                        .mentionRepliedUser(false)
+                        .map(msg -> {
+                            if (!message.getActionRows().isEmpty()) {
+                                ButtonInteractionHandler.INSTANCE.open(msg.getIdLong(), ctx);
+                                logger.trace("Opening interaction listener to messageId=%s".formatted(msg.getIdLong()));
+                            }
+                            return msg;
+                        });
         CommandContextImpl context = new CommandContextImpl(event, targetCommand, replyHandler);
         if (!permissionHandlers.stream().allMatch(it -> it.shouldBeExecuted(context))) {
             event.getChannel().sendMessage(new EmbedBuilder()
