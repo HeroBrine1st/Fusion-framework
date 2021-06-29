@@ -213,7 +213,7 @@ public final class GenericArguments {
 
         @Override
         public OptionData getOptionData() {
-            return new OptionData(OptionType.STRING, getName(), getDescription());
+            return new OptionData(OptionType.STRING, getName(), getDescription(), true);
         }
 
         @Override

@@ -10,6 +10,7 @@ import ru.herobrine1st.fusion.api.module.FutureModule;
 import ru.herobrine1st.fusion.api.module.AbstractModule;
 import ru.herobrine1st.fusion.internal.Config;
 import ru.herobrine1st.fusion.internal.command.SlashCommandBuilder;
+import ru.herobrine1st.fusion.internal.listener.ButtonInteractionHandler;
 import ru.herobrine1st.fusion.internal.listener.MessageCommandHandler;
 import ru.herobrine1st.fusion.internal.listener.SlashCommandHandler;
 import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
@@ -21,13 +22,13 @@ public class Fusion {
     private static final Logger logger = LoggerFactory.getLogger(Fusion.class);
     private final List<AbstractModule> modules = new ArrayList<>();
     private JDA jda;
-    private void main() throws InterruptedException {
 
+    private void main() throws InterruptedException {
         logger.info("Starting Fusion Discord bot");
         logger.info("Logging in...");
         try {
-            jda = JDABuilder.createLight(Config.INSTANCE.getToken(), EnumSet.noneOf(GatewayIntent.class))
-                    .addEventListeners(new MessageCommandHandler(), new SlashCommandHandler())
+            jda = JDABuilder.createLight(Config.INSTANCE.getToken(), GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_MESSAGES)
+                    .addEventListeners(new MessageCommandHandler(), new SlashCommandHandler(), ButtonInteractionHandler.INSTANCE)
                     .build();
         } catch (LoginException e) {
             logger.error("Invalid discord token");
@@ -39,7 +40,7 @@ public class Fusion {
         logger.info("Found %s modules".formatted(modules.size()));
         modules.forEach(it -> {
             try {
-                if(logger.isTraceEnabled()) {
+                if (logger.isTraceEnabled()) {
                     var moduleId = it.getClass().getAnnotation(FutureModule.class).id();
                     logger.trace("Initializing module " + moduleId);
                 }

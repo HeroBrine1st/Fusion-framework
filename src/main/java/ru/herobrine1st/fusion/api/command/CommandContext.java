@@ -28,9 +28,9 @@ public interface CommandContext {
 
     void putArg(String key, Object value);
 
-    <T> Optional<T> getOne(String key);
+    <T> Optional<T> getOne(String name);
 
-    <T> Collection<T> getAll(String key);
+    <T> Collection<T> getAll(String name);
 
     default boolean isExecutedAsSlashCommand() {
         return getEvent() instanceof SlashCommandEvent;
@@ -82,10 +82,11 @@ public interface CommandContext {
      * Use this on queue as second argument
      * <h2>Example:</h2>
      * <pre><code>
-     * ctx -> ctx.{@link #reply(MessageEmbed) reply}(ctx.{@link #getEmbedBase() getEmbedBase}()
-     *         .setDescription("Description)
-     *         .build(),
-     *     ActionRow.of(Button.primary("button", "Example button 1")))
+     * ctx -> ctx
+     *     .{@link #reply(MessageEmbed) reply}(ctx.{@link #getEmbedBase() getEmbedBase}()
+     *             .setDescription("Description)
+     *             .build(),
+     *         ActionRow.of(Button.primary("button", "Example button 1")))
      *     .flatMap(event -> { ... })
      *     // ..other calls, if any
      *     .queue(null, ctx::replyException)

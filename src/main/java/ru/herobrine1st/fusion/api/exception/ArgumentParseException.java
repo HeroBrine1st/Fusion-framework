@@ -13,7 +13,7 @@ public class ArgumentParseException extends CommandException {
         SingleArg current = args.current();
         return new ArgumentParseException(
                 String.format(
-                        "%s\n```%s\n%s%s```",
+                        "%s\n```\n%s\n%s%s```",
                         message,
                         args.getSource().replace("`", "\\`"),
                         " ".repeat(Math.max(0, current.getStart())),

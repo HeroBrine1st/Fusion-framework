@@ -23,6 +23,10 @@ public class Config {
         return prefix;
     }
 
+    public String getDiscordPrefix() {
+        return Objects.requireNonNullElse(System.getenv("DISCORD_PREFIX"), "/");
+    }
+
 
     private List<String> disabledModules = null;
 

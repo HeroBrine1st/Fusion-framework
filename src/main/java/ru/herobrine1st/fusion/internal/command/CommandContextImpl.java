@@ -68,8 +68,8 @@ public class CommandContextImpl implements CommandContext {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> getOne(String key) {
-        var list = arguments.get(key);
+    public <T> Optional<T> getOne(String name) {
+        var list = arguments.get(name);
         if (list != null && list.size() > 0) {
             Object argument = list.get(0);
             // Нет, это не костыль. Какой там будет тип компилятор не поймет, хотя на компилтайме можно понять.
@@ -81,8 +81,8 @@ public class CommandContextImpl implements CommandContext {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Collection<T> getAll(String key) {
-        return (Collection<T>) arguments.getOrDefault(key, Collections.emptyList());
+    public <T> Collection<T> getAll(String name) {
+        return (Collection<T>) arguments.getOrDefault(name, Collections.emptyList());
     }
 
     @Override

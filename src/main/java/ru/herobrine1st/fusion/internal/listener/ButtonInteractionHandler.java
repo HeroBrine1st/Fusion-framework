@@ -39,6 +39,6 @@ public class ButtonInteractionHandler extends ListenerAdapter {
         interactionCache.remove(event.getMessageIdLong());
         event.deferReply().queue();
         var hook = event.getHook();
-        context.applyButtonClickEvent(event, (message, ctx) -> hook.editOriginal(message));
+        context.applyButtonClickEvent(event, (message, ctx) -> hook.sendMessage(message));
     }
 }

@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 public class SlashCommandHandler extends ListenerAdapter {
     private final static Logger logger = LoggerFactory.getLogger(SlashCommandHandler.class);
 
-
     @Override
     public void onSlashCommand(@NotNull SlashCommandEvent event) {
         final InteractionHook hook = event.getHook().setEphemeral(true);
@@ -38,7 +37,8 @@ public class SlashCommandHandler extends ListenerAdapter {
                 .limit(1)
                 .peek(it -> permissionHandlers.add(it.getPermissionHandler()))
                 .findFirst();
-        if (commandDataOptional.isEmpty()) return;
+        if (commandDataOptional.isEmpty())
+            return;
         FusionBaseCommand<?> targetCommand = commandDataOptional.get();
         if (targetCommand.hasSubcommandGroups()) {
             if (groupName == null || subcommandName == null) return; // На невалидный запрос отвечаем невалидным ответом
@@ -65,8 +65,7 @@ public class SlashCommandHandler extends ListenerAdapter {
             if (subcommandData.isEmpty()) return;
             targetCommand = subcommandData.get();
         }
-        if (!targetCommand.hasExecutor()) {
-            logger.error("Command %s has no executor".formatted(targetCommand.getClass().getCanonicalName()));
+        if(!permissionHandlers.get(0).shouldBeFound(event.getGuild())) {
             return;
         }
         BiFunction<Message, CommandContextImpl, RestAction<Message>> replyHandler = (message, ctx) ->

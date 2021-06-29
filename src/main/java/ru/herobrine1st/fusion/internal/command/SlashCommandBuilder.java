@@ -52,7 +52,7 @@ public class SlashCommandBuilder {
     }
 
     public static boolean hasSlashSupport(FusionCommandData commandData) {
-        if(commandData.getPermissionHandler().allowedTypes().equals(PermissionHandler.Type.MESSAGE))
+        if(commandData.getPermissionHandler().commandType().equals(PermissionHandler.CommandType.MESSAGE))
             return false;
         if (commandData.hasExecutor())
             return commandData.getOptions().stream()
