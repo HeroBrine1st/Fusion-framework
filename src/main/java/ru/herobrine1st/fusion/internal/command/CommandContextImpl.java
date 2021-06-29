@@ -19,6 +19,7 @@ import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.exception.CommandException;
 
 import java.awt.*;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.CancellationException;
@@ -34,6 +35,7 @@ public class CommandContextImpl implements CommandContext {
     private Event event;
     private BiFunction<Message, CommandContextImpl, RestAction<Message>> replyHandler;
     private CompletableFuture<ButtonClickEvent> buttonClickEventCompletableFuture = null;
+    private long buttonClickEventWaitingStartTime = -1;
 
     public CommandContextImpl(Event event, FusionBaseCommand<?> command, BiFunction<Message, CommandContextImpl, RestAction<Message>> replyHandler) {
         this.event = event;
@@ -103,6 +105,10 @@ public class CommandContextImpl implements CommandContext {
     @Override
     public FusionBaseCommand<?> getCommand() {
         return command;
+    }
+
+    public long getButtonClickEventWaitingStartTime() {
+        return buttonClickEventWaitingStartTime;
     }
 
     enum Type {
@@ -187,7 +193,10 @@ public class CommandContextImpl implements CommandContext {
 
     @Override
     public RestAction<Message> reply(Message message) {
-        if(!message.getActionRows().isEmpty()) buttonClickEventCompletableFuture = new CompletableFuture<>();
+        if(!message.getActionRows().isEmpty()) {
+            buttonClickEventCompletableFuture = new CompletableFuture<>();
+            buttonClickEventWaitingStartTime = System.currentTimeMillis();
+        }
         return replyHandler.apply(message, this);
     }
 
