@@ -13,7 +13,7 @@ import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroupData;
 import java.util.Collection;
 import java.util.stream.Stream;
 
-public class SlashCommandBuilder {
+public final class SlashCommandBuilder {
     private SlashCommandBuilder() {
     }
 
@@ -52,7 +52,7 @@ public class SlashCommandBuilder {
     }
 
     public static boolean hasSlashSupport(FusionCommandData commandData) {
-        if(commandData.getPermissionHandler().commandType().equals(PermissionHandler.CommandType.MESSAGE))
+        if(!commandData.getPermissionHandler().commandType().slashExecutionPermitted())
             return false;
         if (commandData.hasExecutor())
             return commandData.getOptions().stream()

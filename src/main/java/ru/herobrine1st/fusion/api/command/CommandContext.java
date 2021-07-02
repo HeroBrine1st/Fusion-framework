@@ -83,7 +83,7 @@ public interface CommandContext {
      * <h2>Example:</h2>
      * <pre><code>
      * ctx -> ctx
-     *     .{@link #reply(MessageEmbed) reply}(ctx.{@link #getEmbedBase() getEmbedBase}()
+     *     .{@link #replyWaitingClick(MessageEmbed, ActionRow... rows) replyWaitingClick}(ctx.{@link #getEmbedBase() getEmbedBase}()
      *             .setDescription("Description)
      *             .build(),
      *         ActionRow.of(Button.primary("button", "Example button 1")))

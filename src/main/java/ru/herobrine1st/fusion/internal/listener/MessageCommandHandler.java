@@ -89,6 +89,9 @@ public class MessageCommandHandler extends ListenerAdapter {
         if (!permissionHandlers.get(0).shouldBeFound(event.getGuild())) {
             return;
         }
+        if (!permissionHandlers.get(0).commandType().classicExecutionPermitted()) {
+            return;
+        }
         BiFunction<Message, CommandContextImpl, RestAction<Message>> replyHandler = (message, ctx) ->
                 event.getMessage().reply(message)
                         .mentionRepliedUser(false)
@@ -116,7 +119,7 @@ public class MessageCommandHandler extends ListenerAdapter {
                 it.parse(args, context);
             } catch (ArgumentParseException e) {
                 event.getChannel().sendMessage(new EmbedBuilder()
-                        .setTitle("Ошибка разбора аргументов!")
+                        .setTitle("Ошибка распознавания аргументов!")
                         .setDescription(Objects.requireNonNullElse(e.getMessage(), "Неизвестная ошибка!"))
                         .setFooter(String.format("Запросил: %s\n", event.getAuthor().getAsTag()))
                         .setColor(CommandContextImpl.getEmbedColor(0, 1))

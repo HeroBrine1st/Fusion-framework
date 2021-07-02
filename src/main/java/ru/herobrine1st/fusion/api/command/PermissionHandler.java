@@ -8,7 +8,6 @@ public abstract class PermissionHandler {
     public static PermissionHandler DEFAULT = new Default();
 
     private static class Default extends PermissionHandler {
-
         @Override
         public boolean shouldBeFound(Guild guild) {
             return true;
@@ -71,14 +70,30 @@ public abstract class PermissionHandler {
         /**
          * All possible cases
          */
-        ALL
+        ALL;
+
+        /**
+         * Whether this CommandType tells that command can be executed as slash command
+         * @return true if and only if slash execution permitted
+         */
+        public boolean slashExecutionPermitted() {
+            return this != MESSAGE;
+        }
+
+        /**
+         * Whether this CommandType tells that command can be executed as classic command
+         * @return true if and only if classic execution permitted
+         */
+        public boolean classicExecutionPermitted() {
+            return this != SLASH;
+        }
     }
 
     /**
      * Called before context creation. Interrupts command handling with no detailed message if returned false.
      *
      * @param guild Guild which command called on. Null if called in DM
-     * @return Whether command handling should go on or not
+     * @return true if command handling should go on, otherwise false
      */
     public abstract boolean shouldBeFound(@Nullable Guild guild);
 
@@ -86,12 +101,12 @@ public abstract class PermissionHandler {
      * Called before execution. Interrupts command handling with detailed {@link #requirements(CommandContext) message} if returned false.
      *
      * @param ctx Execution context
-     * @return Whether command should be executed or not
+     * @return true if command should be executed, otherwise false
      */
     public abstract boolean shouldBeExecuted(CommandContext ctx);
 
     /**
-     * Requirements message, for example list of discord permissions.
+     * Requirements message, for example a list of discord permissions.
      *
      * @param ctx Execution context
      * @return Requirements message
