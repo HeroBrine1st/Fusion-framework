@@ -1,4 +1,4 @@
-package ru.herobrine1st.fusion.internal.command;
+package ru.herobrine1st.fusion.internal.command.context;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.CommandContext;
 import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.exception.CommandException;
+import ru.herobrine1st.fusion.internal.listener.ButtonInteractionHandler;
 
 import java.awt.*;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.CancellationException;
@@ -27,20 +27,18 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiFunction;
 
-public class CommandContextImpl implements CommandContext {
-    private static final Logger logger = LoggerFactory.getLogger(CommandContextImpl.class);
+public abstract class AbstractCommandContextImpl implements CommandContext {
+    private static final Logger logger = LoggerFactory.getLogger(AbstractCommandContextImpl.class);
 
     private final Map<String, List<Object>> arguments = new HashMap<>();
     private final FusionBaseCommand<?> command;
-    private Event event;
-    private BiFunction<Message, CommandContextImpl, RestAction<Message>> replyHandler;
+    protected Event event;
     private CompletableFuture<ButtonClickEvent> buttonClickEventCompletableFuture = null;
     private long buttonClickEventWaitingStartTime = -1;
 
-    public CommandContextImpl(Event event, FusionBaseCommand<?> command, BiFunction<Message, CommandContextImpl, RestAction<Message>> replyHandler) {
+    public AbstractCommandContextImpl(Event event, FusionBaseCommand<?> command) {
         this.event = event;
         this.command = command;
-        this.replyHandler = replyHandler;
     }
 
     @Nullable
@@ -183,13 +181,14 @@ public class CommandContextImpl implements CommandContext {
         }
     }
 
-    public void applyButtonClickEvent(ButtonClickEvent event, BiFunction<Message, CommandContextImpl, RestAction<Message>> replyHandler) {
+    public void applyButtonClickEvent(ButtonClickEvent event, BiFunction<Message, AbstractCommandContextImpl, RestAction<Message>> replyHandler) {
         Objects.requireNonNull(buttonClickEventCompletableFuture, "No buttons in this context");
         if (buttonClickEventCompletableFuture.isDone()) return;
-        this.replyHandler = replyHandler;
         this.event = event;
         buttonClickEventCompletableFuture.complete(event);
     }
+
+    abstract RestAction<Message> handleReply(Message message);
 
     @Override
     public RestAction<Message> reply(Message message) {
@@ -197,7 +196,13 @@ public class CommandContextImpl implements CommandContext {
             buttonClickEventCompletableFuture = new CompletableFuture<>();
             buttonClickEventWaitingStartTime = System.currentTimeMillis();
         }
-        return replyHandler.apply(message, this);
+        return handleReply(message).map(msg -> {
+            if (!message.getActionRows().isEmpty()) {
+                ButtonInteractionHandler.INSTANCE.open(msg.getIdLong(), this);
+                logger.trace("Opening interaction listener to messageId=%s".formatted(msg.getIdLong()));
+            }
+            return msg;
+        });
     }
 
     @Override

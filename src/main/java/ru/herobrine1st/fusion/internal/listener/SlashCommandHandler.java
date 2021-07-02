@@ -14,7 +14,8 @@ import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.command.build.FusionSubcommandData;
 import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroupData;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
-import ru.herobrine1st.fusion.internal.command.CommandContextImpl;
+import ru.herobrine1st.fusion.internal.command.context.AbstractCommandContextImpl;
+import ru.herobrine1st.fusion.internal.command.context.SlashCommandContext;
 import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 
 import java.util.ArrayList;
@@ -68,15 +69,7 @@ public class SlashCommandHandler extends ListenerAdapter {
         if(!permissionHandlers.get(0).shouldBeFound(event.getGuild())) {
             return;
         }
-        BiFunction<Message, CommandContextImpl, RestAction<Message>> replyHandler = (message, ctx) ->
-                hook.sendMessage(message).map(msg -> {
-                    if (!message.getActionRows().isEmpty()) {
-                        ButtonInteractionHandler.INSTANCE.open(msg.getIdLong(), ctx);
-                        logger.trace("Opening interaction listener to messageId=%s".formatted(msg.getIdLong()));
-                    }
-                    return msg;
-                });
-        CommandContextImpl context = new CommandContextImpl(event, targetCommand, replyHandler);
+        AbstractCommandContextImpl context = new SlashCommandContext(event, targetCommand);
         if (!permissionHandlers.stream().allMatch(it -> it.shouldBeExecuted(context))) {
             event.reply("Нет прав! Требования:\n" + permissionHandlers.stream()
                     .map(it -> it.requirements(context))

@@ -3,19 +3,19 @@ package ru.herobrine1st.fusion.internal.listener;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-import ru.herobrine1st.fusion.internal.command.CommandContextImpl;
+import ru.herobrine1st.fusion.internal.command.context.AbstractCommandContextImpl;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ButtonInteractionHandler extends ListenerAdapter {
     public final static ButtonInteractionHandler INSTANCE = new ButtonInteractionHandler();
-    private final Map<Long, CommandContextImpl> interactionCache = new HashMap<>();
+    private final Map<Long, AbstractCommandContextImpl> interactionCache = new HashMap<>();
 
     private ButtonInteractionHandler() {
     }
 
-    public void open(long messageId, CommandContextImpl ctx) { // Ну тип открыть для прослушивания
+    public void open(long messageId, AbstractCommandContextImpl ctx) { // Ну тип открыть для прослушивания
         interactionCache.put(messageId, ctx);
     }
 
