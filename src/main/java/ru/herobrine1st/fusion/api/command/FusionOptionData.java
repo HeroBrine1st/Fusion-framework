@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
+// TODO sealed
 public abstract class FusionOptionData {
     protected String name, description;
 

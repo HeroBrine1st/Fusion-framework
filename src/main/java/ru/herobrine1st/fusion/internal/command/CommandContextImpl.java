@@ -1,4 +1,4 @@
-package ru.herobrine1st.fusion.internal.command.context;
+package ru.herobrine1st.fusion.internal.command;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -27,8 +27,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiFunction;
 
-public abstract class AbstractCommandContextImpl implements CommandContext {
-    private static final Logger logger = LoggerFactory.getLogger(AbstractCommandContextImpl.class);
+public class CommandContextImpl implements CommandContext {
+    private static final Logger logger = LoggerFactory.getLogger(CommandContextImpl.class);
 
     private final Map<String, List<Object>> arguments = new HashMap<>();
     private final FusionBaseCommand<?> command;
@@ -36,7 +36,7 @@ public abstract class AbstractCommandContextImpl implements CommandContext {
     private CompletableFuture<ButtonClickEvent> buttonClickEventCompletableFuture = null;
     private long buttonClickEventWaitingStartTime = -1;
 
-    public AbstractCommandContextImpl(Event event, FusionBaseCommand<?> command) {
+    public CommandContextImpl(Event event, FusionBaseCommand<?> command) {
         this.event = event;
         this.command = command;
     }
@@ -91,13 +91,8 @@ public abstract class AbstractCommandContextImpl implements CommandContext {
             return slashCommandEvent.getUser();
         } else if (this.getEvent() instanceof ButtonClickEvent buttonClickEvent) {
             return buttonClickEvent.getUser();
-        } else {
-            logger.error("============================= STRANGE THING HAPPENED =============================");
-            logger.error("Event is neither MessageReceivedEvent, nor SlashCommandEvent, nor ButtonClickEvent");
-            logger.error("Exception with stacktrace will be shown below");
-            logger.error("==================================================================================");
-            throw new RuntimeException("Unexpected event");
         }
+        throw new RuntimeException("Unexpected event");
     }
 
     @Override
@@ -181,14 +176,24 @@ public abstract class AbstractCommandContextImpl implements CommandContext {
         }
     }
 
-    public void applyButtonClickEvent(ButtonClickEvent event, BiFunction<Message, AbstractCommandContextImpl, RestAction<Message>> replyHandler) {
+    public void applyButtonClickEvent(ButtonClickEvent event, BiFunction<Message, CommandContextImpl, RestAction<Message>> replyHandler) {
         Objects.requireNonNull(buttonClickEventCompletableFuture, "No buttons in this context");
         if (buttonClickEventCompletableFuture.isDone()) return;
         this.event = event;
         buttonClickEventCompletableFuture.complete(event);
     }
 
-    abstract RestAction<Message> handleReply(Message message);
+    private RestAction<Message> handleReply(Message message) {
+        if(event instanceof MessageReceivedEvent messageReceivedEvent) {
+            return messageReceivedEvent.getMessage().reply(message)
+                    .mentionRepliedUser(false);
+        }else if(event instanceof SlashCommandEvent slashCommandEvent) {
+            return slashCommandEvent.getHook().sendMessage(message);
+        }else if(event instanceof ButtonClickEvent buttonClickEvent) {
+            return buttonClickEvent.getHook().sendMessage(message);
+        }
+        throw new RuntimeException("Unexpected event");
+    }
 
     @Override
     public RestAction<Message> reply(Message message) {
@@ -196,7 +201,8 @@ public abstract class AbstractCommandContextImpl implements CommandContext {
             buttonClickEventCompletableFuture = new CompletableFuture<>();
             buttonClickEventWaitingStartTime = System.currentTimeMillis();
         }
-        return handleReply(message).map(msg -> {
+        return handleReply(message)
+                .map(msg -> {
             if (!message.getActionRows().isEmpty()) {
                 ButtonInteractionHandler.INSTANCE.open(msg.getIdLong(), this);
                 logger.trace("Opening interaction listener to messageId=%s".formatted(msg.getIdLong()));

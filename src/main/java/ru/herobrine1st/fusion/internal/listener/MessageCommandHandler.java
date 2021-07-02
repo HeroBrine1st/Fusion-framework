@@ -1,10 +1,8 @@
 package ru.herobrine1st.fusion.internal.listener;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.requests.RestAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
@@ -14,16 +12,14 @@ import ru.herobrine1st.fusion.api.command.build.FusionSubcommandData;
 import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroupData;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
 import ru.herobrine1st.fusion.internal.Config;
-import ru.herobrine1st.fusion.internal.command.context.AbstractCommandContextImpl;
+import ru.herobrine1st.fusion.internal.command.CommandContextImpl;
 import ru.herobrine1st.fusion.internal.command.args.CommandArgsImpl;
-import ru.herobrine1st.fusion.internal.command.context.MessageCommandContext;
 import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 public class MessageCommandHandler extends ListenerAdapter {
@@ -93,7 +89,7 @@ public class MessageCommandHandler extends ListenerAdapter {
         if (!permissionHandlers.get(0).commandType().classicExecutionPermitted()) {
             return;
         }
-        AbstractCommandContextImpl context = new MessageCommandContext(event, targetCommand);
+        CommandContextImpl context = new CommandContextImpl(event, targetCommand);
         if (!permissionHandlers.stream().allMatch(it -> it.shouldBeExecuted(context))) {
             event.getChannel().sendMessage(new EmbedBuilder()
                     .setTitle("Нет прав!")
@@ -101,7 +97,7 @@ public class MessageCommandHandler extends ListenerAdapter {
                             .map(it -> it.requirements(context))
                             .collect(Collectors.joining("\n")))
                     .setFooter(String.format("Запросил: %s\n", event.getAuthor().getAsTag()))
-                    .setColor(AbstractCommandContextImpl.getEmbedColor(0, 1))
+                    .setColor(CommandContextImpl.getEmbedColor(0, 1))
                     .build()).queue();
             return;
         }
@@ -113,7 +109,7 @@ public class MessageCommandHandler extends ListenerAdapter {
                         .setTitle("Ошибка распознавания аргументов!")
                         .setDescription(Objects.requireNonNullElse(e.getMessage(), "Неизвестная ошибка!"))
                         .setFooter(String.format("Запросил: %s\n", event.getAuthor().getAsTag()))
-                        .setColor(AbstractCommandContextImpl.getEmbedColor(0, 1))
+                        .setColor(CommandContextImpl.getEmbedColor(0, 1))
                         .build()).queue();
                 return;
             }
