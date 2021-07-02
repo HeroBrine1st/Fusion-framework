@@ -176,7 +176,7 @@ public class CommandContextImpl implements CommandContext {
         }
     }
 
-    public void applyButtonClickEvent(ButtonClickEvent event, BiFunction<Message, CommandContextImpl, RestAction<Message>> replyHandler) {
+    public void applyButtonClickEvent(ButtonClickEvent event) {
         Objects.requireNonNull(buttonClickEventCompletableFuture, "No buttons in this context");
         if (buttonClickEventCompletableFuture.isDone()) return;
         this.event = event;
