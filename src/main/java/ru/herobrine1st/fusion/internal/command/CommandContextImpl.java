@@ -176,7 +176,7 @@ public class CommandContextImpl implements CommandContext {
         }
     }
 
-    public void applyButtonClickEvent(ButtonClickEvent event) {
+    public void applyButtonClickEvent(ButtonClickEvent event) { // Да, контекст мутабельный
         Objects.requireNonNull(buttonClickEventCompletableFuture, "No buttons in this context");
         if (buttonClickEventCompletableFuture.isDone()) return;
         this.event = event;
@@ -184,12 +184,12 @@ public class CommandContextImpl implements CommandContext {
     }
 
     private RestAction<Message> handleReply(Message message) {
-        if(event instanceof MessageReceivedEvent messageReceivedEvent) {
+        if (event instanceof MessageReceivedEvent messageReceivedEvent) {
             return messageReceivedEvent.getMessage().reply(message)
                     .mentionRepliedUser(false);
-        }else if(event instanceof SlashCommandEvent slashCommandEvent) {
+        } else if (event instanceof SlashCommandEvent slashCommandEvent) {
             return slashCommandEvent.getHook().sendMessage(message);
-        }else if(event instanceof ButtonClickEvent buttonClickEvent) {
+        } else if (event instanceof ButtonClickEvent buttonClickEvent) {
             return buttonClickEvent.getHook().sendMessage(message);
         }
         throw new RuntimeException("Unexpected event");
@@ -197,12 +197,11 @@ public class CommandContextImpl implements CommandContext {
 
     @Override
     public RestAction<Message> reply(Message message) {
-        if(!message.getActionRows().isEmpty()) {
+        if (!message.getActionRows().isEmpty()) {
             buttonClickEventCompletableFuture = new CompletableFuture<>();
             buttonClickEventWaitingStartTime = System.currentTimeMillis();
         }
-        return handleReply(message)
-                .map(msg -> {
+        return handleReply(message).map(msg -> {
             if (!message.getActionRows().isEmpty()) {
                 ButtonInteractionHandler.INSTANCE.open(msg.getIdLong(), this);
                 logger.trace("Opening interaction listener to messageId=%s".formatted(msg.getIdLong()));
@@ -231,9 +230,9 @@ public class CommandContextImpl implements CommandContext {
                 .setFooter(getFooter(0, 1));
         if (t instanceof CommandException) {
             embed.setDescription("Ошибка выполнения команды: " + t.getMessage());
-        } else if(t instanceof CancellationException) {
+        } else if (t instanceof CancellationException) {
             return;
-        } else if(t instanceof RuntimeException) {
+        } else if (t instanceof RuntimeException) {
             logger.trace("Runtime exception occurred when executing command", t);
             return;
         } else {
