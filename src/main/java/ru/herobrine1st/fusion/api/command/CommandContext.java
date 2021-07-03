@@ -21,12 +21,12 @@ import java.util.function.Function;
 
 /**
  * A class representing context of command execution.<br>
- * This is used to get various information of execution and replying no matter what event triggered execution.<br>
+ * This is used to get various  execution details and reply independent of event that triggered the execution.<br>
  * <br>
- * Methods that return an instance of {@link RestAction} (for example, {@link #reply(Message)}) require an additional step to complete the execution.
+ * Methods that return an instance of {@link RestAction} (such as {@link #reply(Message)}) require an additional step to complete the execution.
  * Learn more {@link RestAction here}<br>
  * <br>
- * <h2>Example of simple Hello, user! command:</h2>
+ * <h2>Example of a simple Hello, user! command:</h2>
  * <pre><code>
  *     class HelloUserCommand implements {@link CommandExecutor} {
  *         public void execute(CommandContext ctx) throws {@link CommandException} {
@@ -40,7 +40,7 @@ public interface CommandContext {
     /**
      * Message that triggered this command execution. Empty if no message available (Slash interaction and, possibly, button interaction)
      *
-     * @return Optional container with Message object
+     * @return {@link Optional}<{@link Message}> container with {@link Message} object
      */
     Optional<Message> getMessage();
 
