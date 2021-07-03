@@ -40,7 +40,7 @@ public final class GenericArguments {
     }
 
     /**
-     * @param name            ключ, которым результат будет отображаться в контексте
+     * @param name           ключ, которым результат будет отображаться в контексте
      * @param description    Описание аргумента
      * @param breakOnNewLine если true, прекращает сборку строки при достижении \n (при этом \n будет добавлен в строку)
      * @see GenericArguments#remainingJoinedStrings(java.lang.String, java.lang.String)

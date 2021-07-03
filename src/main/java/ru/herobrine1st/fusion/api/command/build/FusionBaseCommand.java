@@ -9,6 +9,7 @@ import ru.herobrine1st.fusion.api.command.args.ParserElement;
 import javax.annotation.Nonnull;
 import java.util.*;
 
+// TODO sealed
 public abstract class FusionBaseCommand<T extends FusionBaseCommand<T>> extends FusionOptionData {
     private CommandExecutor executor = null;
     private PermissionHandler permissionHandler = PermissionHandler.DEFAULT;
@@ -19,17 +20,6 @@ public abstract class FusionBaseCommand<T extends FusionBaseCommand<T>> extends 
     protected FusionBaseCommand(@Nonnull String name, @Nonnull String description) {
         super(name, description);
         this.shortName = name.substring(0, 1).toUpperCase(Locale.ROOT) + name.substring(1).toLowerCase(Locale.ROOT);
-    }
-
-
-    @Nonnull
-    public String getName() {
-        return name;
-    }
-
-    @Nonnull
-    public String getDescription() {
-        return description;
     }
 
     @Nonnull
@@ -49,6 +39,7 @@ public abstract class FusionBaseCommand<T extends FusionBaseCommand<T>> extends 
         return permissionHandler;
     }
 
+    @Nonnull
     public CommandExecutor getExecutor() {
         return executor;
     }
@@ -66,6 +57,10 @@ public abstract class FusionBaseCommand<T extends FusionBaseCommand<T>> extends 
         Checks.noneNull(elements, "Argument");
         Checks.check(elements.length + this.options.size() <= 25, "Cannot have more than 25 options for a command!");
         this.options.addAll(Arrays.asList(elements));
+        if(options.stream().map(ParserElement.class::cast).allMatch(ParserElement::hasSlashSupport)) {
+            Checks.check(options.stream().map(ParserElement.class::cast).dropWhile(it -> it.getOptionData().isRequired()).anyMatch(it -> it.getOptionData().isRequired()),
+                    "You should add non-required arguments after required ones");
+        }
         return (T) this;
     }
 

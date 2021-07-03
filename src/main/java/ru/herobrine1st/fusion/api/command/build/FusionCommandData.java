@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.CommandExecutor;
 import ru.herobrine1st.fusion.api.command.args.ParserElement;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class FusionCommandData extends FusionBaseCommand<FusionCommandData> {
