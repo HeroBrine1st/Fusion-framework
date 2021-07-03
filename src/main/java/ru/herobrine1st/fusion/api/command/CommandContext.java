@@ -48,6 +48,10 @@ public interface CommandContext {
 
     Color getColor(int successCount, int totalCount);
 
+    default Color getErrorColor() {
+        return getColor(0, 1);
+    }
+
     default String getFooter(int successCount, int totalCount) {
         return getFooter(successCount, totalCount, "");
     }
