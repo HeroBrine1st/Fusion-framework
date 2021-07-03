@@ -35,7 +35,7 @@ import java.util.function.Function;
  *         }
  *     }
  * </code></pre>
- * All methods in this class return nonnull values unless annotated with @{@link javax.annotation.Nullable Nullable}!<br>
+ * All methods in this class return nonnull values unless annotated with @{@link javax.annotation.Nullable Nullable}<br>
  */
 public interface CommandContext {
     /**
