@@ -57,8 +57,12 @@ public abstract class FusionBaseCommand<T extends FusionBaseCommand<T>> extends 
         Checks.noneNull(elements, "Argument");
         Checks.check(elements.length + this.options.size() <= 25, "Cannot have more than 25 options for a command!");
         this.options.addAll(Arrays.asList(elements));
-        if(options.stream().map(ParserElement.class::cast).allMatch(ParserElement::hasSlashSupport)) {
-            Checks.check(options.stream().map(ParserElement.class::cast).dropWhile(it -> it.getOptionData().isRequired()).anyMatch(it -> it.getOptionData().isRequired()),
+        if (options.stream().map(ParserElement.class::cast).allMatch(ParserElement::hasSlashSupport)) {
+            Checks.check(
+                    options.stream()
+                            .map(ParserElement.class::cast)
+                            .dropWhile(it -> it.getOptionData().isRequired())
+                            .noneMatch(it -> it.getOptionData().isRequired()),
                     "You should add non-required arguments after required ones");
         }
         return (T) this;
