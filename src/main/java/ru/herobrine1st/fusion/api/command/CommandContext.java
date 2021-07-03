@@ -90,8 +90,8 @@ public interface CommandContext {
     <T> Collection<T> getAll(String name);
 
     /**
-     * Whether this execution is triggered by slash interation or not.<br>
-     * This method is a shortcut for {@code {@link #getEvent() getEvent}() instanceof {@link SlashCommandEvent}}
+     * Whether this execution is triggered by slash interaction or not.<br>
+     * This method is a shortcut for {@code getEvent() instanceof SlashCommandEvent}
      *
      * @return true if triggered by a slash interaction
      */
