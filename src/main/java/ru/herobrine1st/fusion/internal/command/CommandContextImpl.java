@@ -183,6 +183,10 @@ public class CommandContextImpl implements CommandContext {
         buttonClickEventCompletableFuture.complete(event);
     }
 
+    public void cancelButtonClickWaiting() {
+        buttonClickEventCompletableFuture.cancel(true);
+    }
+
     private RestAction<Message> handleReply(Message message) {
         if (event instanceof MessageReceivedEvent messageReceivedEvent) {
             return messageReceivedEvent.getMessage().reply(message)
@@ -233,8 +237,8 @@ public class CommandContextImpl implements CommandContext {
         } else if (t instanceof CancellationException) {
             return;
         } else if (t instanceof RuntimeException) {
-            logger.trace("Runtime exception occurred when executing command", t);
-            return;
+            embed.setDescription("Неизвестная ошибка. Дополнительные данные отправлены в журнал.");
+            logger.error("Runtime exception occurred when executing command", t);
         } else {
             embed.setDescription("Неизвестная ошибка. Дополнительные данные отправлены в журнал.");
             logger.error("Error executing command", t);
