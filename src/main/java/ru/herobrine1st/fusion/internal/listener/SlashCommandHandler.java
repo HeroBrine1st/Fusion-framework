@@ -62,7 +62,7 @@ public class SlashCommandHandler extends ListenerAdapter {
             if (subcommandData.isEmpty()) return;
             targetCommand = subcommandData.get();
         }
-        if(!permissionHandlers.get(0).shouldBeFound(event.getGuild())) {
+        if(permissionHandlers.get(0).shouldNotBeFound(event.getGuild())) {
             return;
         }
         CommandContextImpl context = new CommandContextImpl(event, targetCommand);

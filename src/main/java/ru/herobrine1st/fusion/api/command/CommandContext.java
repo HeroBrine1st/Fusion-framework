@@ -15,7 +15,6 @@ import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
 import java.awt.*;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.concurrent.CancellationException;
 
 public interface CommandContext {
     Optional<Message> getMessage();
@@ -70,7 +69,8 @@ public interface CommandContext {
 
     String getFooter(int successCount, int totalCount, String textInFooter);
 
-    ButtonClickEvent waitForButtonClick() throws CancellationException;
+    // ButtonClickEvent waitForButtonClick();
+    RestAction<ButtonClickEvent> waitForButtonClick();
 
     RestAction<Message> reply(Message message);
 
@@ -79,7 +79,7 @@ public interface CommandContext {
     RestAction<Message> reply(MessageEmbed embed, ActionRow... rows);
 
     default RestAction<ButtonClickEvent> replyWaitingClick(MessageEmbed embed, ActionRow... rows) {
-        return reply(embed, rows).map(it -> waitForButtonClick());
+        return reply(embed, rows).flatMap(it -> waitForButtonClick());
     }
 
     /**

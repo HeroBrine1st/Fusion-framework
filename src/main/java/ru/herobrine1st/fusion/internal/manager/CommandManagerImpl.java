@@ -29,11 +29,9 @@ public class CommandManagerImpl implements CommandManager {
     }
 
     public static String usage(FusionSubcommandGroupData subcommandGroupData) {
-        return "%s %s".formatted(
-                subcommandGroupData.getName(),
-                subcommandGroupData.getSubcommandData().stream()
-                        .map(FusionOptionData::getName)
-                        .collect(Collectors.joining("|", "<", ">")));
+        return subcommandGroupData.getSubcommandData().stream()
+                .map(FusionOptionData::getName)
+                .collect(Collectors.joining("|", "<", ">"));
     }
 
     private CommandManagerImpl() {

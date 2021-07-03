@@ -17,7 +17,7 @@ import static net.dv8tion.jda.api.utils.TimeUtil.TIMESTAMP_OFFSET;
 
 public class ButtonInteractionHandler extends ListenerAdapter {
     private final static Logger logger = LoggerFactory.getLogger(ButtonInteractionHandler.class);
-    private final static long TTL = 30000; //15 * 60 * 1000;
+    private final static long TTL = 15 * 60 * 1000;
     private final static Map<Long, CommandContextImpl> interactionCache = new HashMap<>();
 
     static {
@@ -25,11 +25,11 @@ public class ButtonInteractionHandler extends ListenerAdapter {
                         .removeIf(it -> {
                             if (System.currentTimeMillis() - (it.getKey() >>> TIMESTAMP_OFFSET) - DISCORD_EPOCH >= TTL) {
                                 it.getValue().cancelButtonClickWaiting();
-                                logger.debug("Clearing %s interaction cache due to timeout".formatted(it.getKey()));
+                                logger.trace("Clearing %s interaction cache due to timeout".formatted(it.getKey()));
                                 return true;
                             } else return false;
                         }),
-                1, 1, TimeUnit.HOURS);
+                15, 15, TimeUnit.MINUTES);
     }
 
     public static void open(long messageId, CommandContextImpl ctx) { // Ну тип открыть для прослушивания
@@ -43,6 +43,7 @@ public class ButtonInteractionHandler extends ListenerAdapter {
             event.reply("Данное сообщение больше не принимает взаимодействий.").setEphemeral(true).queue();
             CommandContextImpl ctx = interactionCache.remove(event.getMessageIdLong());
             if (ctx != null) ctx.cancelButtonClickWaiting();
+            logger.trace("Cancelled ButtonClickEvent due to timeout");
             return;
         }
         var context = interactionCache.get(event.getMessageIdLong());

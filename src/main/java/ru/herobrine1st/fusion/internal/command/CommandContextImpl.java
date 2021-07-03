@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.CommandContext;
 import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.exception.CommandException;
+import ru.herobrine1st.fusion.api.restaction.CompletableFutureRestAction;
 import ru.herobrine1st.fusion.internal.listener.ButtonInteractionHandler;
 
 import java.awt.*;
@@ -24,7 +25,6 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 public class CommandContextImpl implements CommandContext {
     private static final Logger logger = LoggerFactory.getLogger(CommandContextImpl.class);
@@ -33,7 +33,6 @@ public class CommandContextImpl implements CommandContext {
     private final FusionBaseCommand<?> command;
     protected Event event;
     private CompletableFuture<ButtonClickEvent> buttonClickEventCompletableFuture = null;
-    private long buttonClickEventWaitingStartTime = -1;
 
     public CommandContextImpl(Event event, FusionBaseCommand<?> command) {
         this.event = event;
@@ -99,10 +98,6 @@ public class CommandContextImpl implements CommandContext {
         return command;
     }
 
-    public long getButtonClickEventWaitingStartTime() {
-        return buttonClickEventWaitingStartTime;
-    }
-
     enum Type {
         SUCCESS,
         ERROR,
@@ -164,15 +159,9 @@ public class CommandContextImpl implements CommandContext {
         return text;
     }
 
-    @Override
-    public ButtonClickEvent waitForButtonClick() throws CancellationException {
+    public RestAction<ButtonClickEvent> waitForButtonClick() {
         Objects.requireNonNull(buttonClickEventCompletableFuture, "No buttons in this context");
-        try {
-            return buttonClickEventCompletableFuture.get();
-        } catch (ExecutionException | InterruptedException e) {
-            logger.error("Strange exception occurred", e); // Should not occur
-            throw new RuntimeException(e);
-        }
+        return CompletableFutureRestAction.of(buttonClickEventCompletableFuture);
     }
 
     public void applyButtonClickEvent(ButtonClickEvent event) { // Да, контекст мутабельный
@@ -183,6 +172,8 @@ public class CommandContextImpl implements CommandContext {
     }
 
     public void cancelButtonClickWaiting() {
+        logger.debug("Cancelling buttonClickEventCompletableFuture; isDone()=%s "
+                .formatted(buttonClickEventCompletableFuture.isDone()));
         buttonClickEventCompletableFuture.cancel(true);
     }
 
@@ -202,7 +193,6 @@ public class CommandContextImpl implements CommandContext {
     public RestAction<Message> reply(Message message) {
         if (!message.getActionRows().isEmpty()) {
             buttonClickEventCompletableFuture = new CompletableFuture<>();
-            buttonClickEventWaitingStartTime = System.currentTimeMillis();
         }
         return handleReply(message).map(msg -> {
             if (!message.getActionRows().isEmpty()) {

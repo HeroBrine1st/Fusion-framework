@@ -5,12 +5,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class PermissionHandler {
-    public static PermissionHandler DEFAULT = new Default();
+    public final static PermissionHandler DEFAULT = new Default();
 
     private static class Default extends PermissionHandler {
         @Override
-        public boolean shouldBeFound(Guild guild) {
-            return true;
+        public boolean shouldNotBeFound(Guild guild) {
+            return false;
         }
 
         @Override
@@ -38,8 +38,8 @@ public abstract class PermissionHandler {
         }
 
         @Override
-        public boolean shouldBeFound(Guild guild) {
-            return true;
+        public boolean shouldNotBeFound(Guild guild) {
+            return false;
         }
 
         @Override
@@ -90,12 +90,12 @@ public abstract class PermissionHandler {
     }
 
     /**
-     * Called before context creation. Interrupts command handling with no detailed message if returned false.
+     * Called before context creation. Interrupts command handling with no detailed message if returned true.
      *
      * @param guild Guild which command called on. Null if called in DM
-     * @return true if command handling should go on, otherwise false
+     * @return false if command handling should go on, otherwise true
      */
-    public abstract boolean shouldBeFound(@Nullable Guild guild);
+    public abstract boolean shouldNotBeFound(@Nullable Guild guild);
 
     /**
      * Called before execution. Interrupts command handling with detailed {@link #requirements(CommandContext) message} if returned false.

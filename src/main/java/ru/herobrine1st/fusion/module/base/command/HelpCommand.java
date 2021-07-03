@@ -24,8 +24,6 @@ public class HelpCommand implements CommandExecutor {
         var optionalCommand = ctx.<String>getOne("command");
         var prefix = Config.INSTANCE.getDiscordPrefix();
         Stream<FusionCommandData> commandDataStream = CommandManagerImpl.INSTANCE.commands.stream()
-                .parallel()
-                .unordered()
                 .filter(it -> !hasSlashSupport(it));
         if (optionalCommand.isEmpty()) {
             List<FusionCommandData> commandDataList = commandDataStream

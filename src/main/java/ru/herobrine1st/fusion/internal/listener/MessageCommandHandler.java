@@ -83,7 +83,7 @@ public class MessageCommandHandler extends ListenerAdapter {
             if (subcommandData.isEmpty()) return;
             targetCommand = subcommandData.get();
         }
-        if (!permissionHandlers.get(0).shouldBeFound(event.getGuild())) {
+        if (permissionHandlers.get(0).shouldNotBeFound(event.getGuild())) {
             return;
         }
         if (!permissionHandlers.get(0).commandType().classicExecutionPermitted()) {
