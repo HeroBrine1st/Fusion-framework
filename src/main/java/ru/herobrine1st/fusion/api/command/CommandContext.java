@@ -62,7 +62,7 @@ public interface CommandContext {
 
     /**
      * Put argument into this context. Usually used by ParserElements to add parsed argument to context.<br>
-     * <b>Rarely used inside {@link CommandExecutor}, do not use this if you don't know what is it!</b>
+     * <b>Rarely used inside {@link CommandExecutor}, do not use this if you don't know what it is!</b>
      *
      * @param name  name of the argument
      * @param value value of the argument
