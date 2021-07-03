@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
-import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.exception.CommandException;
 
@@ -63,7 +62,7 @@ public interface CommandContext {
 
     /**
      * Put argument into this context. Usually used by ParserElements to add parsed argument to context.<br>
-     * <b>Rarely used {@link CommandExecutor}, do not use that if you don't know what is it!</b>
+     * <b>Rarely used inside {@link CommandExecutor}, do not use this if you don't know what is it!</b>
      * @param name  name of the argument
      * @param value value of the argument
      */
