@@ -56,9 +56,9 @@ public class CommandContextImpl implements CommandContext {
     }
 
     @Override
-    public void putArg(String key, Object value) {
-        arguments.computeIfAbsent(key, k -> new ArrayList<>());
-        arguments.get(key).add(value);
+    public void putArg(String name, Object value) {
+        arguments.computeIfAbsent(name, k -> new ArrayList<>());
+        arguments.get(name).add(value);
     }
 
 
@@ -159,9 +159,15 @@ public class CommandContextImpl implements CommandContext {
         return text;
     }
 
-    public RestAction<ButtonClickEvent> waitForButtonClick() {
+    public RestAction<ButtonClickEvent> getButtonClickEventRestAction() {
         Objects.requireNonNull(buttonClickEventCompletableFuture, "No buttons in this context");
         return CompletableFutureRestAction.of(buttonClickEventCompletableFuture);
+    }
+
+    @Override
+    public CompletableFuture<ButtonClickEvent> getButtonClickEventCompletableFuture() {
+        Objects.requireNonNull(buttonClickEventCompletableFuture, "No buttons in this context");
+        return buttonClickEventCompletableFuture;
     }
 
     public void applyButtonClickEvent(ButtonClickEvent event) { // Да, контекст мутабельный
@@ -172,8 +178,6 @@ public class CommandContextImpl implements CommandContext {
     }
 
     public void cancelButtonClickWaiting() {
-        logger.debug("Cancelling buttonClickEventCompletableFuture; isDone()=%s "
-                .formatted(buttonClickEventCompletableFuture.isDone()));
         buttonClickEventCompletableFuture.cancel(true);
     }
 

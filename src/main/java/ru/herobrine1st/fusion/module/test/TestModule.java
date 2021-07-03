@@ -25,11 +25,10 @@ public class TestModule extends AbstractModule {
                                         .setDescription("Успешный тест!")
                                         .build(),
                                 ActionRow.of(Button.danger("reply_10_seconds", "Ответить через 10 секунд")))
-                        .flatMap(it -> ctx.waitForButtonClick())
-                        .flatMap(event ->
-                                ctx.reply(ctx.getEmbedBase()
-                                        .setDescription(event.getComponentId())
-                                        .build())
+                        .flatMap(it -> ctx.getButtonClickEventRestAction())
+                        .flatMap(event -> ctx.reply(ctx.getEmbedBase()
+                                .setDescription(event.getComponentId())
+                                .build())
                         )
                         .queue(null, ctx::replyException)
                 ));
