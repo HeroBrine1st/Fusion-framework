@@ -4,16 +4,19 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import org.jetbrains.annotations.Nullable;
-import ru.herobrine1st.fusion.api.command.PermissionHandler;
 import ru.herobrine1st.fusion.api.command.args.ParserElement;
 import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
 import ru.herobrine1st.fusion.api.command.build.FusionSubcommandData;
 import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroupData;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public final class SlashCommandBuilder {
+    private static final Map<FusionCommandData, Boolean> slashSupportCache = new HashMap<>();
+
     private SlashCommandBuilder() {
     }
 
@@ -51,8 +54,8 @@ public final class SlashCommandBuilder {
         throw new IllegalArgumentException();
     }
 
-    public static boolean hasSlashSupport(FusionCommandData commandData) {
-        if(!commandData.getPermissionHandler().commandType().slashExecutionPermitted())
+    private static boolean checkSlashSupport(FusionCommandData commandData) {
+        if (!commandData.getPermissionHandler().commandType().slashExecutionPermitted())
             return false;
         if (commandData.hasExecutor())
             return commandData.getOptions().stream()
@@ -72,5 +75,10 @@ public final class SlashCommandBuilder {
                     .map(ParserElement.class::cast)
                     .allMatch(ParserElement::hasSlashSupport);
         throw new IllegalArgumentException();
+    }
+
+    public static boolean hasSlashSupport(FusionCommandData it) {
+        if (!slashSupportCache.containsKey(it)) slashSupportCache.put(it, checkSlashSupport(it));
+        return slashSupportCache.get(it);
     }
 }

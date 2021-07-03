@@ -10,30 +10,29 @@ import ru.herobrine1st.fusion.internal.command.CommandContextImpl;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static net.dv8tion.jda.api.utils.TimeUtil.*;
+import static net.dv8tion.jda.api.utils.TimeUtil.DISCORD_EPOCH;
+import static net.dv8tion.jda.api.utils.TimeUtil.TIMESTAMP_OFFSET;
 
 public class ButtonInteractionHandler extends ListenerAdapter {
     private final static Logger logger = LoggerFactory.getLogger(ButtonInteractionHandler.class);
-    public final static ButtonInteractionHandler INSTANCE = new ButtonInteractionHandler();
-    private final static long TTL = 15 * 60 * 1000;
+    private final static long TTL = 30000; //15 * 60 * 1000;
     private final static Map<Long, CommandContextImpl> interactionCache = new HashMap<>();
 
-    private ButtonInteractionHandler() {
+    static {
         TaskManager.getExecutorService().scheduleAtFixedRate(() -> interactionCache.entrySet()
                         .removeIf(it -> {
                             if (System.currentTimeMillis() - (it.getKey() >>> TIMESTAMP_OFFSET) - DISCORD_EPOCH >= TTL) {
                                 it.getValue().cancelButtonClickWaiting();
-                                logger.trace("Clearing %s due to timeout".formatted(it.getKey()));
+                                logger.debug("Clearing %s interaction cache due to timeout".formatted(it.getKey()));
                                 return true;
                             } else return false;
                         }),
                 1, 1, TimeUnit.HOURS);
     }
 
-    public void open(long messageId, CommandContextImpl ctx) { // Ну тип открыть для прослушивания
+    public static void open(long messageId, CommandContextImpl ctx) { // Ну тип открыть для прослушивания
         interactionCache.put(messageId, ctx);
     }
 

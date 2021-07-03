@@ -218,6 +218,7 @@ public final class GenericArguments {
 
         @Override
         public Object parseSlash(CommandContext ctx, CommandInteraction interaction) {
+            if(interaction.getOptionsByName(getName()).isEmpty()) throw new NoSuchElementException();
             return interaction.getOptionsByName(getName())
                     .stream().map(OptionMapping::getAsString).collect(Collectors.joining(" "));
         }

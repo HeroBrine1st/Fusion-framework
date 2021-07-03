@@ -25,7 +25,6 @@ import java.util.*;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.function.BiFunction;
 
 public class CommandContextImpl implements CommandContext {
     private static final Logger logger = LoggerFactory.getLogger(CommandContextImpl.class);
@@ -207,7 +206,7 @@ public class CommandContextImpl implements CommandContext {
         }
         return handleReply(message).map(msg -> {
             if (!message.getActionRows().isEmpty()) {
-                ButtonInteractionHandler.INSTANCE.open(msg.getIdLong(), this);
+                ButtonInteractionHandler.open(msg.getIdLong(), this);
                 logger.trace("Opening interaction listener to messageId=%s".formatted(msg.getIdLong()));
             }
             return msg;

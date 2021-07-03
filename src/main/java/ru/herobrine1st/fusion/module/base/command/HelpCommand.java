@@ -7,26 +7,22 @@ import ru.herobrine1st.fusion.api.command.FusionOptionData;
 import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
 import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroupData;
-import ru.herobrine1st.fusion.internal.command.SlashCommandBuilder;
+import ru.herobrine1st.fusion.internal.Config;
 import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
+import static ru.herobrine1st.fusion.internal.command.SlashCommandBuilder.hasSlashSupport;
 import static ru.herobrine1st.fusion.internal.manager.CommandManagerImpl.usage;
 
 public class HelpCommand implements CommandExecutor {
-    private static final Map<FusionCommandData, Boolean> cache = new HashMap<>();
-
-    private static boolean hasSlashSupport(FusionCommandData it) { // Fast caching filter
-        if (!cache.containsKey(it)) cache.put(it, SlashCommandBuilder.hasSlashSupport(it));
-        return cache.get(it);
-    }
-
-
     @Override
     public void execute(@NotNull CommandContext ctx) {
         var optionalCommand = ctx.<String>getOne("command");
+        var prefix = Config.INSTANCE.getDiscordPrefix();
         Stream<FusionCommandData> commandDataStream = CommandManagerImpl.INSTANCE.commands.stream()
                 .parallel()
                 .unordered()
@@ -47,7 +43,7 @@ public class HelpCommand implements CommandExecutor {
             if (commandDataList.size() > 25) {
                 embed.appendDescription("Отображено только 25 команд из %s".formatted(commandDataList.size()));
             }
-            commandDataList.stream().limit(25).forEach(data -> embed.addField(data.getName() + " " + usage(data), data.getDescription(), false));
+            commandDataList.stream().limit(25).forEach(data -> embed.addField(prefix + data.getName() + " " + usage(data), data.getDescription(), false));
             ctx.reply(embed.build()).queue();
         } else {
             var split = optionalCommand.get().split(" ");
@@ -80,12 +76,12 @@ public class HelpCommand implements CommandExecutor {
                             .setDescription("Команда не найдена!")
                             .setColor(ctx.getErrorColor())
                             .build()
-                    );
+                    ).queue();
                     return;
                 }
                 var subcommandGroupData = optionalSubcommandGroupData.get();
                 var embed = ctx.getEmbedBase().setDescription(subcommandGroupData.getDescription());
-                embed.addField("Использование", String.join(" ", split) + " " + usage(subcommandGroupData), false);
+                embed.addField("Использование", prefix + String.join(" ", split) + " " + usage(subcommandGroupData), false);
                 subcommandGroupData.getSubcommandData().forEach(it -> embed.addField(it.getName(), it.getDescription(), false));
                 ctx.reply(embed.build()).queue();
                 return;
@@ -97,7 +93,7 @@ public class HelpCommand implements CommandExecutor {
                         .setDescription("Команда не найдена!")
                         .setColor(ctx.getErrorColor())
                         .build()
-                );
+                ).queue();
                 return;
             }
             var commandData = commandDataOptional.get();
@@ -105,7 +101,7 @@ public class HelpCommand implements CommandExecutor {
                     .setTitle(commandData.getShortName())
                     .setDescription(commandData.getDescription())
                     .setAuthor(ctx.getCommand().getShortName());
-            embed.addField("Использование", String.join(" ", split) + " " + usage(commandData), false);
+            embed.addField("Использование", prefix + String.join(" ", split) + " " + usage(commandData), false);
             commandData.getOptions().forEach(it -> embed.addField(it.getName(), it.getDescription(), false));
             ctx.reply(embed.build()).queue();
         }

@@ -30,7 +30,7 @@ public class Fusion {
         logger.info("Logging in...");
         try {
             jda = JDABuilder.createLight(Config.INSTANCE.getToken(), GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_MESSAGES)
-                    .addEventListeners(new MessageCommandHandler(), new SlashCommandHandler(), ButtonInteractionHandler.INSTANCE)
+                    .addEventListeners(new MessageCommandHandler(), new SlashCommandHandler(), new ButtonInteractionHandler())
                     .build();
         } catch (LoginException e) {
             logger.error("Invalid discord token");
@@ -66,6 +66,7 @@ public class Fusion {
 
         logger.warn("No database is connected"); // TODO
         logger.info("Initialized Fusion Discord bot");
+        //if(jda.getStatus() == JDA.Status.SHUTDOWN || jda.getStatus() == JDA.Status.SHUTTING_DOWN)
     }
 
     private void findModules() {

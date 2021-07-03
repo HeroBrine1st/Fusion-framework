@@ -6,6 +6,7 @@ import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
 import ru.herobrine1st.fusion.api.manager.CommandManager;
 import ru.herobrine1st.fusion.api.module.AbstractModule;
 import ru.herobrine1st.fusion.api.module.FutureModule;
+import ru.herobrine1st.fusion.module.base.command.HelpCommand;
 
 @FutureModule(id = "base")
 public class BaseModule extends AbstractModule {
@@ -13,7 +14,8 @@ public class BaseModule extends AbstractModule {
     public void registerCommands(CommandManager commandManager) {
         commandManager.addCommand(new FusionCommandData("help", "Помощь по классическим командам")
                 .addArguments(GenericArguments.optional(GenericArguments.remainingJoinedStrings("command", "Команда, для которой необходима страница помощи")))
-
+                .setExecutor(new HelpCommand())
+                .setShortName("Помощь")
         );
     }
 
