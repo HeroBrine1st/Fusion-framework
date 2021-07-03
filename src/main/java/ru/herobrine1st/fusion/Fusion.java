@@ -6,8 +6,8 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.herobrine1st.fusion.api.module.FutureModule;
 import ru.herobrine1st.fusion.api.module.AbstractModule;
+import ru.herobrine1st.fusion.api.module.FutureModule;
 import ru.herobrine1st.fusion.internal.Config;
 import ru.herobrine1st.fusion.internal.command.SlashCommandBuilder;
 import ru.herobrine1st.fusion.internal.listener.ButtonInteractionHandler;
@@ -16,7 +16,9 @@ import ru.herobrine1st.fusion.internal.listener.SlashCommandHandler;
 import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 
 import javax.security.auth.login.LoginException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class Fusion {
     private static final Logger logger = LoggerFactory.getLogger(Fusion.class);
@@ -61,6 +63,7 @@ public class Fusion {
                         .toList())
                 .complete();
         logger.info("Dispatched list of commands");
+
         logger.warn("No database is connected"); // TODO
         logger.info("Initialized Fusion Discord bot");
     }
