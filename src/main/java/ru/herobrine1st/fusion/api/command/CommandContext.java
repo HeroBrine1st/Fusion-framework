@@ -63,6 +63,7 @@ public interface CommandContext {
     /**
      * Put argument into this context. Usually used by ParserElements to add parsed argument to context.<br>
      * <b>Rarely used inside {@link CommandExecutor}, do not use this if you don't know what is it!</b>
+     *
      * @param name  name of the argument
      * @param value value of the argument
      */
@@ -263,6 +264,7 @@ public interface CommandContext {
      *     .flatMap(event -> {} ) // Use {@link ButtonClickEvent} here!
      * </code></pre>
      * <b>You only have 15 minutes to respond to an interaction!</b>
+     *
      * @return {@link RestAction RestAction}<{@link ButtonClickEvent}> object that will provide you {@link ButtonClickEvent} or cancel execution of all remaining callbacks
      * @throws NullPointerException if there are no components in your previous {@link #reply(Message) reply}
      */
@@ -273,6 +275,7 @@ public interface CommandContext {
      * <b>You only have 15 minutes to respond to an interaction!</b><br>
      * Do not use that as {@code RestAction.map(it -> ctx.getButtonClickEventCompletableFuture().get()) } as you will get a lot of error messages in logs!<br>
      * This CompletableFuture will be cancelled after 15 minutes of timeout
+     *
      * @return {@link CompletableFuture} object with ButtonClickEvent
      * @throws NullPointerException if there are no components in your previous {@link #reply(Message) reply}
      */
@@ -288,6 +291,7 @@ public interface CommandContext {
      * </code></pre>
      * <b>You only have 15 minutes to respond to an interaction!</b><br>
      * You can include interaction objects right here in the message object instead of using {@link #reply(MessageEmbed, ActionRow...)}
+     *
      * @param message {@link Message} that will be sent as response
      * @return {@link RestAction}<{@link Message}> that you have to {@link RestAction#queue() queue}, {@link RestAction#submit() submit} or {@link RestAction#complete() complete} in order to execute this action and send message
      */
@@ -295,6 +299,7 @@ public interface CommandContext {
 
     /**
      * Reply with embed
+     *
      * @param embed {@link MessageEmbed} that will be sent in response message
      * @return {@link RestAction}<{@link Message}> that you have to {@link RestAction#queue() queue}, {@link RestAction#submit() submit} or {@link RestAction#complete() complete} in order to execute this action and send message
      * @see #reply(Message)
@@ -303,8 +308,9 @@ public interface CommandContext {
 
     /**
      * Reply with embed and components
+     *
      * @param embed {@link MessageEmbed} that will be sent in response message
-     * @param rows array of {@link ActionRow} with interaction components
+     * @param rows  array of {@link ActionRow} with interaction components
      * @return {@link RestAction}<{@link Message}> that you have to {@link RestAction#queue() queue}, {@link RestAction#submit() submit} or {@link RestAction#complete() complete} in order to execute this action and send message
      * @see #reply(Message)
      */
@@ -313,6 +319,7 @@ public interface CommandContext {
     /**
      * Reply with embed contains description<br>
      * This method is a shortCut for {@code reply(getEmbedBase(embedDescription).build())}
+     *
      * @param embedDescription description that will be set in embed
      * @return {@link RestAction}<{@link Message}> that you have to {@link RestAction#queue() queue}, {@link RestAction#submit() submit} or {@link RestAction#complete() complete} in order to execute this action and send message
      * @see #reply(Message)
@@ -320,9 +327,11 @@ public interface CommandContext {
     default RestAction<Message> reply(String embedDescription) {
         return reply(getEmbedBase(embedDescription).build());
     }
+
     /**
      * Reply with embed contains description and error color<br>
      * This method is a shortCut for {@code reply(getEmbedBase(embedDescription).setColor(getErrorColor()).build())}
+     *
      * @param embedDescription description that will be set in embed
      * @return {@link RestAction}<{@link Message}> that you have to {@link RestAction#queue() queue}, {@link RestAction#submit() submit} or {@link RestAction#complete() complete} in order to execute this action and send message
      * @see #reply(Message)
@@ -334,8 +343,9 @@ public interface CommandContext {
     /**
      * Reply with embed and components, then flatMap to {@link ButtonClickEvent}
      * This method is a shortcut for {@code reply(embed, rows).flatMap(it -> getButtonClickEventRestAction())}
+     *
      * @param embed embed that will be sent in response message
-     * @param rows array of {@link ActionRow actions rows} with interaction components
+     * @param rows  array of {@link ActionRow actions rows} with interaction components
      * @return {@link RestAction}<{@link Message}> that you have to {@link RestAction#queue() queue}, {@link RestAction#submit() submit} or {@link RestAction#complete() complete} in order to execute this action and send message
      * @see #reply(Message)
      */
