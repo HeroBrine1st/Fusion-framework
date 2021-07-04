@@ -40,6 +40,8 @@ public class Fusion {
         logger.info("Loading modules");
         findModules();
         logger.info("Found %s modules".formatted(modules.size()));
+        jda.awaitReady();
+        logger.info("Logged in as %s".formatted(jda.getSelfUser().getAsTag()));
         modules.forEach(it -> {
             try {
                 if (logger.isTraceEnabled()) {
@@ -52,8 +54,6 @@ public class Fusion {
                 logger.error("Module initialization error", e);
             }
         });
-        jda.awaitReady();
-        logger.info("Logged in as %s".formatted(jda.getSelfUser().getAsTag()));
         logger.info("Initializing slash command subsystem");
         logger.info("Building commands into Discord data");
         Objects.requireNonNull(jda.getGuildById("394132321839874050")).updateCommands() // TODO concept

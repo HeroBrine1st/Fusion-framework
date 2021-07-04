@@ -84,7 +84,7 @@ public interface CommandContext {
      *
      * @param name name of the argument
      * @param <T>  type of the argument. Will be <b>unsafely casted</b>, so make sure you did all right!
-     * @return {@link Collection}<T> of arguments
+     * @return {@link Collection}<T> of arguments. Empty if no arguments.
      * @see #getOne(String)
      */
     <T> Collection<T> getAll(String name);
@@ -154,14 +154,14 @@ public interface CommandContext {
      * </code></pre>
      *
      * @param successCount count of successful operations command did to complete request
-     * @param totalCount   total operation count command did to complete request
+     * @param totalCount   total count of operations command did to complete request
      * @return {@link java.awt.Color} object
      */
     Color getColor(int successCount, int totalCount);
 
     /**
-     * Error color for use in embed.
-     * This method is a shortcut for {@code return getColor(0, 1)}
+     * Error color for use in embed.<br>
+     * This method is a shortcut for {@code getColor(0, 1)}
      *
      * @return {@link java.awt.Color} object
      * @see #getColor(int, int)
@@ -263,8 +263,8 @@ public interface CommandContext {
      *     .flatMap(it -> ctx.getButtonClickEventRestAction())
      *     .flatMap(event -> {} ) // Use {@link ButtonClickEvent} here!
      * </code></pre>
-     * <b>You only have 15 minutes to respond to an interaction!</b>
-     *
+     * <b>You only have 15 minutes to respond to an interaction!</b><br>
+     * You can use context as usual after receiving event, as context internal event is changed.
      * @return {@link RestAction RestAction}<{@link ButtonClickEvent}> object that will provide you {@link ButtonClickEvent} or cancel execution of all remaining callbacks
      * @throws NullPointerException if there are no components in your previous {@link #reply(Message) reply}
      */
@@ -355,7 +355,7 @@ public interface CommandContext {
 
     /**
      * Reply with message describing exception details<br>
-     * You can also use it like this example:
+     * You can also use it like this example in case of request exception:
      * <pre><code>
      * ctx -> ctx
      *     .{@link #replyThenWaitUserClick(MessageEmbed, ActionRow... rows) replyThenWaitUserClick}(ctx.{@link #getEmbedBase() getEmbedBase}()

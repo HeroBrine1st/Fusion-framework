@@ -11,6 +11,8 @@ import ru.herobrine1st.fusion.api.manager.CommandManager;
 import ru.herobrine1st.fusion.api.module.AbstractModule;
 import ru.herobrine1st.fusion.api.module.FutureModule;
 
+import java.util.concurrent.TimeUnit;
+
 @FutureModule(id = "testmodule")
 public class TestModule extends AbstractModule {
 
@@ -26,6 +28,7 @@ public class TestModule extends AbstractModule {
                                         .build(),
                                 ActionRow.of(Button.danger("reply_10_seconds", "Ответить через 10 секунд")))
                         .flatMap(it -> ctx.getButtonClickEventRestAction())
+                        .delay(10, TimeUnit.SECONDS)
                         .flatMap(event -> ctx.reply(ctx.getEmbedBase()
                                 .setDescription(event.getComponentId())
                                 .build())

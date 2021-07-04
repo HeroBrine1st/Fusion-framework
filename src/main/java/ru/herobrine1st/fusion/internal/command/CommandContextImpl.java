@@ -222,12 +222,11 @@ public class CommandContextImpl implements CommandContext {
 
     @Override
     public void replyException(Throwable t) {
-        var embed = getEmbedBase()
-                .setColor(getColor(0, 1))
-                .setFooter(getFooter(0, 1));
+        var embed = getEmbedBase().setColor(getErrorColor());
         if (t instanceof CommandException) {
             embed.setDescription("Ошибка выполнения команды: " + t.getMessage());
-        } else if (t instanceof CancellationException) {
+        } else if(t instanceof CancellationException) {
+            logger.trace("Caught CancellationException", t);
             return;
         } else if (t instanceof RuntimeException) {
             embed.setDescription("Неизвестная ошибка. Дополнительные данные отправлены в журнал.");

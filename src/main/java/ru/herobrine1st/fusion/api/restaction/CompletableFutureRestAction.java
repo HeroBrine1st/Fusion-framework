@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BooleanSupplier;
@@ -44,16 +43,10 @@ public class CompletableFutureRestAction<R> implements RestAction<R> {
 
     @Override
     public void queue(@Nullable Consumer<? super R> success, @Nullable Consumer<? super Throwable> failure) {
-        R result;
-        try {
-            result = completableFuture.get();
-        } catch (CancellationException | ExecutionException | InterruptedException e) {
-            if (failure != null)
-                failure.accept(e);
-            return;
-        }
-        if (success != null)
-            success.accept(result);
+        completableFuture.whenCompleteAsync((result, throwable) -> {
+            if (result != null && success != null) success.accept(result);
+            if (throwable != null && failure != null) failure.accept(throwable);
+        });
     }
 
     @Override

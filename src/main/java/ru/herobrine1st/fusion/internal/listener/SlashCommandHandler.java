@@ -2,7 +2,6 @@ package ru.herobrine1st.fusion.internal.listener;
 
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,6 @@ public class SlashCommandHandler extends ListenerAdapter {
 
     @Override
     public void onSlashCommand(@NotNull SlashCommandEvent event) {
-        final InteractionHook hook = event.getHook().setEphemeral(true);
         final String groupName = event.getSubcommandGroup();
         final String subcommandName = event.getSubcommandName();
         final String commandName = event.getName();
@@ -62,7 +60,7 @@ public class SlashCommandHandler extends ListenerAdapter {
             if (subcommandData.isEmpty()) return;
             targetCommand = subcommandData.get();
         }
-        if(permissionHandlers.get(0).shouldNotBeFound(event.getGuild())) {
+        if (permissionHandlers.get(0).shouldNotBeFound(event.getGuild())) {
             return;
         }
         CommandContextImpl context = new CommandContextImpl(event, targetCommand);
@@ -83,6 +81,8 @@ public class SlashCommandHandler extends ListenerAdapter {
             }
         }
         event.deferReply(false).queue();
+        logger.info("Processing %s %s %s by %s (%s)".formatted(commandName, groupName, subcommandName,
+                event.getUser().getAsTag(), event.getUser().getIdLong()));
         try {
             targetCommand.getExecutor().execute(context);
         } catch (Throwable t) {
