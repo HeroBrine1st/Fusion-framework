@@ -38,7 +38,7 @@ public class CommandManagerImpl implements CommandManager {
     }
 
     @Override
-    public void addCommand(FusionCommandData data) {
+    public void registerCommand(FusionCommandData data) {
         if (commands.stream().map(FusionBaseCommand::getName).anyMatch(it -> it.equals(data.getName()))) {
             throw new RuntimeException("Intersecting name: " + data.getName());
         }

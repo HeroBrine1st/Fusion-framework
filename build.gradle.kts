@@ -19,6 +19,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:1.7.30")
     implementation("org.slf4j:slf4j-simple:1.7.30")
     implementation("org.reflections:reflections:0.9.12")
+    implementation("com.google.inject:guice:5.0.1")
 }
 
 tasks.getByName<Test>("test") {

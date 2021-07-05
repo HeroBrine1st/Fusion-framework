@@ -2,7 +2,7 @@ package ru.herobrine1st.fusion.internal.listener;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
@@ -22,10 +22,10 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class MessageCommandHandler extends ListenerAdapter {
+public class MessageCommandHandler {
     private final static Logger logger = LoggerFactory.getLogger(MessageCommandHandler.class);
 
-    @Override
+    @SubscribeEvent
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.isWebhookMessage() || event.getAuthor().isBot())
             return;
@@ -114,6 +114,8 @@ public class MessageCommandHandler extends ListenerAdapter {
                 return;
             }
         }
+        logger.info("Processing %s by %s (%s)".formatted(event.getMessage().getContentRaw(),
+                event.getAuthor().getAsTag(), event.getAuthor().getIdLong()));
         try {
             targetCommand.getExecutor().execute(context);
         } catch (Throwable t) {
