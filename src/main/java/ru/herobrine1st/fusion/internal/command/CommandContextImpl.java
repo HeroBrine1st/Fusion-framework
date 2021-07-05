@@ -195,11 +195,9 @@ public class CommandContextImpl implements CommandContext {
 
     @Override
     public RestAction<Message> reply(Message message) {
-        if (!message.getActionRows().isEmpty()) {
-            buttonClickEventCompletableFuture = new CompletableFuture<>();
-        }
         return handleReply(message).map(msg -> {
             if (!message.getActionRows().isEmpty()) {
+                buttonClickEventCompletableFuture = new CompletableFuture<>();
                 ButtonInteractionHandler.open(msg.getIdLong(), this);
                 logger.trace("Opening interaction listener to messageId=%s".formatted(msg.getIdLong()));
             }
@@ -235,6 +233,6 @@ public class CommandContextImpl implements CommandContext {
             embed.setDescription("Неизвестная ошибка. Дополнительные данные отправлены в журнал.");
             logger.error("Error executing command", t);
         }
-        reply(new MessageBuilder().setEmbed(embed.build()).build()).queue();
+        reply(embed.build()).queue();
     }
 }
