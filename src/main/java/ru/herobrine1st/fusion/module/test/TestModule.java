@@ -1,5 +1,6 @@
 package ru.herobrine1st.fusion.module.test;
 
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -54,5 +55,15 @@ public class TestModule {
                 )
         );
 
+    }
+
+    @SubscribeEvent
+    public void onMessage(MessageReceivedEvent event) {
+        if(event.getMessage().getEmbeds().isEmpty()) return;
+        var author = event.getMessage().getEmbeds().get(0).getAuthor();
+        if(author == null) return;
+        if("КГБ на связи!".equals(author.getName())) {
+            event.getMessage().delete().queue();
+        }
     }
 }

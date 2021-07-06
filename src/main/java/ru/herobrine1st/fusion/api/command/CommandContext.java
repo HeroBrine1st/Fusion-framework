@@ -108,7 +108,6 @@ public interface CommandContext {
 
     /**
      * Command executing in this execution
-     *
      * @return {@link FusionBaseCommand}<?> object describing command that (usually) called this method.
      */
     FusionBaseCommand<?> getCommand();
