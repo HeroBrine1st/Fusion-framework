@@ -20,8 +20,6 @@ dependencies {
     implementation("org.slf4j:slf4j-simple:1.7.30")
     implementation("org.reflections:reflections:0.9.12")
     implementation("com.google.inject:guice:5.0.1")
-    implementation("com.j256.ormlite:ormlite-core:5.5")
-    implementation("com.j256.ormlite:ormlite-jdbc:5.5")
     implementation("mysql:mysql-connector-java:8.0.25")
 }
 

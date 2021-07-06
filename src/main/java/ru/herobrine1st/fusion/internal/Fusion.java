@@ -3,9 +3,6 @@ package ru.herobrine1st.fusion.internal;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
-import com.j256.ormlite.jdbc.JdbcConnectionSource;
-import com.j256.ormlite.jdbc.JdbcPooledConnectionSource;
-import com.j256.ormlite.support.ConnectionSource;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
@@ -33,17 +30,8 @@ import java.util.concurrent.ExecutorService;
 public class Fusion {
     private static final Logger logger = LoggerFactory.getLogger(Fusion.class);
     private final AnnotatedEventManager eventManager = new AnnotatedEventManager();
-    private JdbcConnectionSource connectionSource = null;
     private void main() throws InterruptedException {
         logger.info("Starting Fusion Discord bot");
-        logger.info("Connecting to database");
-        try {
-            connectionSource = new JdbcPooledConnectionSource(Config.INSTANCE.getDatabaseUrl());
-        } catch (Exception throwable) {
-            logger.error("An exception occurred while connecting to database",throwable);
-            System.exit(-1);
-            return;
-        }
         logger.info("Loading modules");
         findModules();
         logger.info("Found %s modules".formatted(eventManager.getRegisteredListeners().size()));
@@ -64,14 +52,14 @@ public class Fusion {
         logger.info("Logged in as %s".formatted(jda.getSelfUser().getAsTag()));
         eventManager.handle(new FusionInitializationEvent(jda));
         logger.info("Initializing slash command subsystem");
-        logger.info("  Building commands into Discord data");
+        logger.info("Building commands into Discord data");
         Objects.requireNonNull(jda.getGuildById("394132321839874050")).updateCommands() // TODO concept
                 .addCommands(CommandManagerImpl.INSTANCE.commands.stream()
                         .filter(SlashCommandBuilder::hasSlashSupport)
                         .map(SlashCommandBuilder::buildCommand)
                         .toList())
                 .complete();
-        logger.info("  Dispatched application commands");
+        logger.info("Dispatched application commands");
         eventManager.handle(new FusionStartedEvent(jda));
         logger.info("Initialized Fusion Discord bot");
     }
@@ -80,7 +68,7 @@ public class Fusion {
         Injector injector = Guice.createInjector(Stage.PRODUCTION, it -> {
             it.bind(CommandManager.class).toInstance(CommandManagerImpl.INSTANCE);
             it.bind(ExecutorService.class).toInstance(ExecutorServiceProvider.getExecutorService());
-            it.bind(ConnectionSource.class).toInstance(connectionSource);
+            it.requestStaticInjection(ru.herobrine1st.fusion.api.Fusion.class);
         });
         var disabledModules = Config.INSTANCE.getDisabledModules();
         new Reflections(Config.INSTANCE.getModuleSearchPrefix())
