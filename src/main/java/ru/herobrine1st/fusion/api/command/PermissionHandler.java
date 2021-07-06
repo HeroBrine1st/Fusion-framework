@@ -4,6 +4,9 @@ import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.NoSuchElementException;
+
 public abstract class PermissionHandler {
     public final static PermissionHandler DEFAULT = new Default();
 
@@ -58,34 +61,83 @@ public abstract class PermissionHandler {
         }
     }
 
+    private static class Accumulator extends PermissionHandler {
+        private final PermissionHandler a;
+        private final PermissionHandler b;
+        private final CommandType commandType;
+
+        public Accumulator(PermissionHandler a, PermissionHandler b) {
+            this.a = a;
+            this.b = b;
+            commandType = a.commandType().and(b.commandType());
+        }
+
+        @Override
+        public boolean shouldNotBeFound(@Nullable Guild guild) {
+            return a.shouldNotBeFound(guild) || b.shouldNotBeFound(guild);
+        }
+
+        @Override
+        public boolean shouldBeExecuted(CommandContext ctx) {
+            return a.shouldBeExecuted(ctx) && b.shouldBeExecuted(ctx);
+        }
+
+        @Override
+        public @NotNull String requirements(CommandContext ctx) {
+            return "%s\n%s".formatted(a.requirements(ctx), b.requirements(ctx));
+        }
+
+        @Override
+        public CommandType commandType() {
+            return commandType;
+        }
+    }
+
     public enum CommandType {
         /**
          * Slash command type
          */
-        SLASH,
+        SLASH(false, true),
         /**
          * Classic message command type
          */
-        MESSAGE,
+        MESSAGE(true, false),
         /**
          * All possible cases
          */
-        ALL;
+        ALL(true, true);
+
+        private final boolean messagePermitted;
+        private final boolean slashPermitted;
+
+        CommandType(boolean messagePermitted, boolean slashPermitted) {
+            this.messagePermitted = messagePermitted;
+            this.slashPermitted = slashPermitted;
+        }
+
+        CommandType and(CommandType other) {
+            return Arrays.stream(CommandType.values())
+                    .filter(it -> (it.slashPermitted == this.slashPermitted && other.slashPermitted)
+                            && (it.messagePermitted == this.messagePermitted && other.messagePermitted)).findAny()
+                    .orElseThrow(() -> new NoSuchElementException("No such CommandType found"));
+        }
 
         /**
          * Whether this CommandType tells that command can be executed as slash command
+         *
          * @return true if and only if slash execution permitted
          */
         public boolean slashExecutionPermitted() {
-            return this != MESSAGE;
+            return slashPermitted;
         }
 
         /**
          * Whether this CommandType tells that command can be executed as classic command
+         *
          * @return true if and only if classic execution permitted
          */
         public boolean classicExecutionPermitted() {
-            return this != SLASH;
+            return messagePermitted;
         }
     }
 
@@ -119,4 +171,8 @@ public abstract class PermissionHandler {
      * @return {@link CommandType} describing type of command
      */
     public abstract CommandType commandType();
+
+    public PermissionHandler and(PermissionHandler other) {
+        return new Accumulator(this, other);
+    }
 }
