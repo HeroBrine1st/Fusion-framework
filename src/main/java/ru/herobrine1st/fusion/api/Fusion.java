@@ -34,4 +34,9 @@ public final class Fusion {
     public static Fusion.Internal getInternalFusion() {
         return internalFusion;
     }
+
+    @NotNull
+    public static ScheduledExecutorService getExecutorService() {
+        return internalFusion.getExecutorService();
+    }
 }

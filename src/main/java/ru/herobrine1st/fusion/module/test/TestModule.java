@@ -19,6 +19,7 @@ public class TestModule {
     @SubscribeEvent
     public void onInit(FusionInitializationEvent event) {
         Fusion.getCommandManager().registerCommand(new FusionCommandData("fusiontest", "Тестовая команда")
+                .setTesting(true)
                 //.addArguments(GenericArguments.remainingJoinedStrings("string", "Пиши блять сюда текст"))
                 //.setPermissionHandler(new PermissionHandler.Typed(PermissionHandler.CommandType.MESSAGE))
                 .setExecutor(ctx -> ctx
@@ -35,6 +36,7 @@ public class TestModule {
                         .queue(null, ctx::replyException)
                 ));
         Fusion.getCommandManager().registerCommand(new FusionCommandData("test2", "Тестовая команда с группами")
+                .setTesting(true)
                 .setPermissionHandler(new PermissionHandler.Typed(PermissionHandler.CommandType.MESSAGE))
                 .addSubcommandGroups(new FusionSubcommandGroupData("group", "Группа")
                         .addSubcommands(
@@ -44,6 +46,7 @@ public class TestModule {
                 )
         );
         Fusion.getCommandManager().registerCommand(new FusionCommandData("test3", "Тестовая команда с субкомандами")
+                .setTesting(true)
                 .setPermissionHandler(new PermissionHandler.Typed(PermissionHandler.CommandType.MESSAGE))
                 .addSubcommands(
                         new FusionSubcommandData("subcommand", "Субкоманда")
@@ -55,10 +58,10 @@ public class TestModule {
 
     @SubscribeEvent
     public void onMessage(MessageReceivedEvent event) {
-        if(event.getMessage().getEmbeds().isEmpty()) return;
+        if (event.getMessage().getEmbeds().isEmpty()) return;
         var author = event.getMessage().getEmbeds().get(0).getAuthor();
-        if(author == null) return;
-        if("КГБ на связи!".equals(author.getName())) {
+        if (author == null) return;
+        if ("КГБ на связи!".equals(author.getName())) {
             event.getMessage().delete().queue();
         }
     }

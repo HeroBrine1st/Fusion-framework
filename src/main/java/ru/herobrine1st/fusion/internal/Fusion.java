@@ -83,19 +83,20 @@ public class Fusion implements Internal {
         logger.info("Fusion bot started!");
         logger.info("Loaded %s commands".formatted(CommandManagerImpl.INSTANCE.commands.size()));
         logger.info("Loaded %s modules".formatted(eventManager.getRegisteredListeners().size() - 4));
-        logger.info("Serving %s guilds".formatted(jda.getGuilds().size()));
+        logger.info("Serving %s guilds".formatted(jda.getGuildCache().size()));
         System.out.println();
         getExecutorService().scheduleAtFixedRate(() -> {
-
             try {                                // Выглядит как ебаный говнокод
                 if (!connection.isValid(1000)) { // Потому что вот эта хуйня кидает SQLException вместо IllegalArgumentException
                     logger.error("Disconnected from database. Reconnecting..");
                     try {
                         connection = DriverManager.getConnection(Config.INSTANCE.getDatabaseUrl());
+                        logger.info("Successfully reconnected to database");
                     } catch (SQLException exception) {
                         logger.error("An error occurred while connecting to database", exception);
                         jda.shutdownNow();
                     }
+
                 }
             } catch (SQLException ignored) {}
         }, 0, 30, TimeUnit.SECONDS);
@@ -114,15 +115,16 @@ public class Fusion implements Internal {
         String testGuildId = Config.INSTANCE.getTestGuildId();
         if (testGuildId != null) {
             Guild testGuild = jda.getGuildById(testGuildId);
-            if (testGuild != null) {
+            if (testGuild != null)
                 testGuild.updateCommands()
-                        .addCommands(commands.stream()
-                                .filter(FusionCommandData::isTesting)
-                                .map(SlashCommandBuilder::buildCommand)
-                                .toList())
-                        .complete();
-            } else logger.warn("Could not obtain guild with id %s".formatted(testGuildId));
-        }
+                    .addCommands(commands.stream()
+                            .filter(FusionCommandData::isTesting)
+                            .map(SlashCommandBuilder::buildCommand)
+                            .toList())
+                    .complete();
+            else logger.warn("Could not obtain guild with id %s".formatted(testGuildId));
+        } else if (logger.isDebugEnabled())
+            logger.warn("No TEST_GUILD_ID provided - skipping commands marked as testing");
         jda.updateCommands()
                 .addCommands(commands.stream()
                         .filter(it -> !it.isTesting())
