@@ -1,4 +1,4 @@
-package ru.herobrine1st.fusion.api.module;
+package ru.herobrine1st.fusion.api.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -12,12 +12,12 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.herobrine1st.fusion.api.annotation.FutureModule;
 import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
 import ru.herobrine1st.fusion.api.event.FusionInitializationEvent;
 import ru.herobrine1st.fusion.api.event.FusionPreInitializationEvent;
 import ru.herobrine1st.fusion.api.event.FusionStartedEvent;
 import ru.herobrine1st.fusion.api.manager.CommandManager;
-import ru.herobrine1st.fusion.api.module.FutureModule;
 import ru.herobrine1st.fusion.internal.command.SlashCommandBuilder;
 import ru.herobrine1st.fusion.internal.listener.ButtonInteractionHandler;
 import ru.herobrine1st.fusion.internal.listener.MessageCommandHandler;
@@ -69,7 +69,7 @@ public class Fusion implements Internal {
             return;
         }
         logger.info("Initializing static Fusion");
-        Guice.createInjector(Stage.PRODUCTION, it -> { // TODO добавить @Config(name="...") аля инжект параметров
+        Guice.createInjector(Stage.PRODUCTION, it -> {
             it.bind(Internal.class).toInstance(INSTANCE);
             it.requestStaticInjection(ru.herobrine1st.fusion.api.Fusion.class);
         });
