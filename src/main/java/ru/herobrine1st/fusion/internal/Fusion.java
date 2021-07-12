@@ -76,15 +76,18 @@ public class Fusion implements Internal {
         jda.awaitReady();
         logger.info("Logged in as %s".formatted(jda.getSelfUser().getAsTag()));
         eventManager.handle(new FusionInitializationEvent(jda));
-        logger.info("Initializing slash command subsystem");
+        logger.info("Initializing slash commands");
         initializeSlashCommands(jda);
         eventManager.handle(new FusionStartedEvent(jda));
-        logger.info("Fusion Discord bot started");
+        System.out.println();
+        logger.info("Fusion bot started!");
         logger.info("Loaded %s commands".formatted(CommandManagerImpl.INSTANCE.commands.size()));
         logger.info("Loaded %s modules".formatted(eventManager.getRegisteredListeners().size() - 4));
         logger.info("Serving %s guilds".formatted(jda.getGuilds().size()));
+        System.out.println();
         getExecutorService().scheduleAtFixedRate(() -> {
-            try { // Выглядит как ебаный говнокод
+
+            try {                                // Выглядит как ебаный говнокод
                 if (!connection.isValid(1000)) { // Потому что вот эта хуйня кидает SQLException вместо IllegalArgumentException
                     logger.error("Disconnected from database. Reconnecting..");
                     try {
