@@ -1,7 +1,6 @@
 package ru.herobrine1st.fusion.internal;
 
 import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.Stage;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -24,14 +23,28 @@ import ru.herobrine1st.fusion.internal.manager.ExecutorServiceProvider;
 
 import javax.security.auth.login.LoginException;
 import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
-public class Fusion {
+import static ru.herobrine1st.fusion.api.Fusion.Internal;
+
+public class Fusion implements Internal {
     private static final Logger logger = LoggerFactory.getLogger(Fusion.class);
     private final AnnotatedEventManager eventManager = new AnnotatedEventManager();
+    private Connection connection;
     private void main() throws InterruptedException {
         logger.info("Starting Fusion Discord bot");
+        logger.info("Connecting to database");
+        try {
+            connection = DriverManager.getConnection(Config.INSTANCE.getDatabaseUrl());
+        } catch (SQLException exception) {
+            logger.error("An error occurred while connecting to database", exception);
+            System.exit(-1);
+            return;
+        }
         logger.info("Loading modules");
         findModules();
         logger.info("Found %s modules".formatted(eventManager.getRegisteredListeners().size()));
@@ -48,6 +61,11 @@ public class Fusion {
             System.exit(-1);
             return;
         }
+        logger.info("Initializing static Fusion");
+        Guice.createInjector(Stage.PRODUCTION, it -> { // TODO добавить @Config(name="...") аля инжект параметров
+            it.bind(Internal.class).toInstance(INSTANCE);
+            it.requestStaticInjection(ru.herobrine1st.fusion.api.Fusion.class);
+        });
         jda.awaitReady();
         logger.info("Logged in as %s".formatted(jda.getSelfUser().getAsTag()));
         eventManager.handle(new FusionInitializationEvent(jda));
@@ -65,11 +83,6 @@ public class Fusion {
     }
 
     private void findModules() {
-        Injector injector = Guice.createInjector(Stage.PRODUCTION, it -> {
-            it.bind(CommandManager.class).toInstance(CommandManagerImpl.INSTANCE);
-            it.bind(ExecutorService.class).toInstance(ExecutorServiceProvider.getExecutorService());
-            it.requestStaticInjection(ru.herobrine1st.fusion.api.Fusion.class);
-        });
         var disabledModules = Config.INSTANCE.getDisabledModules();
         new Reflections(Config.INSTANCE.getModuleSearchPrefix())
                 .getTypesAnnotatedWith(FutureModule.class)
@@ -82,10 +95,9 @@ public class Fusion {
                         Field instanceField = it.getDeclaredField("INSTANCE");
                         instanceField.setAccessible(true);
                         instance = Objects.requireNonNull(instanceField.get(null), "INSTANCE field is null");
-                        injector.injectMembers(instance);
                     } catch (Exception instanceFieldException) {
                         try {
-                            instance = injector.getInstance(it);
+                            instance = it.getDeclaredConstructor().newInstance();
                         } catch (Exception instantiationException) {
                             logger.error("No instance found or created for module %s".formatted(it.getCanonicalName()));
                             logger.error("No static INSTANCE field", instanceFieldException);
@@ -97,8 +109,7 @@ public class Fusion {
                 });
     }
 
-
-    /////////////////
+    //region INSTANCE and main method
     public static final Fusion INSTANCE = new Fusion();
 
     private Fusion() {
@@ -107,4 +118,22 @@ public class Fusion {
     public static void main(String[] args) throws InterruptedException {
         INSTANCE.main();
     }
+    //endregion
+
+    @Override
+    public Connection getSqlConnection() {
+        return connection;
+    }
+
+    @Override
+    public CommandManager getCommandManager() {
+        return CommandManagerImpl.INSTANCE;
+    }
+
+    @Override
+    public ExecutorService getExecutorService() {
+        return ExecutorServiceProvider.getExecutorService();
+    }
+
+
 }

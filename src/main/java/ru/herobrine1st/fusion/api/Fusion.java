@@ -4,16 +4,34 @@ import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.manager.CommandManager;
 
 import javax.inject.Inject;
+import java.sql.Connection;
+import java.util.concurrent.ExecutorService;
 
 public final class Fusion {
+    public interface Internal {
+        Connection getSqlConnection();
+        CommandManager getCommandManager();
+        ExecutorService getExecutorService();
+    }
+
     private Fusion() {
     }
 
     @Inject
-    private static CommandManager commandManager;
+    private static Fusion.Internal internalFusion;
+
+    @NotNull
+    public static Connection getSqlConnection() {
+        return internalFusion.getSqlConnection();
+    }
 
     @NotNull
     public static CommandManager getCommandManager() {
-        return commandManager;
+        return internalFusion.getCommandManager();
+    }
+
+    @NotNull
+    public static Fusion.Internal getInternalFusion() {
+        return internalFusion;
     }
 }

@@ -5,6 +5,9 @@
       <item index="0" class="java.lang.String" itemvalue="net.dv8tion.jda.api.hooks.SubscribeEvent" />
       <item index="1" class="java.lang.String" itemvalue="ru.herobrine1st.fusion.api.module.FutureModule" />
     </list>
+    <writeAnnotations>
+      <writeAnnotation name="javax.inject.Inject" />
+    </writeAnnotations>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="ProjectRootManager" version="2" languageLevel="JDK_16" default="true" project-jdk-name="openjdk-16" project-jdk-type="JavaSDK">
