@@ -5,13 +5,13 @@ import ru.herobrine1st.fusion.api.manager.CommandManager;
 
 import javax.inject.Inject;
 import java.sql.Connection;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 public final class Fusion {
     public interface Internal {
         Connection getSqlConnection();
         CommandManager getCommandManager();
-        ExecutorService getExecutorService();
+        ScheduledExecutorService getExecutorService();
     }
 
     private Fusion() {

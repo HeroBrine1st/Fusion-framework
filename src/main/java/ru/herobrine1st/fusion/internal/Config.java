@@ -1,5 +1,6 @@
 package ru.herobrine1st.fusion.internal;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,5 +37,10 @@ public final class Config {
 
     public String getDatabaseUrl() {
         return Objects.requireNonNull(System.getenv("DATABASE_URL"), "No DATABASE_URL variable in environment");
+    }
+
+    @Nullable
+    public String getTestGuildId() {
+        return System.getenv("TEST_GUILD_ID");
     }
 }
