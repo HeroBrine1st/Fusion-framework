@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.herobrine1st.fusion.api.command.FusionOptionData;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
 import ru.herobrine1st.fusion.api.command.args.ParserElement;
 import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
@@ -45,8 +44,10 @@ public class MessageCommandHandler {
         if (commandDataOptional.isEmpty()) {
             return;
         }
-        FusionBaseCommand<?, ?> targetCommand = commandDataOptional.get();
-        if (targetCommand.hasSubcommandGroups()) {
+        FusionBaseCommand<?, ?> sourceCommand = commandDataOptional.get();
+        FusionBaseCommand<?, ParserElement<?, ?>> targetCommand;
+        permissionHandlers.add(sourceCommand.getPermissionHandler());
+        if (sourceCommand.hasSubcommandGroups()) {
             String groupName;
             String subcommandName;
             try {
@@ -55,7 +56,7 @@ public class MessageCommandHandler {
             } catch (NoSuchElementException e) {
                 return;
             }
-            var subcommandData = targetCommand.getOptions().stream()
+            var subcommandData = sourceCommand.getOptions().stream()
                     .map(it -> (FusionSubcommandGroupData) it)
                     .filter(it -> it.getName().equals(groupName))
                     .limit(1)
@@ -67,7 +68,7 @@ public class MessageCommandHandler {
                     .findAny();
             if (subcommandData.isEmpty()) return;
             targetCommand = subcommandData.get();
-        } else if (targetCommand.hasSubcommands()) {
+        } else if (sourceCommand.hasSubcommands()) {
             String subcommandName;
             try {
                 subcommandName = args.next().value();
@@ -75,7 +76,7 @@ public class MessageCommandHandler {
                 return;
             }
             if (subcommandName == null) return;
-            var subcommandData = targetCommand.getOptions().stream()
+            var subcommandData = sourceCommand.getOptions().stream()
                     .map(it -> (FusionSubcommandData) it)
                     .filter(it -> it.getName().equals(subcommandName))
                     .limit(1)
@@ -83,6 +84,10 @@ public class MessageCommandHandler {
                     .findAny();
             if (subcommandData.isEmpty()) return;
             targetCommand = subcommandData.get();
+        } else {
+            // Can't check type of R because of type erasure, but sure it's always the ParserElement
+            //noinspection unchecked
+            targetCommand = (FusionBaseCommand<?, ParserElement<?, ?>>) sourceCommand;
         }
         if (permissionHandlers.get(0).shouldNotBeFound(event.getGuild())) {
             return;
@@ -102,9 +107,9 @@ public class MessageCommandHandler {
                     .build()).queue();
             return;
         }
-        for (FusionOptionData it : targetCommand.getOptions()) {
+        for (ParserElement<?, ?> it : targetCommand.getOptions()) {
             try {
-                ((ParserElement) it).parse(args, context);
+                it.parse(args, context);
             } catch (ArgumentParseException e) {
                 event.getChannel().sendMessage(new EmbedBuilder()
                         .setTitle("Ошибка распознавания аргументов!")

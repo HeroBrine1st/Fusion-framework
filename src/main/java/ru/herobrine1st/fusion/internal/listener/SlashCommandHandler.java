@@ -36,6 +36,7 @@ public class SlashCommandHandler {
             return;
         FusionBaseCommand<?, ParserElement<?, ?>> targetCommand;
         FusionBaseCommand<?, ?> sourceCommand = commandDataOptional.get();
+        permissionHandlers.add(sourceCommand.getPermissionHandler());
         if (sourceCommand.hasSubcommandGroups()) {
             if (groupName == null || subcommandName == null) return; // На невалидный запрос отвечаем невалидным ответом
             var subcommandData = sourceCommand.getOptions().stream()

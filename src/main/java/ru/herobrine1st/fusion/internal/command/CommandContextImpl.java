@@ -120,7 +120,7 @@ public class CommandContextImpl implements CommandContext {
                     return Type.SUCCESS; // успешно больше нуля, всего больше нуля, успешно больше половины
                 else
                     return Type.PARTIAL_SUCCESS; // успешно больше нуля, всего больше нуля, успешно меньше половины
-            } else return Type.SUCCESS; // успешно больше нуля, всего ноль
+            } else return Type.SUCCESS; // успешно больше нуля, всего нуль
         } else if (totalCount != 0) {
             return Type.ERROR; // Успешно ноль, всего больше нуля
         }

@@ -17,7 +17,7 @@ public abstract class FusionBaseCommand<T extends FusionBaseCommand<T, R>, R ext
     private CommandExecutor executor = null;
     private PermissionHandler permissionHandler = PermissionHandler.DEFAULT;
     private String shortName;
-    private boolean isTesting = false;
+    private boolean testing = false;
 
     protected final List<R> options = new ArrayList<>();
 
@@ -101,13 +101,13 @@ public abstract class FusionBaseCommand<T extends FusionBaseCommand<T, R>, R ext
     }
 
     public boolean isTesting() {
-        return isTesting;
+        return testing;
     }
 
     @Nonnull
     @SuppressWarnings("unchecked")
     public T setTesting(boolean testing) {
-        isTesting = testing;
+        this.testing = testing;
         return (T) this;
     }
 }

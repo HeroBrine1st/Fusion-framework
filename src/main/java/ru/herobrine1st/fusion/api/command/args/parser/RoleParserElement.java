@@ -48,7 +48,7 @@ public class RoleParserElement extends ParserElement<RoleParserElement, Role> {
     }
 
     @Override
-    public Role parseSlash(CommandContext ctx, CommandInteraction interaction) throws ArgumentParseException {
+    public Role parseSlash(CommandContext ctx, CommandInteraction interaction) {
         OptionMapping option = interaction.getOption(name);
         if(option == null) throw new NoSuchElementException();
         return option.getAsRole();

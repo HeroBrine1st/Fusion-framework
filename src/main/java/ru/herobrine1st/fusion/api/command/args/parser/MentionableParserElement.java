@@ -58,7 +58,7 @@ public class MentionableParserElement extends ParserElement<MentionableParserEle
     }
 
     @Override
-    public IMentionable parseSlash(CommandContext ctx, @NotNull CommandInteraction interaction) throws ArgumentParseException {
+    public IMentionable parseSlash(CommandContext ctx, @NotNull CommandInteraction interaction) {
         OptionMapping option = interaction.getOption(name);
         if(option == null) throw new NoSuchElementException();
         return option.getAsMentionable();

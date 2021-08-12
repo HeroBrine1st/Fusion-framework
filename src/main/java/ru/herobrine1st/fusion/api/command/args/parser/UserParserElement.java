@@ -47,7 +47,7 @@ public class UserParserElement extends ParserElement<UserParserElement, User> {
     }
 
     @Override
-    public User parseSlash(CommandContext ctx, CommandInteraction interaction) throws ArgumentParseException {
+    public User parseSlash(CommandContext ctx, CommandInteraction interaction) {
         OptionMapping option = interaction.getOption(name);
         if(option == null) throw new NoSuchElementException();
         return option.getAsUser();

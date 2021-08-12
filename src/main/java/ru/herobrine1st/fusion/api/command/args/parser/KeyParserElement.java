@@ -52,7 +52,7 @@ public class KeyParserElement<R> extends ParserElement<KeyParserElement<R>, R> {
     }
 
     @Override
-    public R parseSlash(CommandContext ctx, CommandInteraction interaction) throws ArgumentParseException {
+    public R parseSlash(CommandContext ctx, CommandInteraction interaction) {
         return null;
     }
 

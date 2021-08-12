@@ -199,6 +199,7 @@ public final class GenericArguments {
      * Wrapper around any ParserElement. Allows using option as {@code --name=value}: {@code name} is name of element, {@code value} is user input.
      *
      * @param element element inside wrapper
+     * @param <T>     Parse result type.
      * @return {@link KeyParserElement} instance
      */
     @Contract("_ -> new")
@@ -210,6 +211,7 @@ public final class GenericArguments {
      * Wrapper around any ParserElement. Allows using option as {@code --name=value}: {@code name} is name of element, {@code value} is user input.
      *
      * @param element element inside wrapper
+     * @param <T>     Parse result type.
      * @return {@link KeyParserElement} instance
      */
     @Contract("_, _ -> new")
@@ -227,5 +229,22 @@ public final class GenericArguments {
     @Contract("_, _ -> new")
     public static @NotNull ParserElement<?, Boolean> flag(String name, String description) {
         return new FlagParserElement(name, description);
+    }
+
+    /**
+     * Wrapper around any element. Continually parses using provided element until there are remaining arguments.
+     *
+     * @param element element inside wrapper
+     * @param <T>     Parse result type.
+     * @return {@link ParseUntilEndsParserElement} instance
+     */
+    @Contract("_ -> new")
+    public static <T> @NotNull ParserElement<?, T> untilEnds(ParserElement<?, T> element) {
+        return new ParseUntilEndsParserElement<>(element, 1);
+    }
+
+    @Contract("_, _ -> new")
+    public static <T> @NotNull ParserElement<?, T> untilEnds(ParserElement<?, T> element, int minCount) {
+        return new ParseUntilEndsParserElement<>(element, minCount);
     }
 }

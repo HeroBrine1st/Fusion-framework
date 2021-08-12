@@ -8,19 +8,14 @@ import ru.herobrine1st.fusion.api.command.args.CommandArgs;
 import ru.herobrine1st.fusion.api.command.args.ParserElement;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
 
-public class ParseUntilEndsParserElement extends ParserElement<ParseUntilEndsParserElement, Object> {
+public class ParseUntilEndsParserElement<T> extends ParserElement<ParseUntilEndsParserElement<T>, T> {
 
-    private final ParserElement<?, ?> element;
+    private final ParserElement<?, T> element;
     private final int minCount;
 
-    protected ParseUntilEndsParserElement(ParserElement<?, ?> element) {
-        this(element, 1);
-    }
-
-
-    protected ParseUntilEndsParserElement(ParserElement<?, ?> element, int minCount) {
+    public ParseUntilEndsParserElement(ParserElement<?, T> element, int minCount) {
         super(element.getName(), element.getDescription());
-        this.element = element;
+        this.element = element.setRequired(true);
         this.minCount = minCount;
     }
 
@@ -48,7 +43,7 @@ public class ParseUntilEndsParserElement extends ParserElement<ParseUntilEndsPar
     }
 
     @Override
-    public Object parseValue(CommandArgs args, CommandContext ctx) {
+    public T parseValue(CommandArgs args, CommandContext ctx) {
         return null;
     }
 
@@ -63,7 +58,7 @@ public class ParseUntilEndsParserElement extends ParserElement<ParseUntilEndsPar
     }
 
     @Override
-    public Object parseSlash(CommandContext ctx, CommandInteraction interaction) {
+    public T parseSlash(CommandContext ctx, CommandInteraction interaction) {
         return null;
     }
 
@@ -75,5 +70,11 @@ public class ParseUntilEndsParserElement extends ParserElement<ParseUntilEndsPar
     @Override
     public String getUsage() {
         return element.getUsage() + "...";
+    }
+
+    @NotNull
+    @Override
+    public ParseUntilEndsParserElement<T> setRequired(boolean required) {
+        throw new UnsupportedOperationException();
     }
 }

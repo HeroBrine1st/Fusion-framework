@@ -142,9 +142,9 @@ public interface CommandContext {
 
     /**
      * Color for use in embed.<br>
-     * Arguments (1, 0) and (x, x) mean success.<br>
-     * Arguments (0, 1) and (x ∈ [0, y/2), y) mean failure.<br>
-     * Arguments (x ∈ [y/2, y), y) mean partial success<br>
+     * Arguments {@code (1, 0)} and {@code (x, x)} mean success.<br>
+     * Arguments {@code (0, 1)} and {@code (x ∈ [0, y/2), y)} mean failure.<br>
+     * Arguments {@code (x ∈ [y/2, y), y)} mean partial success<br>
      * <h2>Example:</h2>
      * <pre><code>
      *     ctx.reply(ctx.{@link #getEmbedBase() getEmbedBase}()
