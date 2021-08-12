@@ -73,7 +73,7 @@ public interface CommandContext {
      * Get argument with certain name from context
      *
      * @param name name of the argument
-     * @param <T>  type of the argument. Will be <b>unsafely casted</b>, so make sure you did all right!
+     * @param <T>  type of the argument. Will be used in <b>unsafe cast</b>.
      * @return {@link Optional}<T> container with argument
      * @see #getAll(String)
      */
@@ -83,7 +83,7 @@ public interface CommandContext {
      * Get collection of arguments with certain name from context
      *
      * @param name name of the argument
-     * @param <T>  type of the argument. Will be <b>unsafely casted</b>, so make sure you did all right!
+     * @param <T>  type of the argument. Will be used in <b>unsafe cast</b>.
      * @return {@link Collection}<T> of arguments. Empty if no arguments.
      * @see #getOne(String)
      */
@@ -108,7 +108,7 @@ public interface CommandContext {
 
     /**
      * Command executing in this execution
-     * @return {@link FusionBaseCommand}<?> object describing command that (usually) called this method.
+     * @return {@link FusionBaseCommand}<?, ?> object describing command that (usually) called this method.
      */
     FusionBaseCommand<?, ?> getCommand();
 
@@ -340,7 +340,7 @@ public interface CommandContext {
     }
 
     /**
-     * Reply with embed and components, then flatMap to {@link ButtonClickEvent}
+     * Reply with embed and components, then flatMap to {@link ButtonClickEvent}<br>
      * This method is a shortcut for {@code reply(embed, rows).flatMap(it -> getButtonClickEventRestAction())}
      *
      * @param embed embed that will be sent in response message
