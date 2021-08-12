@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Target(value = ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface FutureModule {
+public @interface FusionModule {
     String id();
     String name() default "";
     String description() default "";

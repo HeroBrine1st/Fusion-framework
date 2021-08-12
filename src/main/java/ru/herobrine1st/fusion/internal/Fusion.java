@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.herobrine1st.fusion.api.annotation.FutureModule;
+import ru.herobrine1st.fusion.api.annotation.FusionModule;
 import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
 import ru.herobrine1st.fusion.api.event.FusionInitializationEvent;
 import ru.herobrine1st.fusion.api.event.FusionPreInitializationEvent;
@@ -137,10 +137,10 @@ public class Fusion implements Internal {
     private void findModules() {
         var disabledModules = Config.INSTANCE.getDisabledModules();
         new Reflections(Config.INSTANCE.getModuleSearchPrefix())
-                .getTypesAnnotatedWith(FutureModule.class)
+                .getTypesAnnotatedWith(FusionModule.class)
                 .stream()
-                .filter(it -> !disabledModules.contains(it.getAnnotation(FutureModule.class).id().toLowerCase()))
-                .peek(it -> logger.trace("Loading module " + it.getAnnotation(FutureModule.class).id()))
+                .filter(it -> !disabledModules.contains(it.getAnnotation(FusionModule.class).id().toLowerCase()))
+                .peek(it -> logger.trace("Loading module " + it.getAnnotation(FusionModule.class).id()))
                 .forEach(it -> {
                     Object instance = null;
                     try {
