@@ -2,6 +2,7 @@ package ru.herobrine1st.fusion.api.restaction;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +16,8 @@ public class CompletableFutureRestAction<R> implements RestAction<R> {
     private final CompletableFuture<R> completableFuture;
     private BooleanSupplier checks = null;
 
-    public static <R> CompletableFutureRestAction<R> of(CompletableFuture<R> completableFuture) {
+    @Contract(value = "_ -> new", pure = true)
+    public static <R> @NotNull CompletableFutureRestAction<R> of(CompletableFuture<R> completableFuture) {
         return new CompletableFutureRestAction<>(completableFuture);
     }
 

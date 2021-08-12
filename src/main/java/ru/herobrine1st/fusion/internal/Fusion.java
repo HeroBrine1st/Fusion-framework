@@ -33,6 +33,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
+import java.util.ResourceBundle;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -192,5 +193,10 @@ public class Fusion implements Internal {
     @Override
     public IEventManager getEventManager() {
         return eventManager;
+    }
+
+    @Override
+    public ResourceBundle getResourceBundle() {
+        return ResourceBundle.getBundle("1223");
     }
 }

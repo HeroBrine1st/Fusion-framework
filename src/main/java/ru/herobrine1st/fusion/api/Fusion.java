@@ -6,6 +6,7 @@ import ru.herobrine1st.fusion.api.manager.CommandManager;
 
 import javax.inject.Inject;
 import java.sql.Connection;
+import java.util.ResourceBundle;
 import java.util.concurrent.ScheduledExecutorService;
 
 public final class Fusion {
@@ -14,6 +15,7 @@ public final class Fusion {
         CommandManager getCommandManager();
         ScheduledExecutorService getExecutorService();
         IEventManager getEventManager();
+        ResourceBundle getResourceBundle();
     }
 
     private Fusion() {
@@ -40,5 +42,10 @@ public final class Fusion {
     @NotNull
     public static ScheduledExecutorService getExecutorService() {
         return internalFusion.getExecutorService();
+    }
+
+    @NotNull
+    public static ResourceBundle getResourceBundle() {
+        return internalFusion.getResourceBundle();
     }
 }

@@ -34,7 +34,7 @@ public class SlashCommandHandler {
                 .findFirst();
         if (commandDataOptional.isEmpty())
             return;
-        FusionBaseCommand<?, ParserElement> targetCommand;
+        FusionBaseCommand<?, ParserElement<?, ?>> targetCommand;
         FusionBaseCommand<?, ?> sourceCommand = commandDataOptional.get();
         if (sourceCommand.hasSubcommandGroups()) {
             if (groupName == null || subcommandName == null) return; // На невалидный запрос отвечаем невалидным ответом
@@ -63,7 +63,7 @@ public class SlashCommandHandler {
         } else {
             // Can't check type of R because of type erasure, but sure it's always the ParserElement
             //noinspection unchecked
-            targetCommand = (FusionBaseCommand<?, ParserElement>) sourceCommand;
+            targetCommand = (FusionBaseCommand<?, ParserElement<?, ?>>) sourceCommand;
         }
         if (permissionHandlers.get(0).shouldNotBeFound(event.getGuild())) {
             return;
@@ -77,7 +77,7 @@ public class SlashCommandHandler {
             return;
         }
 
-        for (ParserElement it : targetCommand.getOptions()) {
+        for (ParserElement<?, ?> it : targetCommand.getOptions()) {
             try {
                 it.parseSlash(context);
             } catch (ArgumentParseException e) {

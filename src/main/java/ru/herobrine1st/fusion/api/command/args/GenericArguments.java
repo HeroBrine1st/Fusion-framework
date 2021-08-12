@@ -1,727 +1,231 @@
 package ru.herobrine1st.fusion.api.command.args;
 
-import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import ru.herobrine1st.fusion.api.command.CommandContext;
-import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
+import ru.herobrine1st.fusion.api.command.args.parser.*;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
+/**
+ * Class containing various {@link ParserElement} provider methods
+ * <h2><a id="message-context">Message context</a></h2>
+ * Some parsers can function only in message context. They will disable application commands feature in every command that contains any of them.
+ */
 public final class GenericArguments {
-    private static final Map<String, Boolean> booleanChoices = new HashMap<>(6, 1);
-
-    static {
-        booleanChoices.put("true", true);
-        booleanChoices.put("false", false);
-        booleanChoices.put("yes", true);
-        booleanChoices.put("no", false);
-        booleanChoices.put("y", true);
-        booleanChoices.put("n", false);
-    }
 
     private GenericArguments() {
     }
 
     /**
-     * Оставшиеся соединенные строки. Собирает все оставшиеся строки в одну строку и отправляет в контекст под ключом name
-     * Не имеет backtracking. Всегда что-то возвращает.
+     * Implementation of STRING discord option type. Supplies values of {@link String} type.
      *
-     * @param name         ключ, которым результат будет отображаться в контексте
-     * @param description Описание аргумента
+     * @param name        name of the option.
+     * @param description description of the option.
+     * @see #string(String, String, boolean, boolean, boolean)
      */
-    public static ParserElement remainingJoinedStrings(String name, String description) {
-        return new RemainingJoinedStringsParserElement(name, description, false);
+    @Contract("_, _ -> new")
+    public static @NotNull ParserElement<?, String> string(String name, String description) {
+        return new StringParserElement(name, description, false, false, false);
     }
 
     /**
-     * @param name           ключ, которым результат будет отображаться в контексте
-     * @param description    Описание аргумента
-     * @param breakOnNewLine если true, прекращает сборку строки при достижении \n (при этом \n будет добавлен в строку)
-     * @see GenericArguments#remainingJoinedStrings(java.lang.String, java.lang.String)
-     */
-    public static ParserElement remainingJoinedStrings(String name, String description, boolean breakOnNewLine) {
-        return new RemainingJoinedStringsParserElement(name, description, breakOnNewLine);
-    }
-
-    /**
-     * Парсит ключ вида --ключ=значение, -одиночные_символы, --ключ="значение с пробелом"
-     * Отправляет значение в element, который распарсит его
+     * Implementation of STRING discord option type. Supplies values of {@link String} type.
+     * <br>
+     * Additional arguments work only in <a href="#message-context">message context</a>
      *
-     * @param element элемент, который будет парсить содержимое ключа
+     * @param name          name of the option.
+     * @param description   description of the option.
+     * @param joinRemaining if true, will cyclically join all remaining arguments provided by user.
+     * @see #string(String, String, boolean, boolean, boolean)
      */
-    public static ParserElement key(ParserElement element) {
-        return new KeyParserElement(element, true);
+    @Contract("_, _, _ -> new")
+    public static @NotNull ParserElement<?, String> string(String name, String description, boolean joinRemaining) {
+        return new StringParserElement(name, description, joinRemaining, false, false);
     }
 
     /**
-     * @param optional если true, ключ становится опциональным и не вызывает ошибок при отсутствии
-     * @see GenericArguments#key(ru.herobrine1st.fusion.api.command.args.ParserElement)
-     */
-    public static ParserElement key(ParserElement element, boolean optional) {
-        return new KeyParserElement(element, optional);
-    }
-
-    /**
-     * Делает абсолютно любой элемент опциональным
+     * Implementation of STRING discord option type. Supplies values of {@link String} type.
+     * <br>
+     * Additional arguments work only in <a href="#message-context">message context</a>
      *
-     * @param element элемент, который нужно сделать опциональным
+     * @param name           name of the option.
+     * @param description    description of the option.
+     * @param joinRemaining  if true, will cyclically join all remaining arguments provided by user.
+     * @param breakOnNewLine if this and joinRemaining are true, will cyclically join all remaining arguments until newline separator.
+     * @see #string(String, String, boolean, boolean, boolean)
      */
-    public static ParserElement optional(ParserElement element) {
-        return new OptionalParserElement(element, null);
+    @Contract("_, _, _, _ -> new")
+    public static @NotNull ParserElement<?, String> string(String name, String description, boolean joinRemaining, boolean breakOnNewLine) {
+        return new StringParserElement(name, description, joinRemaining, breakOnNewLine, false);
     }
 
     /**
-     * @param defaultValue значение по умолчанию
-     * @see ru.herobrine1st.fusion.api.command.args.GenericArguments#optional(ru.herobrine1st.fusion.api.command.args.ParserElement)
-     */
-    public static ParserElement optional(ParserElement element, Object defaultValue) {
-        return new OptionalParserElement(element, defaultValue);
-    }
-
-    /**
-     * Позволяет пользователю выбрать из списка
+     * Implementation of STRING discord option type. Supplies values of {@link String} type.
+     * <br>
+     * Additional arguments work only in <a href="#message-context">message context</a>
      *
-     * @param name         ключ, которым результат будет отображаться в контексте
-     * @param description Описание аргумента
-     * @param choices     Выбор пользователя. Ключ карты — то, что должен ввести пользователь, значение — то, что получит команда
+     * @param name           name of the option.
+     * @param description    description of the option.
+     * @param joinRemaining  if true, will cyclically join all remaining arguments provided by user.
+     * @param breakOnNewLine if this and joinRemaining are true, will cyclically join all remaining arguments until newline separator.
+     * @param canBeEmpty     if false, will throw an exception if no arguments remaining. If true, will become optional.
+     * @return {@link StringParserElement} instance
      */
-    public static ParserElement choices(String name, String description, Map<String, ?> choices) {
-        return new ChoicesParserElement(name, description, choices);
+    @Contract("_, _, _, _, _ -> new")
+    public static @NotNull ParserElement<?, String> string(String name, String description, boolean joinRemaining, boolean breakOnNewLine, boolean canBeEmpty) {
+        return new StringParserElement(name, description, joinRemaining, breakOnNewLine, canBeEmpty);
     }
 
     /**
-     * @param name         ключ, которым результат будет отображаться в контексте
-     * @param description Описание аргумента
-     * @param choices     Выбор пользователя. Ключ карты — то, что должен ввести пользователь, значение — то, что получит команда
-     * @param usage       строка использования, которая будет отображаться пользователю при /help
-     * @see ru.herobrine1st.fusion.api.command.args.GenericArguments#choices(java.lang.String, java.lang.String, java.util.Map)
+     * Implementation of INTEGER discord option type. Supplies values of {@link Long} type
+     *
+     * @param name        name of the option.
+     * @param description description of the option.
+     * @return {@link IntegerParserElement} instance
+     * @see #integer(String, String, int, int, int)
      */
-    public static ParserElement choices(String name, String description, Map<String, ?> choices, String usage) {
-        return new ChoicesParserElement(name, description, choices, usage);
+    @Contract("_, _ -> new")
+    public static @NotNull ParserElement<?, Long> integer(String name, String description) {
+        return new IntegerParserElement(name, description, Long.MIN_VALUE, Long.MAX_VALUE, 10);
     }
 
     /**
-     * @param name         ключ, которым результат будет отображаться в контексте
-     * @param description Описание аргумента
-     * @see ru.herobrine1st.fusion.api.command.args.GenericArguments#choices(java.lang.String, java.lang.String, java.util.Map)
-     * Позволяет пользователю выбрать да/нет
+     * Implementation of INTEGER discord option type. Supplies values of {@link Long} type
+     *
+     * @param name        name of the option.
+     * @param description description of the option.
+     * @param min         minimal value of integer
+     * @return {@link IntegerParserElement} instance
+     * @see #integer(String, String, int, int, int)
      */
-    public static ParserElement bool(String name, String description) {
+    @Contract("_, _, _ -> new")
+    public static @NotNull ParserElement<?, Long> integer(String name, String description, long min) {
+        return new IntegerParserElement(name, description, min, Long.MAX_VALUE, 10);
+    }
+
+    /**
+     * Implementation of INTEGER discord option type. Supplies values of {@link Long} type
+     *
+     * @param name        name of the option.
+     * @param description description of the option.
+     * @param min         minimal value of integer
+     * @param max         maximum value of integer
+     * @return {@link IntegerParserElement} instance
+     * @see #integer(String, String, int, int, int)
+     */
+    @Contract("_, _, _, _ -> new")
+    public static @NotNull ParserElement<?, Long> integer(String name, String description, long min, long max) {
+        return new IntegerParserElement(name, description, min, max, 10);
+    }
+
+    /**
+     * Implementation of INTEGER discord option type. Supplies values of {@link Long} type
+     *
+     * @param name        name of the option.
+     * @param description description of the option.
+     * @param min         minimal value of integer
+     * @param max         maximum value of integer
+     * @param radix       radix used when parsing integer in <a href="#message-context">message context</a>
+     * @return {@link IntegerParserElement} instance
+     */
+    @Contract("_, _, _, _, _ -> new")
+    public static @NotNull ParserElement<?, Long> integer(String name, String description, int min, int max, int radix) {
+        return new IntegerParserElement(name, description, min, max, radix);
+    }
+
+    /**
+     * Implementation of BOOLEAN discord option type. Supplies values of {@link Boolean} type
+     *
+     * @param name        name of the option.
+     * @param description description of the option.
+     * @return {@link BooleanParserElement} instance
+     */
+    @Contract("_, _ -> new")
+    public static @NotNull ParserElement<?, Boolean> bool(String name, String description) {
         return new BooleanParserElement(name, description);
     }
 
     /**
-     * Позволяет пользователю выбрать да/нет с помощью флага. Если пользователь ничего не выберет, вернется false
+     * Implementation of USER discord option type. Supplies values of {@link net.dv8tion.jda.api.entities.User User} type
      *
-     * @param name         ключ, которым результат будет отображаться в контексте
-     * @param description Описание аргумента
-     * @see ru.herobrine1st.fusion.api.command.args.GenericArguments#key(ru.herobrine1st.fusion.api.command.args.ParserElement)
+     * @param name        name of the option.
+     * @param description description of the option.
+     * @return {@link UserParserElement} instance
      */
-    public static ParserElement flag(String name, String description) {
+    @Contract("_, _ -> new")
+    public static @NotNull ParserElement<?, User> user(String name, String description) {
+        return new UserParserElement(name, description);
+    }
+
+    /**
+     * Implementation of CHANNEL discord option type. Supplies values of {@link net.dv8tion.jda.api.entities.GuildChannel GuildChannel} type
+     *
+     * @param name        name of the option.
+     * @param description description of the option.
+     * @return {@link ChannelParserElement} instance
+     */
+    @Contract("_, _ -> new")
+    public static @NotNull ParserElement<?, GuildChannel> channel(String name, String description) {
+        return new ChannelParserElement(name, description);
+    }
+
+    /**
+     * Implementation of ROLE discord option type. Supplies values of {@link net.dv8tion.jda.api.entities.Role Role} type
+     *
+     * @param name        name of the option.
+     * @param description description of the option.
+     * @return {@link RoleParserElement} instance
+     */
+    @Contract("_, _ -> new")
+    public static @NotNull ParserElement<?, Role> role(String name, String description) {
+        return new RoleParserElement(name, description);
+    }
+
+    /**
+     * Implementation of MENTIONABLE discord option type. Supplies values of {@link net.dv8tion.jda.api.entities.IMentionable IMentionable} type
+     *
+     * @param name        name of the option.
+     * @param description description of the option.
+     * @return {@link MentionableParserElement} instance
+     */
+    @Contract("_, _ -> new")
+    public static @NotNull ParserElement<?, IMentionable> mentionable(String name, String description) {
+        return new MentionableParserElement(name, description);
+    }
+
+    /**
+     * Wrapper around any ParserElement. Allows using option as {@code --name=value}: {@code name} is name of element, {@code value} is user input.
+     *
+     * @param element element inside wrapper
+     * @return {@link KeyParserElement} instance
+     */
+    @Contract("_ -> new")
+    public static <T> @NotNull ParserElement<?, T> key(ParserElement<?, T> element) {
+        return new KeyParserElement<>(element, null);
+    }
+
+    /**
+     * Wrapper around any ParserElement. Allows using option as {@code --name=value}: {@code name} is name of element, {@code value} is user input.
+     *
+     * @param element element inside wrapper
+     * @return {@link KeyParserElement} instance
+     */
+    @Contract("_, _ -> new")
+    public static <T> @NotNull ParserElement<?, T> key(ParserElement<?, T> element, T defaultValue) {
+        return new KeyParserElement<>(element, defaultValue);
+    }
+
+    /**
+     * Wrapper around BooleanParserElement. Allows using as {@code --flag} (flag {@code flag} will be set to true) or even {@code -abc} (flags {@code a}, {@code b} and {@code c} will be set to true)
+     *
+     * @param name        name of the option.
+     * @param description description of the option.
+     * @return {@link FlagParserElement} instance
+     */
+    @Contract("_, _ -> new")
+    public static @NotNull ParserElement<?, Boolean> flag(String name, String description) {
         return new FlagParserElement(name, description);
-    }
-
-    /**
-     * Одиночная строка
-     *
-     * @param name         ключ, которым результат будет отображаться в контексте
-     * @param description Описание аргумента
-     */
-    public static ParserElement singleString(String name, String description) {
-        return new SingleStringParserElement(name, description);
-    }
-
-    public static ParserElement singleString(String name, String description, int maxLength) {
-        return new SingleStringParserElement(name, description, maxLength);
-    }
-
-    /**
-     * Изменяет строку использования элемента
-     *
-     * @param element  элемент
-     * @param rawUsage новая строка использования
-     */
-    public static ParserElement changeRawUsage(ParserElement element, String rawUsage) {
-        return new ChangeUsageParserElement(element, rawUsage);
-    }
-
-    /**
-     * Упоминание пользователя Discord
-     *
-     * @param name         ключ, которым результат будет отображаться в контексте
-     * @param description Описание аргумента
-     */
-    public static ParserElement discordMention(String name, String description) {
-        return new DiscordMentionParserElement(name, description);
-    }
-
-    /**
-     * Парсит все оставшиеся аргументы, пока они не закончатся
-     *
-     * @param element элемент, который будет парсить
-     */
-    public static ParserElement untilEnds(ParserElement element) {
-        return new ParseUntilEndsElement(element);
-    }
-
-
-    /**
-     * Парсит все оставшиеся аргументы, пока они не закончатся
-     *
-     * @param element  элемент, который будет парсить
-     * @param minCount минимальное количество итераций
-     * @see GenericArguments#untilEnds(ru.herobrine1st.fusion.api.command.args.ParserElement)
-     */
-    public static ParserElement untilEnds(ParserElement element, int minCount) {
-        return new ParseUntilEndsElement(element, minCount);
-    }
-
-    static class RemainingJoinedStringsParserElement extends ParserElement {
-        private final boolean breakOnNewLine;
-
-        RemainingJoinedStringsParserElement(String name, String description, boolean breakOnNewLine) {
-            super(name, description);
-            this.breakOnNewLine = breakOnNewLine;
-        }
-
-        @Override
-        public Object parseValue(CommandArgs args, CommandContext ctx) {
-            StringBuilder builder = new StringBuilder();
-            if (!args.hasNext()) throw new NoSuchElementException();
-            while (args.hasNext()) {
-                String value = args.next().getValue();
-                if (breakOnNewLine && value.contains("\n")) {
-                    builder.append(value);
-                    break;
-                }
-                builder.append(value);
-                if (args.hasNext()) builder.append(" ");
-            }
-            return builder.toString();
-        }
-
-        @Override
-        public boolean hasSlashSupport() {
-            return true;
-        }
-
-        @Override
-        public OptionData getOptionData() {
-            return new OptionData(OptionType.STRING, getName(), getDescription(), true);
-        }
-
-        @Override
-        public Object parseSlash(CommandContext ctx, CommandInteraction interaction) {
-            if(interaction.getOptionsByName(getName()).isEmpty()) throw new NoSuchElementException();
-            return interaction.getOptionsByName(getName())
-                    .stream().map(OptionMapping::getAsString).collect(Collectors.joining(" "));
-        }
-
-        @Override
-        public String getRawUsage() {
-            return getName() + "...";
-        }
-    }
-
-    static class KeyParserElement extends ParserElement {
-        private final ParserElement element;
-        private final boolean optional;
-
-         KeyParserElement(ParserElement element, boolean optional) {
-            super(null, null);
-            this.element = element;
-            this.optional = optional;
-        }
-
-        @Override
-        public @NotNull String getName() {
-            return element.getName();
-        }
-
-        @Override
-        public @NotNull String getDescription() {
-            return element.getDescription();
-        }
-
-        @Override
-        public Object parseValue(CommandArgs args, CommandContext ctx) throws ArgumentParseException {
-            Optional<CommandArgs> value = args.getKey(getName());
-            if (value.isEmpty())
-                if (!optional)
-                    throw new ArgumentParseException(String.format("Ключ %s отсутствует", getName()));
-                else
-                    return null;
-            return element.parseValue(value.get(), ctx);
-        }
-
-        @Override
-        public boolean hasSlashSupport() {
-            return element.hasSlashSupport();
-        }
-
-        @Override
-        public OptionData getOptionData() {
-            return new OptionData(
-                    element.getOptionData().getType(),
-                    getName(), getDescription(), optional);
-        }
-
-        @Override
-        public void parseSlash(CommandContext ctx) throws ArgumentParseException {
-             try {
-                 element.parseSlash(ctx);
-             } catch (NoSuchElementException | ArgumentParseException e) {
-                 if(!optional) throw e;
-             }
-        }
-
-        @Override
-        public Object parseSlash(CommandContext ctx, CommandInteraction interaction) {
-            return null;
-        }
-
-        @Override
-        public String getUsage() {
-            return optional ? "[" + getRawUsage() + "]" : getRawUsage();
-        }
-
-        @Override
-        public String getRawUsage() {
-            return "--" + getName() + "=" + element.getRawUsage();
-        }
-    }
-
-    static class OptionalParserElement extends ParserElement {
-        private final ParserElement element;
-        private final Object defaultValue;
-
-        OptionalParserElement(ParserElement element, Object defaultValue) {
-            super(element.getName(), element.getDescription());
-            this.element = element;
-            this.defaultValue = defaultValue;
-        }
-
-        @Override
-        public void parse(CommandArgs args, CommandContext ctx) {
-            int pos = args.getPos();
-            try {
-                element.parse(args, ctx);
-            } catch (ArgumentParseException | NoSuchElementException e) {
-                if (defaultValue != null)
-                    ctx.putArg(element.getName(), defaultValue);
-                args.setPos(pos);
-            }
-        }
-
-        @Override
-        public Object parseValue(CommandArgs args, CommandContext ctx) {
-            return null;
-        }
-
-        @Override
-        public boolean hasSlashSupport() {
-            return element.hasSlashSupport();
-        }
-
-        @Override
-        public OptionData getOptionData() {
-            return element.getOptionData().setRequired(false);
-        }
-
-        @Override
-        public void parseSlash(CommandContext ctx) {
-            try {
-                element.parseSlash(ctx);
-            } catch (ArgumentParseException | NoSuchElementException e) {
-                if (defaultValue != null)
-                    ctx.putArg(element.getName(), defaultValue);
-            }
-        }
-
-        @Override
-        public Object parseSlash(CommandContext ctx, CommandInteraction interaction) {
-            return null;
-        }
-
-        @Override
-        public String getUsage() {
-            return "[" + getRawUsage() + "]";
-        }
-
-        @Override
-        public String getRawUsage() {
-            return element.getRawUsage();
-        }
-    }
-
-    static class ChoicesParserElement extends ParserElement {
-        private final Map<String, ?> choices;
-        private final String usage;
-
-        public ChoicesParserElement(String name, String description, Map<String, ?> choices) {
-            super(name, description);
-            this.choices = choices;
-            StringBuilder builder = new StringBuilder();
-
-            for (Iterator<? extends Map.Entry<String, ?>> iterator = choices.entrySet().iterator(); iterator.hasNext(); ) {
-                builder.append(iterator.next().getKey());
-                if (iterator.hasNext()) builder.append("|");
-            }
-            usage = builder.toString();
-        }
-
-        public ChoicesParserElement(String name, String description, Map<String, ?> choices, String usage) {
-            super(name, description);
-            this.choices = choices;
-            this.usage = usage;
-        }
-
-        @Override
-        protected Object parseValue(CommandArgs args, CommandContext ctx) throws ArgumentParseException {
-            SingleArg arg = args.next();
-            return choices.get(
-                    choices.keySet().stream().filter((String s) -> s.equalsIgnoreCase(arg.getValue())).findAny()
-                            .orElseThrow(() -> ArgumentParseException.withPointer("Аргумент " + getName() + " не распознан", args))
-            );
-
-        }
-
-        @Override
-        public boolean hasSlashSupport() {
-            return true;
-        }
-
-        @Override
-        public OptionData getOptionData() {
-            var optionData = new OptionData(OptionType.STRING, getName(), getDescription(), true);
-            for (var choice : choices.entrySet()) {
-                optionData.addChoice(choice.getKey(), choice.getKey());
-            }
-            return optionData;
-        }
-
-        @Override
-        public Object parseSlash(CommandContext ctx, CommandInteraction interaction) throws ArgumentParseException {
-            var option = interaction.getOption(getName());
-            if (option == null) throw new NoSuchElementException(getName());
-            var value = choices.get(option.getAsString());
-            if (value == null) throw new ArgumentParseException("Аргумент %s не распознан".formatted(getName()));
-            return value;
-        }
-
-        @Override
-        public String getRawUsage() {
-            return usage;
-        }
-    }
-
-    static class SingleStringParserElement extends ParserElement {
-
-        private final int maxLength;
-
-        protected SingleStringParserElement(String name, String description) {
-            this(name, description, Integer.MAX_VALUE);
-        }
-
-        protected SingleStringParserElement(String name, String description, int maxLength) {
-            super(name, description);
-            this.maxLength = maxLength;
-        }
-
-        @Override
-        protected Object parseValue(CommandArgs args, CommandContext ctx) throws ArgumentParseException {
-            String s = args.next().getValue();
-            if (s.length() > maxLength)
-                throw ArgumentParseException.withPointer(String.format("Превышена максимальная длина %s символов", maxLength), args);
-            return s;
-        }
-
-        @Override
-        public boolean hasSlashSupport() {
-            return true;
-        }
-
-        @Override
-        public OptionData getOptionData() {
-            return new OptionData(OptionType.STRING, getName(), getDescription());
-        }
-
-        @Override
-        public Object parseSlash(CommandContext ctx, CommandInteraction interaction) throws ArgumentParseException {
-            var value = interaction.getOptionsByName(getName())
-                    .stream().map(OptionMapping::getAsString).collect(Collectors.joining(" "));
-            if (value.length() > maxLength)
-                throw new ArgumentParseException("Превышена максимальная длина %d символов у аргумента %s".formatted(maxLength, getName()));
-            return value;
-        }
-
-        @Override
-        public String getRawUsage() {
-            return getName();
-        }
-    }
-
-    static class ChangeUsageParserElement extends ParserElement {
-        private final ParserElement element;
-        private final String rawUsage;
-
-        protected ChangeUsageParserElement(ParserElement element, String rawUsage) {
-            super(null, null);
-            this.element = element;
-            this.rawUsage = rawUsage;
-        }
-
-        @Override
-        public void parse(CommandArgs args, CommandContext ctx) throws ArgumentParseException {
-            element.parse(args, ctx);
-        }
-
-        @Override
-        public @NotNull String getName() {
-            return element.getName();
-        }
-
-        @Override
-        public @NotNull String getDescription() {
-            return element.getDescription();
-        }
-
-        @Override
-        protected Object parseValue(CommandArgs args, CommandContext ctx) {
-            return null;
-        }
-
-        @Override
-        public boolean hasSlashSupport() {
-            return element.hasSlashSupport();
-        }
-
-        @Override
-        public OptionData getOptionData() {
-            return element.getOptionData();
-        }
-
-        @Override
-        public void parseSlash(CommandContext ctx) throws ArgumentParseException {
-            element.parseSlash(ctx);
-        }
-
-        @Override
-        public Object parseSlash(CommandContext ctx, CommandInteraction interaction) {
-            return null;
-        }
-
-        @Override
-        public String getRawUsage() {
-            return rawUsage;
-        }
-    }
-
-    static class DiscordMentionParserElement extends ParserElement {
-        private final static String mentionRegex = "<@!?(\\d+)>";
-        private final static Pattern mentionPattern = Pattern.compile(mentionRegex);
-
-        protected DiscordMentionParserElement(String name, String description) {
-            super(name, description);
-        }
-
-        @Override
-        protected Object parseValue(CommandArgs args, CommandContext ctx) throws ArgumentParseException {
-            String arg = args.next().getValue();
-            Matcher mentionMatcher = mentionPattern.matcher(arg);
-            if (!mentionMatcher.find()) {
-                throw ArgumentParseException.withPointer("Аргумент " + getName() + " не распознан", args);
-            }
-            return ctx.getJDA().getUserById(mentionMatcher.group(1));
-        }
-
-        @Override
-        public boolean hasSlashSupport() {
-            return true;
-        }
-
-        @Override
-        public OptionData getOptionData() {
-            return new OptionData(OptionType.USER, getName(), getDescription(), true);
-        }
-
-        @Override
-        public Object parseSlash(CommandContext ctx, CommandInteraction interaction) {
-            var value = interaction.getOption(getName());
-            if (value == null) throw new NoSuchElementException();
-            return value.getAsUser();
-        }
-
-        @Override
-        public String getUsage() {
-            return getRawUsage();
-        }
-
-        @Override
-        public String getRawUsage() {
-            return "@mention";
-        }
-    }
-
-    static class ParseUntilEndsElement extends ParserElement {
-
-        private final ParserElement element;
-        private final int minCount;
-
-        protected ParseUntilEndsElement(ParserElement element) {
-            this(element, 1);
-        }
-
-
-        protected ParseUntilEndsElement(ParserElement element, int minCount) {
-            super(null, null);
-            this.element = element;
-            this.minCount = minCount;
-        }
-
-        @Override
-        public @NotNull String getName() {
-            return element.getName();
-        }
-
-        @Override
-        public @NotNull String getDescription() {
-            return element.getDescription();
-        }
-
-        @Override
-        public void parse(CommandArgs args, CommandContext ctx) throws ArgumentParseException {
-            int i = 0;
-            for (; args.hasNext(); i++) {
-                element.parse(args, ctx);
-            }
-            if (i < minCount) throw ArgumentParseException.withPointer(
-                    String.format("Аргумент %s должен повторяться хотя бы %s раз%s",
-                            element.getRawUsage(),
-                            minCount,
-                            (minCount >= 2 && minCount <= 5) || ((minCount > 20) && (minCount % 10 >= 2) && (minCount % 10 <= 5)) ? "а" : ""), args);
-        }
-
-        @Override
-        protected Object parseValue(CommandArgs args, CommandContext ctx) {
-            return null;
-        }
-
-        @Override
-        public boolean hasSlashSupport() {
-            return false;
-        }
-
-        @Override
-        public OptionData getOptionData() {
-            return null;
-        }
-
-        @Override
-        public Object parseSlash(CommandContext ctx, CommandInteraction interaction) {
-            return null;
-        }
-
-        @Override
-        public String getRawUsage() {
-            return null;
-        }
-
-        @Override
-        public String getUsage() {
-            return element.getUsage() + "...";
-        }
-    }
-
-    // Вот эти два класса - костыли, но если хочется кому-то их презентовать, то говорите, что это - обертки
-    static class FlagParserElement extends ParserElement { // Обертка, потому что по отдельности все три элемента поддерживают слеш-команды, но в итоге получается полная хуйня
-        private final ParserElement element;
-
-        protected FlagParserElement(String name, String description) {
-            super(name, description);
-            this.element = GenericArguments.optional(
-                    GenericArguments.key(
-                            GenericArguments.choices(name, description, booleanChoices, "bool"), false),
-                    false);
-        }
-
-        @Override
-        public void parse(CommandArgs args, CommandContext ctx) throws ArgumentParseException {
-            element.parse(args, ctx);
-        }
-
-        @Override
-        protected Object parseValue(CommandArgs args, CommandContext ctx) {
-            return null;
-        }
-
-        @Override
-        public boolean hasSlashSupport() {
-            return true;
-        }
-
-        @Override
-        public OptionData getOptionData() {
-            return new OptionData(OptionType.BOOLEAN, getName(), getDescription(), false);
-        }
-
-        @Override
-        public Object parseSlash(CommandContext ctx, CommandInteraction interaction) {
-            var value = interaction.getOption(getName());
-            if (value == null) return false;
-            return value.getAsBoolean();
-        }
-
-        @Override
-        public String getRawUsage() {
-            return "-" + (getName().length() > 1 ? "-" : "") + getName();
-        }
-    }
-
-    static class BooleanParserElement extends ParserElement {
-        private final ParserElement element;
-
-        protected BooleanParserElement(String name, String description) {
-            super(name, description);
-            this.element = GenericArguments.choices(name, description, booleanChoices);
-        }
-
-        @Override
-        public void parse(CommandArgs args, CommandContext ctx) throws ArgumentParseException {
-            element.parse(args, ctx);
-        }
-
-        @Override
-        protected Object parseValue(CommandArgs args, CommandContext ctx) {
-            return null;
-        }
-
-        @Override
-        public boolean hasSlashSupport() {
-            return true;
-        }
-
-        @Override
-        public OptionData getOptionData() {
-            return new OptionData(OptionType.BOOLEAN, getName(), getDescription(), true);
-        }
-
-        @Override
-        public Object parseSlash(CommandContext ctx, CommandInteraction interaction) {
-            var value = interaction.getOption(getName());
-            if (value == null) throw new NoSuchElementException(getName());
-            return value.getAsBoolean();
-        }
-
-        @Override
-        public String getRawUsage() {
-            return "boolean";
-        }
     }
 }
