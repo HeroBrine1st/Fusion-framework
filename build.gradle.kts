@@ -11,7 +11,7 @@ repositories {
 }
 
 application {
-    mainClass.set("ru.herobrine1st.fusion.Fusion")
+    mainClass.set("ru.herobrine1st.fusion.internal.Fusion")
 }
 
 dependencies {
