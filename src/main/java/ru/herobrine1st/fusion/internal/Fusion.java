@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
+import net.dv8tion.jda.api.hooks.IEventManager;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.reflections.Reflections;
@@ -61,7 +62,7 @@ public class Fusion implements Internal {
         try {
             jda = JDABuilder.createLight(Config.INSTANCE.getToken(), GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_MESSAGES)
                     .setEventManager(eventManager)
-                    .addEventListeners(new MessageCommandHandler(), new SlashCommandHandler(), new ButtonInteractionHandler(), this)
+                    .addEventListeners(this, new MessageCommandHandler(), new SlashCommandHandler(), new ButtonInteractionHandler())
                     .build();
         } catch (LoginException e) {
             logger.error("Invalid discord token");
@@ -184,5 +185,10 @@ public class Fusion implements Internal {
     @Override
     public ScheduledExecutorService getExecutorService() {
         return ExecutorServiceProvider.getExecutorService();
+    }
+
+    @Override
+    public IEventManager getEventManager() {
+        return eventManager;
     }
 }

@@ -1,5 +1,6 @@
 package ru.herobrine1st.fusion.api;
 
+import net.dv8tion.jda.api.hooks.IEventManager;
 import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.manager.CommandManager;
 
@@ -12,6 +13,7 @@ public final class Fusion {
         Connection getSqlConnection();
         CommandManager getCommandManager();
         ScheduledExecutorService getExecutorService();
+        IEventManager getEventManager();
     }
 
     private Fusion() {
