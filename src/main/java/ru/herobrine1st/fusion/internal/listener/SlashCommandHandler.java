@@ -34,10 +34,11 @@ public class SlashCommandHandler {
                 .findFirst();
         if (commandDataOptional.isEmpty())
             return;
-        FusionBaseCommand<?> targetCommand = commandDataOptional.get();
-        if (targetCommand.hasSubcommandGroups()) {
+        FusionBaseCommand<?, ParserElement> targetCommand;
+        FusionBaseCommand<?, ?> sourceCommand = commandDataOptional.get();
+        if (sourceCommand.hasSubcommandGroups()) {
             if (groupName == null || subcommandName == null) return; // На невалидный запрос отвечаем невалидным ответом
-            var subcommandData = targetCommand.getOptions().stream()
+            var subcommandData = sourceCommand.getOptions().stream()
                     .map(it -> (FusionSubcommandGroupData) it)
                     .filter(it -> it.getName().equals(groupName))
                     .limit(1)
@@ -49,9 +50,9 @@ public class SlashCommandHandler {
                     .findAny();
             if (subcommandData.isEmpty()) return;
             targetCommand = subcommandData.get();
-        } else if (targetCommand.hasSubcommands()) {
+        } else if (sourceCommand.hasSubcommands()) {
             if (subcommandName == null) return;
-            var subcommandData = targetCommand.getOptions().stream()
+            var subcommandData = sourceCommand.getOptions().stream()
                     .map(it -> (FusionSubcommandData) it)
                     .filter(it -> it.getName().equals(subcommandName))
                     .limit(1)
@@ -59,6 +60,10 @@ public class SlashCommandHandler {
                     .findAny();
             if (subcommandData.isEmpty()) return;
             targetCommand = subcommandData.get();
+        } else {
+            // Can't check type of R because of type erasure, but sure it's always the ParserElement
+            //noinspection unchecked
+            targetCommand = (FusionBaseCommand<?, ParserElement>) sourceCommand;
         }
         if (permissionHandlers.get(0).shouldNotBeFound(event.getGuild())) {
             return;
@@ -72,7 +77,7 @@ public class SlashCommandHandler {
             return;
         }
 
-        for (ParserElement it : targetCommand.getArguments()) {
+        for (ParserElement it : targetCommand.getOptions()) {
             try {
                 it.parseSlash(context);
             } catch (ArgumentParseException e) {

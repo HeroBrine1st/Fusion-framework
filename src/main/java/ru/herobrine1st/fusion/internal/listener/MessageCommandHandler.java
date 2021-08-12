@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.herobrine1st.fusion.api.command.FusionOptionData;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
 import ru.herobrine1st.fusion.api.command.args.ParserElement;
 import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
@@ -44,7 +45,7 @@ public class MessageCommandHandler {
         if (commandDataOptional.isEmpty()) {
             return;
         }
-        FusionBaseCommand<?> targetCommand = commandDataOptional.get();
+        FusionBaseCommand<?, ?> targetCommand = commandDataOptional.get();
         if (targetCommand.hasSubcommandGroups()) {
             String groupName;
             String subcommandName;
@@ -101,9 +102,9 @@ public class MessageCommandHandler {
                     .build()).queue();
             return;
         }
-        for (ParserElement it : targetCommand.getArguments()) {
+        for (FusionOptionData it : targetCommand.getOptions()) {
             try {
-                it.parse(args, context);
+                ((ParserElement) it).parse(args, context);
             } catch (ArgumentParseException e) {
                 event.getChannel().sendMessage(new EmbedBuilder()
                         .setTitle("Ошибка распознавания аргументов!")

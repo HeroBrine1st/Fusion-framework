@@ -23,10 +23,10 @@ public class HelpCommand implements CommandExecutor {
     public void execute(@NotNull CommandContext ctx) {
         var optionalCommand = ctx.<String>getOne("command");
         var prefix = Config.INSTANCE.getDiscordPrefix();
-        Stream<FusionCommandData> commandDataStream = CommandManagerImpl.INSTANCE.commands.stream()
+        Stream<FusionCommandData<?>> commandDataStream = CommandManagerImpl.INSTANCE.commands.stream()
                 .filter(it -> !hasSlashSupport(it));
         if (optionalCommand.isEmpty()) {
-            List<FusionCommandData> commandDataList = commandDataStream
+            List<FusionCommandData<?>> commandDataList = commandDataStream
                     .sorted(Comparator.comparing(FusionOptionData::getName))
                     .toList();
             if (commandDataList.isEmpty()) {
@@ -45,7 +45,7 @@ public class HelpCommand implements CommandExecutor {
             ctx.reply(embed.build()).queue();
         } else {
             var split = optionalCommand.get().split(" ");
-            Optional<? extends FusionBaseCommand<?>> commandDataOptional;
+            Optional<? extends FusionBaseCommand<?, ?>> commandDataOptional;
             if(split.length == 1) {
                 commandDataOptional = commandDataStream.filter(it -> it.getName().equals(split[0])).findAny();
             } else if(split.length == 3){

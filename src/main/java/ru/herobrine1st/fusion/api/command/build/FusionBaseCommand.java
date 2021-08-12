@@ -7,16 +7,19 @@ import ru.herobrine1st.fusion.api.command.PermissionHandler;
 import ru.herobrine1st.fusion.api.command.args.ParserElement;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 // TODO sealed
-public abstract class FusionBaseCommand<T extends FusionBaseCommand<T>> extends FusionOptionData {
+public abstract class FusionBaseCommand<T extends FusionBaseCommand<T, R>, R extends FusionOptionData> extends FusionOptionData {
     private CommandExecutor executor = null;
     private PermissionHandler permissionHandler = PermissionHandler.DEFAULT;
     private String shortName;
     private boolean isTesting = false;
 
-    protected final List<FusionOptionData> options = new ArrayList<>();
+    protected final List<R> options = new ArrayList<>();
 
     protected FusionBaseCommand(@Nonnull String name, @Nonnull String description) {
         super(name, description);
@@ -24,7 +27,7 @@ public abstract class FusionBaseCommand<T extends FusionBaseCommand<T>> extends 
     }
 
     @Nonnull
-    public List<FusionOptionData> getOptions() {
+    public List<R> getOptions() {
         return options;
     }
 
@@ -48,30 +51,29 @@ public abstract class FusionBaseCommand<T extends FusionBaseCommand<T>> extends 
     @Nonnull
     @SuppressWarnings("unchecked")
     public T setExecutor(CommandExecutor executor) {
+        Checks.check(!hasSubcommandGroups() && !hasSubcommands(), "You cannot mix executor with subcommands/groups");
         this.executor = executor;
         return (T) this;
     }
 
     @Nonnull
     @SuppressWarnings("unchecked")
-    public T addArguments(ParserElement... elements) {
-        Checks.noneNull(elements, "Argument");
-        Checks.check(elements.length + this.options.size() <= 25, "Cannot have more than 25 options for a command!");
-        this.options.addAll(Arrays.asList(elements));
-        if (options.stream().map(ParserElement.class::cast).allMatch(ParserElement::hasSlashSupport)) {
-            Checks.check(
-                    options.stream()
-                            .map(ParserElement.class::cast)
-                            .dropWhile(it -> it.getOptionData().isRequired())
-                            .noneMatch(it -> it.getOptionData().isRequired()),
-                    "You should add non-required arguments after required ones");
+    public T addOptions(R... options) {
+        Checks.noneNull(options, "Option");
+        Checks.notEmpty(options, "Options");
+        Checks.check(options.length + this.options.size() <= 25, "Cannot have more than 25 options for a command!");
+        this.options.addAll(Arrays.asList(options));
+        if(options[0] instanceof ParserElement) { // if R is ParserElement
+            if (this.options.stream().map(ParserElement.class::cast).allMatch(ParserElement::hasSlashSupport)) {
+                Checks.check(
+                        this.options.stream()
+                                .map(ParserElement.class::cast)
+                                .dropWhile(it -> it.getOptionData().isRequired())
+                                .noneMatch(it -> it.getOptionData().isRequired()),
+                        "You should add non-required arguments after required ones");
+            }
         }
         return (T) this;
-    }
-
-    @Nonnull
-    public Collection<ParserElement> getArguments() {
-        return this.options.stream().map(ParserElement.class::cast).toList();
     }
 
     @Nonnull

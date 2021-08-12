@@ -15,15 +15,16 @@ import java.util.stream.Collectors;
 
 public class CommandManagerImpl implements CommandManager {
     public static final CommandManagerImpl INSTANCE = new CommandManagerImpl();
-    public final List<FusionCommandData> commands = new ArrayList<>();
+    public final List<FusionCommandData<?>> commands = new ArrayList<>();
 
-    public static String usage(FusionBaseCommand<?> command) {
+    public static String usage(FusionBaseCommand<?, ?> command) {
         if (command.hasSubcommandGroups() || command.hasSubcommands())
             return command.getOptions().stream()
                     .map(FusionOptionData::getName)
                     .collect(Collectors.joining("|", "<", ">"));
         else
-            return command.getArguments().stream()
+            return command.getOptions().stream()
+                    .map(ParserElement.class::cast)
                     .map(ParserElement::getUsage)
                     .collect(Collectors.joining(" "));
     }
@@ -38,7 +39,7 @@ public class CommandManagerImpl implements CommandManager {
     }
 
     @Override
-    public void registerCommand(FusionCommandData data) {
+    public void registerCommand(FusionCommandData<?> data) {
         if (commands.stream().map(FusionBaseCommand::getName).anyMatch(it -> it.equals(data.getName()))) {
             throw new RuntimeException("Intersecting name: " + data.getName());
         }

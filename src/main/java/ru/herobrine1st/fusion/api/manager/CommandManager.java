@@ -3,5 +3,5 @@ package ru.herobrine1st.fusion.api.manager;
 import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
 
 public interface CommandManager {
-    void registerCommand(FusionCommandData data);
+    void registerCommand(FusionCommandData<?> data);
 }

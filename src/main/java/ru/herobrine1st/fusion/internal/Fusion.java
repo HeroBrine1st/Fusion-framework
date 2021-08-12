@@ -110,7 +110,7 @@ public class Fusion implements Internal {
     }
 
     private void initializeSlashCommands(JDA jda) {
-        List<FusionCommandData> commands = CommandManagerImpl.INSTANCE.commands.stream()
+        List<FusionCommandData<?>> commands = CommandManagerImpl.INSTANCE.commands.stream()
                 .filter(SlashCommandBuilder::hasSlashSupport)
                 .toList();
         String testGuildId = Config.INSTANCE.getTestGuildId();
@@ -120,6 +120,7 @@ public class Fusion implements Internal {
                 testGuild.updateCommands()
                     .addCommands(commands.stream()
                             .filter(FusionCommandData::isTesting)
+                            .peek(it -> logger.debug("Registering command %s in testing context".formatted(it.getName())))
                             .map(SlashCommandBuilder::buildCommand)
                             .toList())
                     .complete();
@@ -129,6 +130,7 @@ public class Fusion implements Internal {
         jda.updateCommands()
                 .addCommands(commands.stream()
                         .filter(it -> !it.isTesting())
+                        .peek(it -> logger.debug("Registering command %s in production context".formatted(it.getName())))
                         .map(SlashCommandBuilder::buildCommand)
                         .toList())
                 .complete();

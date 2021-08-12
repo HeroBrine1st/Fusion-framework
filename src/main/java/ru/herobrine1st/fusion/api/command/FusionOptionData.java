@@ -10,14 +10,8 @@ public abstract class FusionOptionData {
     protected String name, description;
 
     public FusionOptionData(@NotNull String name, @NotNull String description) {
-        Checks.notEmpty(name, "Name");
-        Checks.notEmpty(description, "Description");
-        Checks.notLonger(name, 32, "Name");
-        Checks.notLonger(description, 100, "Description");
-        Checks.matches(name, Checks.ALPHANUMERIC_WITH_DASH, "Name");
-        Checks.isLowercase(name, "Name");
-        this.name = name;
-        this.description = description;
+        setName(name);
+        setDescription(description);
     }
 
     @NotNull

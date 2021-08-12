@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 public final class SlashCommandBuilder {
-    private static final Map<FusionCommandData, Boolean> slashSupportCache = new HashMap<>();
+    private static final Map<FusionCommandData<?>, Boolean> slashSupportCache = new HashMap<>();
 
     private SlashCommandBuilder() {
     }
@@ -29,7 +29,7 @@ public final class SlashCommandBuilder {
     }
 
     @Nullable
-    public static CommandData buildCommand(FusionCommandData fusionCommandData) {
+    public static CommandData buildCommand(FusionCommandData<?> fusionCommandData) {
         if (!hasSlashSupport(fusionCommandData)) return null;
         var commandData = new CommandData(fusionCommandData.getName(), fusionCommandData.getDescription());
         if (fusionCommandData.hasExecutor()) {
@@ -54,7 +54,7 @@ public final class SlashCommandBuilder {
         throw new IllegalArgumentException();
     }
 
-    private static boolean checkSlashSupport(FusionCommandData commandData) {
+    private static boolean checkSlashSupport(FusionCommandData<?> commandData) {
         if (!commandData.getPermissionHandler().commandType().slashExecutionPermitted())
             return false;
         if (commandData.hasExecutor())
@@ -77,7 +77,7 @@ public final class SlashCommandBuilder {
         throw new IllegalArgumentException();
     }
 
-    public static boolean hasSlashSupport(FusionCommandData it) {
+    public static boolean hasSlashSupport(FusionCommandData<?> it) {
         if (!slashSupportCache.containsKey(it)) slashSupportCache.put(it, checkSlashSupport(it));
         return slashSupportCache.get(it);
     }

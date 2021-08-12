@@ -30,11 +30,11 @@ public class CommandContextImpl implements CommandContext {
     private static final Logger logger = LoggerFactory.getLogger(CommandContextImpl.class);
 
     private final Map<String, List<Object>> arguments = new HashMap<>();
-    private final FusionBaseCommand<?> command;
+    private final FusionBaseCommand<?, ?> command;
     protected Event event;
     private CompletableFuture<ButtonClickEvent> buttonClickEventCompletableFuture = null;
 
-    public CommandContextImpl(Event event, FusionBaseCommand<?> command) {
+    public CommandContextImpl(Event event, FusionBaseCommand<?, ?> command) {
         this.event = event;
         this.command = command;
     }
@@ -94,7 +94,7 @@ public class CommandContextImpl implements CommandContext {
     }
 
     @Override
-    public FusionBaseCommand<?> getCommand() {
+    public FusionBaseCommand<?,?> getCommand() {
         return command;
     }
 

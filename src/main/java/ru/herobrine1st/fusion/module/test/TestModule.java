@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import ru.herobrine1st.fusion.api.Fusion;
 import ru.herobrine1st.fusion.api.annotation.FusionModule;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
+import ru.herobrine1st.fusion.api.command.args.ParserElement;
 import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
 import ru.herobrine1st.fusion.api.command.build.FusionSubcommandData;
 import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroupData;
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class TestModule {
     @SubscribeEvent
     public void onInit(FusionInitializationEvent event) {
-        Fusion.getCommandManager().registerCommand(new FusionCommandData("fusiontest", "Тестовая команда")
+        Fusion.getCommandManager().registerCommand(new FusionCommandData<ParserElement>("fusiontest", "Тестовая команда")
                 .setTesting(true)
                 //.addArguments(GenericArguments.remainingJoinedStrings("string", "Пиши блять сюда текст"))
                 //.setPermissionHandler(new PermissionHandler.Typed(PermissionHandler.CommandType.MESSAGE))
@@ -35,20 +36,20 @@ public class TestModule {
                         )
                         .queue(null, ctx::replyException)
                 ));
-        Fusion.getCommandManager().registerCommand(new FusionCommandData("test2", "Тестовая команда с группами")
+        Fusion.getCommandManager().registerCommand(new FusionCommandData<FusionSubcommandGroupData>("test2", "Тестовая команда с группами")
                 .setTesting(true)
                 .setPermissionHandler(new PermissionHandler.Typed(PermissionHandler.CommandType.MESSAGE))
-                .addSubcommandGroups(new FusionSubcommandGroupData("group", "Группа")
+                .addOptions(new FusionSubcommandGroupData("group", "Группа")
                         .addSubcommands(
                                 new FusionSubcommandData("subcommand", "Субкоманда")
                                         .setExecutor(ctx -> ctx.reply(ctx.getEmbedBase().setDescription("123").build()).queue())
                         )
                 )
         );
-        Fusion.getCommandManager().registerCommand(new FusionCommandData("test3", "Тестовая команда с субкомандами")
+        Fusion.getCommandManager().registerCommand(new FusionCommandData<FusionSubcommandData>("test3", "Тестовая команда с субкомандами")
                 .setTesting(true)
                 .setPermissionHandler(new PermissionHandler.Typed(PermissionHandler.CommandType.MESSAGE))
-                .addSubcommands(
+                .addOptions(
                         new FusionSubcommandData("subcommand", "Субкоманда")
                                 .setExecutor(ctx -> ctx.reply(ctx.getEmbedBase().setDescription("123").build()).queue())
                 )
