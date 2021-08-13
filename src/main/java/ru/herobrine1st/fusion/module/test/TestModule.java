@@ -22,10 +22,18 @@ public class TestModule {
     public void onInit(FusionInitializationEvent event) {
         Fusion.getCommandManager().registerCommand(new FusionCommandData<ParserElement<?, ?>>("fusiontest", "Тестовая команда")
                 .setTesting(true)
-                .addOptions(GenericArguments.string("string", "Пиши блять сюда текст", true))
+                .addOptions(
+                        GenericArguments.string("string", "Пиши блять сюда текст", true)
+                                .addChoice("test", "Тест")
+                                .addChoice("test2", "Тест2"),
+                        GenericArguments.integer("integer", "Пиши блять сюда число")
+                                .addChoice("test", 1L)
+                                .addChoice("test2", 2L)
+                        )
                 .setExecutor(ctx -> ctx
                         .reply(ctx.getEmbedBase()
                                         .setDescription(ctx.<String>getOne("string").orElse("Успешный тест!"))
+                                        .addField("Тест 2", ctx.<Long>getOne("integer").orElse(0L).toString(), false)
                                         .build(),
                                 ActionRow.of(Button.danger("reply_10_seconds", "Ответить через 10 секунд")))
                         .flatMap(it -> ctx.getButtonClickEventRestAction())
