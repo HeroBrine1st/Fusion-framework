@@ -17,10 +17,11 @@ public abstract class ChoicesParserElement<T, R> extends ParserElement<ChoicesPa
 
     @Nonnull
     @SuppressWarnings("unchecked")
-    public T addChoice(String key, R value) {
-        Checks.notBlank(key, "Key");
-        Checks.notLonger(key, 100, "Key");
-        choices.put(key, value);
+    public T addChoice(String name, R value) {
+        Checks.notEmpty(name, "Name");
+        Checks.notLonger(name, 100, "Name");
+        Checks.check(choices.size() < 25, "Cannot have more than 25 choices for an option!");
+        choices.put(name, value);
         return (T) this;
     }
 

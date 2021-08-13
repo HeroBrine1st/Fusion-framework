@@ -4,8 +4,8 @@ import ru.herobrine1st.fusion.api.command.args.parser.ParserElement;
 
 import javax.annotation.Nonnull;
 
-public class FusionSubcommandData extends FusionBaseCommand<FusionSubcommandData, ParserElement<?, ?>> {
-    public FusionSubcommandData(@Nonnull String name, @Nonnull String description) {
+public class FusionSubcommand extends FusionBaseCommand<FusionSubcommand, ParserElement<?, ?>> {
+    public FusionSubcommand(@Nonnull String name, @Nonnull String description) {
         super(name, description);
     }
 }

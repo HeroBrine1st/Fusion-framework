@@ -80,8 +80,8 @@ public class StringParserElement extends ChoicesParserElement<StringParserElemen
 
     @NotNull
     @Override
-    public StringParserElement addChoice(String key, String value) {
+    public StringParserElement addChoice(String name, String value) {
         Checks.notLonger(value, 100, "Value");
-        return super.addChoice(key, value);
+        return super.addChoice(name, value);
     }
 }

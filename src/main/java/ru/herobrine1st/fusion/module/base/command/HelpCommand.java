@@ -5,8 +5,8 @@ import ru.herobrine1st.fusion.api.command.CommandContext;
 import ru.herobrine1st.fusion.api.command.CommandExecutor;
 import ru.herobrine1st.fusion.api.command.FusionOptionData;
 import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
-import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
-import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroupData;
+import ru.herobrine1st.fusion.api.command.build.FusionCommand;
+import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroup;
 import ru.herobrine1st.fusion.internal.Config;
 import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 
@@ -23,10 +23,10 @@ public class HelpCommand implements CommandExecutor {
     public void execute(@NotNull CommandContext ctx) {
         var optionalCommand = ctx.<String>getOne("command");
         var prefix = Config.INSTANCE.getDiscordPrefix();
-        Stream<FusionCommandData<?>> commandDataStream = CommandManagerImpl.INSTANCE.commands.stream()
+        Stream<FusionCommand<?>> commandDataStream = CommandManagerImpl.INSTANCE.commands.stream()
                 .filter(it -> !hasSlashSupport(it));
         if (optionalCommand.isEmpty()) {
-            List<FusionCommandData<?>> commandDataList = commandDataStream
+            List<FusionCommand<?>> commandDataList = commandDataStream
                     .sorted(Comparator.comparing(FusionOptionData::getName))
                     .toList();
             if (commandDataList.isEmpty()) {
@@ -54,7 +54,7 @@ public class HelpCommand implements CommandExecutor {
                         .filter(FusionBaseCommand::hasSubcommandGroups)
                         .limit(1)
                         .flatMap(it -> it.getOptions().stream())
-                        .map(FusionSubcommandGroupData.class::cast)
+                        .map(FusionSubcommandGroup.class::cast)
                         .filter(it -> it.getName().equals(split[1]))
                         .limit(1)
                         .flatMap(it -> it.getSubcommandData().stream())
@@ -66,7 +66,7 @@ public class HelpCommand implements CommandExecutor {
                         .filter(FusionBaseCommand::hasSubcommandGroups)
                         .limit(1)
                         .flatMap(it -> it.getOptions().stream())
-                        .map(FusionSubcommandGroupData.class::cast)
+                        .map(FusionSubcommandGroup.class::cast)
                         .filter(it -> it.getName().equals(split[1]))
                         .findAny();
                 if(optionalSubcommandGroupData.isEmpty()) {

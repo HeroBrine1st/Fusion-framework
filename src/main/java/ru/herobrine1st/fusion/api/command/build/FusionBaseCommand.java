@@ -63,15 +63,13 @@ public abstract class FusionBaseCommand<T extends FusionBaseCommand<T, R>, R ext
         Checks.notEmpty(options, "Options");
         Checks.check(options.length + this.options.size() <= 25, "Cannot have more than 25 options for a command!");
         this.options.addAll(Arrays.asList(options));
-        if(options[0] instanceof ParserElement) { // if R is ParserElement
-            if (this.options.stream().map(ParserElement.class::cast).allMatch(ParserElement::hasSlashSupport)) {
-                Checks.check(
-                        this.options.stream()
-                                .map(ParserElement.class::cast)
-                                .dropWhile(it -> it.getOptionData().isRequired())
-                                .noneMatch(it -> it.getOptionData().isRequired()),
-                        "You should add non-required arguments after required ones");
-            }
+        if (options[0] instanceof ParserElement) { // if R is ParserElement
+            Checks.check(
+                    this.options.stream()
+                            .map(ParserElement.class::cast)
+                            .dropWhile(it -> it.getOptionData().isRequired())
+                            .noneMatch(it -> it.getOptionData().isRequired()),
+                    "You should add non-required arguments after required ones");
         }
         return (T) this;
     }
@@ -89,11 +87,11 @@ public abstract class FusionBaseCommand<T extends FusionBaseCommand<T, R>, R ext
     }
 
     public boolean hasSubcommands() {
-        return options.size() > 0 && options.get(0) instanceof FusionSubcommandData;
+        return options.size() > 0 && options.get(0) instanceof FusionSubcommand;
     }
 
     public boolean hasSubcommandGroups() {
-        return options.size() > 0 && options.get(0) instanceof FusionSubcommandGroupData;
+        return options.size() > 0 && options.get(0) instanceof FusionSubcommandGroup;
     }
 
     public boolean hasExecutor() {

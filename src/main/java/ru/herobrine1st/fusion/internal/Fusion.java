@@ -14,7 +14,7 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.annotation.FusionModule;
-import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
+import ru.herobrine1st.fusion.api.command.build.FusionCommand;
 import ru.herobrine1st.fusion.api.event.FusionInitializationEvent;
 import ru.herobrine1st.fusion.api.event.FusionPreInitializationEvent;
 import ru.herobrine1st.fusion.api.event.FusionStartedEvent;
@@ -111,7 +111,7 @@ public class Fusion implements Internal {
     }
 
     private void initializeSlashCommands(JDA jda) {
-        List<FusionCommandData<?>> commands = CommandManagerImpl.INSTANCE.commands.stream()
+        List<FusionCommand<?>> commands = CommandManagerImpl.INSTANCE.commands.stream()
                 .filter(SlashCommandBuilder::hasSlashSupport)
                 .toList();
         String testGuildId = Config.INSTANCE.getTestGuildId();
@@ -120,7 +120,7 @@ public class Fusion implements Internal {
             if (testGuild != null)
                 testGuild.updateCommands()
                     .addCommands(commands.stream()
-                            .filter(FusionCommandData::isTesting)
+                            .filter(FusionCommand::isTesting)
                             .peek(it -> logger.debug("Registering command %s in testing context".formatted(it.getName())))
                             .map(SlashCommandBuilder::buildCommand)
                             .toList())

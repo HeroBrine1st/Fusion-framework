@@ -1,7 +1,7 @@
 package ru.herobrine1st.fusion.api.manager;
 
-import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
+import ru.herobrine1st.fusion.api.command.build.FusionCommand;
 
 public interface CommandManager {
-    void registerCommand(FusionCommandData<?> data);
+    void registerCommand(FusionCommand<?> data);
 }

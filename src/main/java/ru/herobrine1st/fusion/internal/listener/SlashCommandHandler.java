@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
 import ru.herobrine1st.fusion.api.command.args.parser.ParserElement;
 import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
-import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
-import ru.herobrine1st.fusion.api.command.build.FusionSubcommandData;
-import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroupData;
+import ru.herobrine1st.fusion.api.command.build.FusionCommand;
+import ru.herobrine1st.fusion.api.command.build.FusionSubcommand;
+import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroup;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
 import ru.herobrine1st.fusion.internal.command.CommandContextImpl;
 import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
@@ -35,13 +35,13 @@ public class SlashCommandHandler {
                 .findFirst();
         if (commandDataOptional.isEmpty())
             return;
-        FusionCommandData<?> sourceCommand = commandDataOptional.get();
+        FusionCommand<?> sourceCommand = commandDataOptional.get();
         FusionBaseCommand<?, ParserElement<?, ?>> targetCommand;
         permissionHandlers.add(sourceCommand.getPermissionHandler());
         if (sourceCommand.hasSubcommandGroups()) {
             if (groupName == null || subcommandName == null) return; // На невалидный запрос отвечаем невалидным ответом
             var subcommandData = sourceCommand.getOptions().stream()
-                    .map(it -> (FusionSubcommandGroupData) it)
+                    .map(it -> (FusionSubcommandGroup) it)
                     .filter(it -> it.getName().equals(groupName))
                     .limit(1)
                     .peek(it -> permissionHandlers.add(it.getPermissionHandler()))
@@ -55,7 +55,7 @@ public class SlashCommandHandler {
         } else if (sourceCommand.hasSubcommands()) {
             if (subcommandName == null) return;
             var subcommandData = sourceCommand.getOptions().stream()
-                    .map(it -> (FusionSubcommandData) it)
+                    .map(it -> (FusionSubcommand) it)
                     .filter(it -> it.getName().equals(subcommandName))
                     .limit(1)
                     .peek(it -> permissionHandlers.add(it.getPermissionHandler()))
