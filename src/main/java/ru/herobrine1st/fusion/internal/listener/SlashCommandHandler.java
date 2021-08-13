@@ -17,6 +17,7 @@ import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class SlashCommandHandler {
@@ -28,7 +29,7 @@ public class SlashCommandHandler {
         final String subcommandName = event.getSubcommandName();
         final String commandName = event.getName();
         final List<PermissionHandler> permissionHandlers = new ArrayList<>();
-        var commandDataOptional = CommandManagerImpl.INSTANCE.commands.stream()
+        Optional<FusionCommand<?>> commandDataOptional = CommandManagerImpl.INSTANCE.commands.stream()
                 .filter(it -> it.getName().equals(commandName))
                 .limit(1)
                 .peek(it -> permissionHandlers.add(it.getPermissionHandler()))

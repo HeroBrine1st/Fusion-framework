@@ -17,10 +17,7 @@ import ru.herobrine1st.fusion.internal.command.CommandContextImpl;
 import ru.herobrine1st.fusion.internal.command.args.CommandArgsImpl;
 import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MessageCommandHandler {
@@ -35,9 +32,9 @@ public class MessageCommandHandler {
         CommandArgsImpl args = new CommandArgsImpl(event.getMessage().getContentRaw().substring(Config.INSTANCE.getDiscordPrefix().length()));
         if (!args.hasNext())
             return;
-        var commandName = args.next().getValue();
+        String commandName = args.next().getValue();
         final List<PermissionHandler> permissionHandlers = new ArrayList<>();
-        var commandDataOptional = CommandManagerImpl.INSTANCE.commands.stream()
+        Optional<FusionCommand<?>> commandDataOptional = CommandManagerImpl.INSTANCE.commands.stream()
                 .filter(it -> it.getName().equals(commandName))
                 .limit(1)
                 .peek(it -> permissionHandlers.add(it.getPermissionHandler()))
