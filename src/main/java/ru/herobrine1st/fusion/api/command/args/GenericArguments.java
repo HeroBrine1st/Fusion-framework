@@ -1,9 +1,5 @@
 package ru.herobrine1st.fusion.api.command.args;
 
-import net.dv8tion.jda.api.entities.GuildChannel;
-import net.dv8tion.jda.api.entities.IMentionable;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.args.parser.*;
@@ -23,10 +19,11 @@ public final class GenericArguments {
      *
      * @param name        name of the option.
      * @param description description of the option.
+     * @return {@link StringParserElement} instance
      * @see #string(String, String, boolean, boolean, boolean)
      */
     @Contract("_, _ -> new")
-    public static @NotNull ParserElement<?, String> string(String name, String description) {
+    public static @NotNull StringParserElement string(String name, String description) {
         return new StringParserElement(name, description, false, false, false);
     }
 
@@ -38,10 +35,11 @@ public final class GenericArguments {
      * @param name          name of the option.
      * @param description   description of the option.
      * @param joinRemaining if true, will cyclically join all remaining arguments provided by user.
+     * @return {@link StringParserElement} instance
      * @see #string(String, String, boolean, boolean, boolean)
      */
     @Contract("_, _, _ -> new")
-    public static @NotNull ParserElement<?, String> string(String name, String description, boolean joinRemaining) {
+    public static @NotNull StringParserElement string(String name, String description, boolean joinRemaining) {
         return new StringParserElement(name, description, joinRemaining, false, false);
     }
 
@@ -54,10 +52,11 @@ public final class GenericArguments {
      * @param description    description of the option.
      * @param joinRemaining  if true, will cyclically join all remaining arguments provided by user.
      * @param breakOnNewLine if this and joinRemaining are true, will cyclically join all remaining arguments until newline separator.
+     * @return {@link StringParserElement} instance
      * @see #string(String, String, boolean, boolean, boolean)
      */
     @Contract("_, _, _, _ -> new")
-    public static @NotNull ParserElement<?, String> string(String name, String description, boolean joinRemaining, boolean breakOnNewLine) {
+    public static @NotNull StringParserElement string(String name, String description, boolean joinRemaining, boolean breakOnNewLine) {
         return new StringParserElement(name, description, joinRemaining, breakOnNewLine, false);
     }
 
@@ -74,19 +73,20 @@ public final class GenericArguments {
      * @return {@link StringParserElement} instance
      */
     @Contract("_, _, _, _, _ -> new")
-    public static @NotNull ParserElement<?, String> string(String name, String description, boolean joinRemaining, boolean breakOnNewLine, boolean canBeEmpty) {
+    public static @NotNull StringParserElement string(String name, String description, boolean joinRemaining, boolean breakOnNewLine, boolean canBeEmpty) {
         return new StringParserElement(name, description, joinRemaining, breakOnNewLine, canBeEmpty);
     }
 
     /**
      * Implementation of INTEGER discord option type. Supplies values of {@link Long} type
+     *
      * @param name        name of the option.
      * @param description description of the option.
      * @return {@link IntegerParserElement} instance
      * @see #integer(String, String, int, int, int)
      */
     @Contract("_, _ -> new")
-    public static @NotNull ParserElement<?, Long> integer(String name, String description) {
+    public static @NotNull IntegerParserElement integer(String name, String description) {
         return new IntegerParserElement(name, description, Long.MIN_VALUE, Long.MAX_VALUE, 10);
     }
 
@@ -101,13 +101,14 @@ public final class GenericArguments {
      * @see #integer(String, String, int, int, int)
      */
     @Contract("_, _, _ -> new")
-    public static @NotNull ParserElement<?, Long> integer(String name, String description, long min) {
+    public static @NotNull IntegerParserElement integer(String name, String description, long min) {
         return new IntegerParserElement(name, description, min, Long.MAX_VALUE, 10);
     }
 
     /**
      * Implementation of INTEGER discord option type. Supplies values of {@link Long} type.<br>
      * Additional arguments work only without choices.
+     *
      * @param name        name of the option.
      * @param description description of the option.
      * @param min         minimal value of integer
@@ -116,13 +117,14 @@ public final class GenericArguments {
      * @see #integer(String, String, int, int, int)
      */
     @Contract("_, _, _, _ -> new")
-    public static @NotNull ParserElement<?, Long> integer(String name, String description, long min, long max) {
+    public static @NotNull IntegerParserElement integer(String name, String description, long min, long max) {
         return new IntegerParserElement(name, description, min, max, 10);
     }
 
     /**
      * Implementation of INTEGER discord option type. Supplies values of {@link Long} type<br>
      * Additional arguments work only without choices. This means arguments other than name and description will be ignored if there are at least one choice.
+     *
      * @param name        name of the option.
      * @param description description of the option.
      * @param min         minimal value of integer
@@ -131,7 +133,7 @@ public final class GenericArguments {
      * @return {@link IntegerParserElement} instance
      */
     @Contract("_, _, _, _, _ -> new")
-    public static @NotNull ParserElement<?, Long> integer(String name, String description, int min, int max, int radix) {
+    public static @NotNull IntegerParserElement integer(String name, String description, int min, int max, int radix) {
         return new IntegerParserElement(name, description, min, max, radix);
     }
 
@@ -143,7 +145,7 @@ public final class GenericArguments {
      * @return {@link BooleanParserElement} instance
      */
     @Contract("_, _ -> new")
-    public static @NotNull ParserElement<?, Boolean> bool(String name, String description) {
+    public static @NotNull BooleanParserElement bool(String name, String description) {
         return new BooleanParserElement(name, description);
     }
 
@@ -155,7 +157,7 @@ public final class GenericArguments {
      * @return {@link UserParserElement} instance
      */
     @Contract("_, _ -> new")
-    public static @NotNull ParserElement<?, User> user(String name, String description) {
+    public static @NotNull UserParserElement user(String name, String description) {
         return new UserParserElement(name, description);
     }
 
@@ -167,7 +169,7 @@ public final class GenericArguments {
      * @return {@link ChannelParserElement} instance
      */
     @Contract("_, _ -> new")
-    public static @NotNull ParserElement<?, GuildChannel> channel(String name, String description) {
+    public static @NotNull ChannelParserElement channel(String name, String description) {
         return new ChannelParserElement(name, description);
     }
 
@@ -179,7 +181,7 @@ public final class GenericArguments {
      * @return {@link RoleParserElement} instance
      */
     @Contract("_, _ -> new")
-    public static @NotNull ParserElement<?, Role> role(String name, String description) {
+    public static @NotNull RoleParserElement role(String name, String description) {
         return new RoleParserElement(name, description);
     }
 
@@ -191,7 +193,7 @@ public final class GenericArguments {
      * @return {@link MentionableParserElement} instance
      */
     @Contract("_, _ -> new")
-    public static @NotNull ParserElement<?, IMentionable> mentionable(String name, String description) {
+    public static @NotNull MentionableParserElement mentionable(String name, String description) {
         return new MentionableParserElement(name, description);
     }
 
@@ -203,7 +205,7 @@ public final class GenericArguments {
      * @return {@link KeyParserElement} instance
      */
     @Contract("_ -> new")
-    public static <T> @NotNull ParserElement<?, T> key(ParserElement<?, T> element) {
+    public static <T> @NotNull KeyParserElement<T> key(ParserElement<?, T> element) {
         return new KeyParserElement<>(element, null);
     }
 
@@ -215,7 +217,7 @@ public final class GenericArguments {
      * @return {@link KeyParserElement} instance
      */
     @Contract("_, _ -> new")
-    public static <T> @NotNull ParserElement<?, T> key(ParserElement<?, T> element, T defaultValue) {
+    public static <T> @NotNull KeyParserElement<T> key(ParserElement<?, T> element, T defaultValue) {
         return new KeyParserElement<>(element, defaultValue);
     }
 
@@ -227,7 +229,7 @@ public final class GenericArguments {
      * @return {@link FlagParserElement} instance
      */
     @Contract("_, _ -> new")
-    public static @NotNull ParserElement<?, Boolean> flag(String name, String description) {
+    public static @NotNull FlagParserElement flag(String name, String description) {
         return new FlagParserElement(name, description);
     }
 
@@ -239,12 +241,12 @@ public final class GenericArguments {
      * @return {@link ParseUntilEndsParserElement} instance
      */
     @Contract("_ -> new")
-    public static <T> @NotNull ParserElement<?, T> untilEnds(ParserElement<?, T> element) {
+    public static <T> @NotNull ParseUntilEndsParserElement<T> untilEnds(ParserElement<?, T> element) {
         return new ParseUntilEndsParserElement<>(element, 1);
     }
 
     @Contract("_, _ -> new")
-    public static <T> @NotNull ParserElement<?, T> untilEnds(ParserElement<?, T> element, int minCount) {
+    public static <T> @NotNull ParseUntilEndsParserElement<T> untilEnds(ParserElement<?, T> element, int minCount) {
         return new ParseUntilEndsParserElement<>(element, minCount);
     }
 }
