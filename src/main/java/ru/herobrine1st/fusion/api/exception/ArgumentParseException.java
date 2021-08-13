@@ -5,7 +5,7 @@ import ru.herobrine1st.fusion.api.command.args.SingleArg;
 
 public class ArgumentParseException extends CommandException {
     public ArgumentParseException(String message) {
-        super(message, true);
+        super(message);
     }
 
     public static ArgumentParseException withPointer(String message, CommandArgs args) {
