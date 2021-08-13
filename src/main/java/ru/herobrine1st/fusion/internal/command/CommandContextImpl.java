@@ -160,18 +160,18 @@ public class CommandContextImpl implements CommandContext {
     }
 
     public RestAction<ButtonClickEvent> getButtonClickEventRestAction() {
-        Objects.requireNonNull(buttonClickEventCompletableFuture, "No buttons in this context");
+        if(buttonClickEventCompletableFuture == null) throw new IllegalStateException("No buttons in this context");
         return CompletableFutureRestAction.of(buttonClickEventCompletableFuture);
     }
 
     @Override
     public CompletableFuture<ButtonClickEvent> getButtonClickEventCompletableFuture() {
-        Objects.requireNonNull(buttonClickEventCompletableFuture, "No buttons in this context");
+        if(buttonClickEventCompletableFuture == null) throw new IllegalStateException("No buttons in this context");
         return buttonClickEventCompletableFuture;
     }
 
     public void applyButtonClickEvent(ButtonClickEvent event) { // Да, контекст мутабельный
-        Objects.requireNonNull(buttonClickEventCompletableFuture, "No buttons in this context");
+        if(buttonClickEventCompletableFuture == null) throw new IllegalStateException("No buttons in this context");
         if (buttonClickEventCompletableFuture.isDone()) return;
         this.event = event;
         buttonClickEventCompletableFuture.complete(event);

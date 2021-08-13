@@ -265,7 +265,7 @@ public interface CommandContext {
      * <b>You only have 15 minutes to respond to an interaction!</b><br>
      * You can use context as usual after receiving event, as context internal event is changed.
      * @return {@link RestAction RestAction}<{@link ButtonClickEvent}> object that will provide you {@link ButtonClickEvent} or cancel execution of all remaining callbacks
-     * @throws NullPointerException if there are no components in your previous {@link #reply(Message) reply}
+     * @throws IllegalStateException if there are no components in your previous {@link #reply(Message) reply}
      */
     RestAction<ButtonClickEvent> getButtonClickEventRestAction();
 
@@ -276,7 +276,7 @@ public interface CommandContext {
      * This CompletableFuture will be cancelled after 15 minutes of timeout
      *
      * @return {@link CompletableFuture} object with ButtonClickEvent
-     * @throws NullPointerException if there are no components in your previous {@link #reply(Message) reply}
+     * @throws IllegalStateException if there are no components in your previous {@link #reply(Message) reply}
      */
     CompletableFuture<ButtonClickEvent> getButtonClickEventCompletableFuture();
 
