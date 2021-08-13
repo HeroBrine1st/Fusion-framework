@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.CommandContext;
 import ru.herobrine1st.fusion.api.command.args.CommandArgs;
@@ -75,5 +76,12 @@ public class StringParserElement extends ChoicesParserElement<StringParserElemen
         if (choices.isEmpty())
             return getName() + (joinRemaining ? "..." : "");
         else return String.join("|", choices.keySet());
+    }
+
+    @NotNull
+    @Override
+    public StringParserElement addChoice(String key, String value) {
+        Checks.notLonger(value, 100, "Value");
+        return super.addChoice(key, value);
     }
 }

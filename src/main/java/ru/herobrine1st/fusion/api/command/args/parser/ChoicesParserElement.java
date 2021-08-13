@@ -1,5 +1,7 @@
 package ru.herobrine1st.fusion.api.command.args.parser;
 
+import net.dv8tion.jda.internal.utils.Checks;
+
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +18,8 @@ public abstract class ChoicesParserElement<T, R> extends ParserElement<ChoicesPa
     @Nonnull
     @SuppressWarnings("unchecked")
     public T addChoice(String key, R value) {
+        Checks.notBlank(key, "Key");
+        Checks.notLonger(key, 100, "Key");
         choices.put(key, value);
         return (T) this;
     }
@@ -23,7 +27,7 @@ public abstract class ChoicesParserElement<T, R> extends ParserElement<ChoicesPa
     @Nonnull
     @SuppressWarnings("unchecked")
     public T addChoices(Map<String, R> choices) {
-        this.choices.putAll(choices);
+        choices.forEach(this::addChoice);
         return (T) this;
     }
 
