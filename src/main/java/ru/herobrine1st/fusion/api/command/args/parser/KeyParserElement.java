@@ -20,10 +20,8 @@ public class KeyParserElement<R> extends ParserElement<KeyParserElement<R>, R> {
 
     public KeyParserElement(ParserElement<?, R> element, R defaultValue) {
         super(element.getName(), element.getDescription());
-        this.element = element;
+        this.element = element.setRequired(false);
         this.defaultValue = defaultValue;
-        setRequired(false);
-
     }
 
     @Override
