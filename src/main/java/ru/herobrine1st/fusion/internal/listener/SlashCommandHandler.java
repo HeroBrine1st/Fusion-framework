@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
 import ru.herobrine1st.fusion.api.command.args.parser.ParserElement;
 import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
+import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
 import ru.herobrine1st.fusion.api.command.build.FusionSubcommandData;
 import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroupData;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
@@ -34,8 +35,8 @@ public class SlashCommandHandler {
                 .findFirst();
         if (commandDataOptional.isEmpty())
             return;
+        FusionCommandData<?> sourceCommand = commandDataOptional.get();
         FusionBaseCommand<?, ParserElement<?, ?>> targetCommand;
-        FusionBaseCommand<?, ?> sourceCommand = commandDataOptional.get();
         permissionHandlers.add(sourceCommand.getPermissionHandler());
         if (sourceCommand.hasSubcommandGroups()) {
             if (groupName == null || subcommandName == null) return; // На невалидный запрос отвечаем невалидным ответом
