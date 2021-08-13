@@ -65,7 +65,8 @@ public abstract class ParserElement<T extends ParserElement<T, R>, R> extends Fu
     public abstract R parseSlash(CommandContext ctx, CommandInteraction interaction) throws ArgumentParseException;
 
     public String getUsage() {
-        return "<" + getRawUsage() + ">";
+        if(required) return "<" + getRawUsage() + ">";
+        else return "[" + getRawUsage() + "]";
     }
 
     public abstract String getRawUsage();

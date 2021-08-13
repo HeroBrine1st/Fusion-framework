@@ -64,7 +64,7 @@ public class ParseUntilEndsParserElement<T> extends ParserElement<ParseUntilEnds
 
     @Override
     public String getRawUsage() {
-        return null;
+        return element.getRawUsage() + "...";
     }
 
     @Override
