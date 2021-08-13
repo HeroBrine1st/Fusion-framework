@@ -33,7 +33,7 @@ public final class GenericArguments {
     /**
      * Implementation of STRING discord option type. Supplies values of {@link String} type.
      * <br>
-     * Additional arguments work only in <a href="#message-context">message context</a>
+     * Additional arguments work only in <a href="#message-context">message context</a> and without choices
      *
      * @param name          name of the option.
      * @param description   description of the option.
@@ -48,7 +48,7 @@ public final class GenericArguments {
     /**
      * Implementation of STRING discord option type. Supplies values of {@link String} type.
      * <br>
-     * Additional arguments work only in <a href="#message-context">message context</a>
+     * Additional arguments work only in <a href="#message-context">message context</a> and without choices
      *
      * @param name           name of the option.
      * @param description    description of the option.
@@ -64,7 +64,7 @@ public final class GenericArguments {
     /**
      * Implementation of STRING discord option type. Supplies values of {@link String} type.
      * <br>
-     * Additional arguments work only in <a href="#message-context">message context</a>
+     * Additional arguments work only in <a href="#message-context">message context</a> and without choices. This means arguments other than name and description will be ignored when handling Slash Interaction or if there are at least one choice.
      *
      * @param name           name of the option.
      * @param description    description of the option.
@@ -80,7 +80,6 @@ public final class GenericArguments {
 
     /**
      * Implementation of INTEGER discord option type. Supplies values of {@link Long} type
-     *
      * @param name        name of the option.
      * @param description description of the option.
      * @return {@link IntegerParserElement} instance
@@ -92,7 +91,8 @@ public final class GenericArguments {
     }
 
     /**
-     * Implementation of INTEGER discord option type. Supplies values of {@link Long} type
+     * Implementation of INTEGER discord option type. Supplies values of {@link Long} type<br>
+     * Additional arguments work only without choices.
      *
      * @param name        name of the option.
      * @param description description of the option.
@@ -106,8 +106,8 @@ public final class GenericArguments {
     }
 
     /**
-     * Implementation of INTEGER discord option type. Supplies values of {@link Long} type
-     *
+     * Implementation of INTEGER discord option type. Supplies values of {@link Long} type.<br>
+     * Additional arguments work only without choices.
      * @param name        name of the option.
      * @param description description of the option.
      * @param min         minimal value of integer
@@ -121,8 +121,8 @@ public final class GenericArguments {
     }
 
     /**
-     * Implementation of INTEGER discord option type. Supplies values of {@link Long} type
-     *
+     * Implementation of INTEGER discord option type. Supplies values of {@link Long} type<br>
+     * Additional arguments work only without choices. This means arguments other than name and description will be ignored if there are at least one choice.
      * @param name        name of the option.
      * @param description description of the option.
      * @param min         minimal value of integer
