@@ -44,16 +44,21 @@ public class CommandManagerImpl implements CommandManager {
             throw new RuntimeException("Intersecting name: " + data.getName());
         }
         // Валидация
-        if (data.hasSubcommandGroups())
+        if (data.hasSubcommandGroups()) {
+            Checks.notEmpty(data.getOptions(), "Subcommand groups");
+            Checks.check(data.getOptions().stream().map(it -> (FusionSubcommandGroup) it)
+                            .allMatch(it -> it.getSubcommandData().size() > 0),
+                    "All groups must have at least one subcommand");
             Checks.check(data.getOptions().stream().map(it -> (FusionSubcommandGroup) it)
                             .flatMap(it -> it.getSubcommandData().stream())
                             .allMatch(FusionBaseCommand::hasExecutor),
                     "All subcommands must have an executor");
-        else if (data.hasSubcommands())
+        } else if (data.hasSubcommands()) {
+            Checks.notEmpty(data.getOptions(), "Subcommands");
             Checks.check(data.getOptions().stream().map(it -> (FusionSubcommand) it)
                             .allMatch(FusionBaseCommand::hasExecutor),
                     "All subcommands must have an executor");
-        else Checks.check(data.hasExecutor(), "Command must have an executor");
+        } else Checks.check(data.hasExecutor(), "Command must have an executor");
         commands.add(data);
     }
 }
