@@ -38,8 +38,9 @@ public class ButtonInteractionHandler {
 
     @SubscribeEvent
     public void onButtonClick(@NotNull ButtonClickEvent event) {
-        if (!interactionCache.containsKey(event.getMessageIdLong())
-                || (event.getIdLong() >>> TIMESTAMP_OFFSET) - (event.getMessageIdLong() >>> TIMESTAMP_OFFSET) >= TTL) {
+        if (!interactionCache.containsKey(event.getMessageIdLong())) {
+            return;
+        } else if ((event.getIdLong() >>> TIMESTAMP_OFFSET) - (event.getMessageIdLong() >>> TIMESTAMP_OFFSET) >= TTL) {
             event.reply("Данное сообщение больше не принимает взаимодействий.").setEphemeral(true).queue();
             CommandContextImpl ctx = interactionCache.remove(event.getMessageIdLong());
             if (ctx != null) ctx.cancelButtonClickWaiting();
