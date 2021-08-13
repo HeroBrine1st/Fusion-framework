@@ -196,7 +196,7 @@ public class CommandContextImpl implements CommandContext {
     @Override
     public RestAction<Message> reply(Message message) {
         return handleReply(message).map(msg -> {
-            if (!message.getActionRows().isEmpty()) {
+            if (!msg.getActionRows().isEmpty()) {
                 buttonClickEventCompletableFuture = new CompletableFuture<>();
                 ButtonInteractionHandler.open(msg.getIdLong(), this);
                 logger.trace("Opening interaction listener to messageId=%s".formatted(msg.getIdLong()));

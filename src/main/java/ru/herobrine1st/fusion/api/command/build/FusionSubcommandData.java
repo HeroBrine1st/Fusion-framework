@@ -1,6 +1,6 @@
 package ru.herobrine1st.fusion.api.command.build;
 
-import ru.herobrine1st.fusion.api.command.args.ParserElement;
+import ru.herobrine1st.fusion.api.command.args.parser.ParserElement;
 
 import javax.annotation.Nonnull;
 

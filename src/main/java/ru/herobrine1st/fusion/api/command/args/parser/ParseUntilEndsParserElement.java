@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.CommandContext;
 import ru.herobrine1st.fusion.api.command.args.CommandArgs;
-import ru.herobrine1st.fusion.api.command.args.ParserElement;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
 
 public class ParseUntilEndsParserElement<T> extends ParserElement<ParseUntilEndsParserElement<T>, T> {

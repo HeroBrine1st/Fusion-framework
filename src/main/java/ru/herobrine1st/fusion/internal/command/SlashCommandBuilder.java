@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import org.jetbrains.annotations.Nullable;
-import ru.herobrine1st.fusion.api.command.args.ParserElement;
+import ru.herobrine1st.fusion.api.command.args.parser.ParserElement;
 import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
 import ru.herobrine1st.fusion.api.command.build.FusionSubcommandData;
 import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroupData;

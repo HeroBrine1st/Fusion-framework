@@ -1,9 +1,10 @@
-package ru.herobrine1st.fusion.api.command.args;
+package ru.herobrine1st.fusion.api.command.args.parser;
 
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import ru.herobrine1st.fusion.api.command.CommandContext;
 import ru.herobrine1st.fusion.api.command.FusionOptionData;
+import ru.herobrine1st.fusion.api.command.args.CommandArgs;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
 
 import javax.annotation.Nonnull;

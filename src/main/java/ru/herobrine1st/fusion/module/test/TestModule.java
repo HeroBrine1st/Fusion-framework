@@ -8,7 +8,7 @@ import ru.herobrine1st.fusion.api.Fusion;
 import ru.herobrine1st.fusion.api.annotation.FusionModule;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
 import ru.herobrine1st.fusion.api.command.args.GenericArguments;
-import ru.herobrine1st.fusion.api.command.args.ParserElement;
+import ru.herobrine1st.fusion.api.command.args.parser.ParserElement;
 import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
 import ru.herobrine1st.fusion.api.command.build.FusionSubcommandData;
 import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroupData;

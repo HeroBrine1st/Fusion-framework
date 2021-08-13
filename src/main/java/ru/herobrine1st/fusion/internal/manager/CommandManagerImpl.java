@@ -2,7 +2,7 @@ package ru.herobrine1st.fusion.internal.manager;
 
 import net.dv8tion.jda.internal.utils.Checks;
 import ru.herobrine1st.fusion.api.command.FusionOptionData;
-import ru.herobrine1st.fusion.api.command.args.ParserElement;
+import ru.herobrine1st.fusion.api.command.args.parser.ParserElement;
 import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.command.build.FusionCommandData;
 import ru.herobrine1st.fusion.api.command.build.FusionSubcommandData;

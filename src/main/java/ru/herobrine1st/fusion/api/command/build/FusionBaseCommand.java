@@ -4,7 +4,7 @@ import net.dv8tion.jda.internal.utils.Checks;
 import ru.herobrine1st.fusion.api.command.CommandExecutor;
 import ru.herobrine1st.fusion.api.command.FusionOptionData;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
-import ru.herobrine1st.fusion.api.command.args.ParserElement;
+import ru.herobrine1st.fusion.api.command.args.parser.ParserElement;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
