@@ -21,6 +21,8 @@ dependencies {
     implementation("org.reflections:reflections:0.9.12")
     implementation("com.google.inject:guice:5.0.1")
     implementation("mysql:mysql-connector-java:8.0.25")
+    implementation("com.google.code.gson:gson:2.8.7")
+    implementation("com.squareup.okhttp3:okhttp:4.9.0")
 }
 
 tasks.getByName<Test>("test") {

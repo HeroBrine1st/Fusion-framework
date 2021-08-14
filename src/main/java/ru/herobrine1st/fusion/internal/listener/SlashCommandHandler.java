@@ -18,6 +18,7 @@ import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class SlashCommandHandler {
@@ -91,10 +92,20 @@ public class SlashCommandHandler {
         event.deferReply(false).queue();
         logger.info("Processing %s %s %s by %s (%s)".formatted(commandName, groupName, subcommandName,
                 event.getUser().getAsTag(), event.getUser().getIdLong()));
-        try {
-            targetCommand.getExecutor().execute(context);
-        } catch (Throwable t) {
-            context.replyException(t);
+        if (targetCommand.isAsync()) {
+            CompletableFuture.runAsync(() -> {
+                try {
+                    targetCommand.getExecutor().execute(context);
+                } catch (Throwable t) {
+                    context.replyException(t);
+                }
+            });
+        } else {
+            try {
+                targetCommand.getExecutor().execute(context);
+            } catch (Throwable t) {
+                context.replyException(t);
+            }
         }
     }
 }

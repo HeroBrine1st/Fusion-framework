@@ -159,7 +159,7 @@ public interface CommandContext {
     Color getColor(int successCount, int totalCount);
 
     /**
-     * Error color for use in embed.<br>
+     * Error color for use in embed of failure.<br>
      * This method is a shortcut for {@code getColor(0, 1)}
      *
      * @return {@link java.awt.Color} object
@@ -167,6 +167,17 @@ public interface CommandContext {
      */
     default Color getErrorColor() {
         return getColor(0, 1);
+    }
+
+    /**
+     * Warning color for use in embed of partial success.<br>
+     * This method is a shortcut for {@code getColor(1, 2)}
+     *
+     * @return {@link java.awt.Color} object
+     * @see #getColor(int, int)
+     */
+    default Color getWarningColor() {
+        return getColor(1, 2);
     }
 
     /**

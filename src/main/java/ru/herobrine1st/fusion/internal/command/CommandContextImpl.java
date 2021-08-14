@@ -145,10 +145,10 @@ public class CommandContextImpl implements CommandContext {
         String text = "";
         if (!this.isExecutedAsSlashCommand()) {
             User user = getUser();
-            text += String.format("Запросил: %s\n", user.getAsTag());
+            text += String.format("Requested by %s\n", user.getAsTag());
         }
         if (successCount > 0 && (successCount != 1 || totalCount > 0)) {
-            text += "Выполнено: " + successCount;
+            text += "Successful: " + successCount;
             if (totalCount > 0) {
                 text += "/" + totalCount;
             }
