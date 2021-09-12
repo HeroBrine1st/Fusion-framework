@@ -34,7 +34,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -202,7 +202,7 @@ public class Fusion implements Internal {
     }
 
     @Override
-    public ForkJoinPool getConnectionPool() {
+    public ExecutorService getConnectionPool() {
         return ThreadPoolProvider.getConnectionPool();
     }
 }

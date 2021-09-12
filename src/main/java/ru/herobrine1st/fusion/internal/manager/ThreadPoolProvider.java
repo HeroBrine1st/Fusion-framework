@@ -1,7 +1,7 @@
 package ru.herobrine1st.fusion.internal.manager;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ScheduledExecutorService;
 
 public final class ThreadPoolProvider {
@@ -13,13 +13,13 @@ public final class ThreadPoolProvider {
         return t;
     });
 
-    private static final ForkJoinPool connectionPool = new ForkJoinPool();
+    private static final ExecutorService connectionPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     public static ScheduledExecutorService getScheduledPool() {
         return scheduledPool;
     }
 
-    public static ForkJoinPool getConnectionPool() {
+    public static ExecutorService getConnectionPool() {
         return connectionPool;
     }
 }
