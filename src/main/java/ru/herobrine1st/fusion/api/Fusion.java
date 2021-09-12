@@ -7,15 +7,22 @@ import ru.herobrine1st.fusion.api.manager.CommandManager;
 import javax.inject.Inject;
 import java.sql.Connection;
 import java.util.ResourceBundle;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ScheduledExecutorService;
 
 public final class Fusion {
     public interface Internal {
         Connection getSqlConnection();
+
         CommandManager getCommandManager();
-        ScheduledExecutorService getExecutorService();
+
+        ScheduledExecutorService getScheduledPool();
+
         IEventManager getEventManager();
+
         ResourceBundle getResourceBundle();
+
+        ForkJoinPool getConnectionPool();
     }
 
     private Fusion() {
@@ -40,12 +47,17 @@ public final class Fusion {
     }
 
     @NotNull
-    public static ScheduledExecutorService getExecutorService() {
-        return internalFusion.getExecutorService();
+    public static ScheduledExecutorService getScheduledPool() {
+        return internalFusion.getScheduledPool();
     }
 
     @NotNull
     public static ResourceBundle getResourceBundle() {
         return internalFusion.getResourceBundle();
+    }
+
+    @NotNull
+    public static ForkJoinPool getConnectionPool() {
+        return internalFusion.getConnectionPool();
     }
 }

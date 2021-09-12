@@ -24,7 +24,7 @@ import ru.herobrine1st.fusion.internal.listener.ButtonInteractionHandler;
 import ru.herobrine1st.fusion.internal.listener.MessageCommandHandler;
 import ru.herobrine1st.fusion.internal.listener.SlashCommandHandler;
 import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
-import ru.herobrine1st.fusion.internal.manager.ExecutorServiceProvider;
+import ru.herobrine1st.fusion.internal.manager.ThreadPoolProvider;
 
 import javax.security.auth.login.LoginException;
 import java.lang.reflect.Field;
@@ -34,6 +34,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -87,7 +88,7 @@ public class Fusion implements Internal {
         logger.info("Loaded %s modules".formatted(eventManager.getRegisteredListeners().size() - 4));
         logger.info("Serving %s guilds".formatted(jda.getGuildCache().size()));
         System.out.println();
-        getExecutorService().scheduleAtFixedRate(() -> {
+        getScheduledPool().scheduleAtFixedRate(() -> {
             try {                                // Выглядит как ебаный говнокод
                 if (!connection.isValid(1000)) { // Потому что вот эта хуйня кидает SQLException вместо IllegalArgumentException
                     logger.error("Disconnected from database. Reconnecting..");
@@ -107,7 +108,7 @@ public class Fusion implements Internal {
     @SubscribeEvent
     public void onShutdown(ShutdownEvent event) {
         logger.info("Shutting down Fusion bot");
-        getExecutorService().shutdown();
+        getScheduledPool().shutdown();
     }
 
     private void initializeSlashCommands(JDA jda) {
@@ -186,8 +187,8 @@ public class Fusion implements Internal {
     }
 
     @Override
-    public ScheduledExecutorService getExecutorService() {
-        return ExecutorServiceProvider.getExecutorService();
+    public ScheduledExecutorService getScheduledPool() {
+        return ThreadPoolProvider.getScheduledPool();
     }
 
     @Override
@@ -198,5 +199,10 @@ public class Fusion implements Internal {
     @Override
     public ResourceBundle getResourceBundle() {
         return ResourceBundle.getBundle("1223");
+    }
+
+    @Override
+    public ForkJoinPool getConnectionPool() {
+        return ThreadPoolProvider.getConnectionPool();
     }
 }

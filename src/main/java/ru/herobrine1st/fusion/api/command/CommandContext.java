@@ -292,6 +292,15 @@ public interface CommandContext {
     CompletableFuture<ButtonClickEvent> getButtonClickEventCompletableFuture();
 
     /**
+     * Set whether original message edit is required. This method should be executed before button interaction received, as this method determines if deferReply or deferEdit will be called.<br>
+     * <b>This method has no effect on first message in this context</b>.<br>
+     * This method can be used with button interaction to do (for example) cool pagination.
+     * @param editOriginal if true, original message will be edited in next reply, otherwise new message will be sent.
+     * @return {@link CommandContext} for chaining
+     */
+    CommandContext setEditOriginal(boolean editOriginal);
+
+    /**
      * Reply with message<br>
      * <h2>Example:</h2>
      * <pre><code>

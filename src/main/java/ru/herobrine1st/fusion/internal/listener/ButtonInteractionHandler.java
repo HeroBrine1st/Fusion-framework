@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.internal.command.CommandContextImpl;
-import ru.herobrine1st.fusion.internal.manager.ExecutorServiceProvider;
+import ru.herobrine1st.fusion.internal.manager.ThreadPoolProvider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +21,7 @@ public class ButtonInteractionHandler {
     private final static Map<Long, CommandContextImpl> interactionCache = new HashMap<>();
 
     static {
-        ExecutorServiceProvider.getExecutorService().scheduleAtFixedRate(() -> interactionCache.entrySet()
+        ThreadPoolProvider.getScheduledPool().scheduleAtFixedRate(() -> interactionCache.entrySet()
                         .removeIf(it -> {
                             if (System.currentTimeMillis() - (it.getKey() >>> TIMESTAMP_OFFSET) - DISCORD_EPOCH >= TTL) {
                                 it.getValue().cancelButtonClickWaiting();
@@ -58,7 +58,10 @@ public class ButtonInteractionHandler {
             }
         }
         interactionCache.remove(event.getMessageIdLong());
-        event.deferReply().queue();
+        if (context.getEditOriginal())
+            event.deferEdit().queue();
+        else
+            event.deferReply().queue();
         context.applyButtonClickEvent(event);
     }
 }

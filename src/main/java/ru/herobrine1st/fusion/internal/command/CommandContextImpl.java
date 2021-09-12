@@ -31,7 +31,8 @@ public class CommandContextImpl implements CommandContext {
 
     private final Map<String, List<Object>> arguments = new HashMap<>();
     private final FusionBaseCommand<?, ?> command;
-    protected Event event;
+    private Event event;
+    private boolean editOriginal = false;
     private CompletableFuture<ButtonClickEvent> buttonClickEventCompletableFuture = null;
 
     public CommandContextImpl(Event event, FusionBaseCommand<?, ?> command) {
@@ -94,7 +95,7 @@ public class CommandContextImpl implements CommandContext {
     }
 
     @Override
-    public FusionBaseCommand<?,?> getCommand() {
+    public FusionBaseCommand<?, ?> getCommand() {
         return command;
     }
 
@@ -160,18 +161,28 @@ public class CommandContextImpl implements CommandContext {
     }
 
     public RestAction<ButtonClickEvent> getButtonClickEventRestAction() {
-        if(buttonClickEventCompletableFuture == null) throw new IllegalStateException("No buttons in this context");
+        if (buttonClickEventCompletableFuture == null) throw new IllegalStateException("No buttons in this context");
         return CompletableFutureRestAction.of(buttonClickEventCompletableFuture);
     }
 
     @Override
     public CompletableFuture<ButtonClickEvent> getButtonClickEventCompletableFuture() {
-        if(buttonClickEventCompletableFuture == null) throw new IllegalStateException("No buttons in this context");
+        if (buttonClickEventCompletableFuture == null) throw new IllegalStateException("No buttons in this context");
         return buttonClickEventCompletableFuture;
     }
 
+    @Override
+    public CommandContext setEditOriginal(boolean editOriginal) {
+        this.editOriginal = editOriginal;
+        return this;
+    }
+
+    public boolean getEditOriginal() {
+        return editOriginal;
+    }
+
     public void applyButtonClickEvent(ButtonClickEvent event) { // Да, контекст мутабельный
-        if(buttonClickEventCompletableFuture == null) throw new IllegalStateException("No buttons in this context");
+        if (buttonClickEventCompletableFuture == null) throw new IllegalStateException("No buttons in this context");
         if (buttonClickEventCompletableFuture.isDone()) return;
         this.event = event;
         buttonClickEventCompletableFuture.complete(event);
@@ -186,9 +197,15 @@ public class CommandContextImpl implements CommandContext {
             return messageReceivedEvent.getMessage().reply(message)
                     .mentionRepliedUser(false);
         } else if (event instanceof SlashCommandEvent slashCommandEvent) {
-            return slashCommandEvent.getHook().sendMessage(message);
+            if (editOriginal)
+                return slashCommandEvent.getHook().editOriginal(message);
+            else
+                return slashCommandEvent.getHook().sendMessage(message);
         } else if (event instanceof ButtonClickEvent buttonClickEvent) {
-            return buttonClickEvent.getHook().sendMessage(message);
+            if (editOriginal)
+                return buttonClickEvent.getHook().editOriginal(message);
+            else
+                return buttonClickEvent.getHook().sendMessage(message);
         }
         throw new RuntimeException("Unexpected event");
     }
@@ -223,7 +240,7 @@ public class CommandContextImpl implements CommandContext {
         var embed = getEmbedBase().setColor(getErrorColor());
         if (t instanceof CommandException) {
             embed.setDescription("Ошибка выполнения команды: " + t.getMessage());
-        } else if(t instanceof CancellationException) {
+        } else if (t instanceof CancellationException) {
             logger.trace("Caught CancellationException", t);
             return;
         } else if (t instanceof RuntimeException) {
