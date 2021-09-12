@@ -15,9 +15,9 @@ import ru.herobrine1st.fusion.module.redditdownloader.command.RedditDownloadComm
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -28,16 +28,16 @@ public class RedditDownloaderModule {
     private static final Pattern inputFieldRegex = Pattern.compile("<input.+name=\"([^\"]+)\".+value=\"([^\"]+)\".+/>");
     private static final OkHttpClient client = new OkHttpClient().newBuilder()
             .cookieJar(new CookieJar() {
-                private Map<String, Cookie> cookies = new HashMap<>();
+                private final List<Cookie> cookies = new ArrayList<>();
                 @Override
                 public void saveFromResponse(@NotNull HttpUrl httpUrl, @NotNull List<Cookie> list) {
-                    list.forEach(it -> cookies.put(it.name(), it));
+                    cookies.addAll(list);
                 }
 
                 @NotNull
                 @Override
                 public List<Cookie> loadForRequest(@NotNull HttpUrl httpUrl) {
-                    return cookies.values().stream().toList();
+                    return cookies;
                 }
             })
             .build();
@@ -70,7 +70,6 @@ public class RedditDownloaderModule {
                 .build();
         var fields = new HashMap<String, String>();
         var it = client.newCall(csrfRequest).execute();
-        List<String> cookies = it.headers("Set-Cookie");
         var matcher = inputFieldRegex.matcher(Objects.requireNonNull(it.body()).string());
         while (matcher.find()) {
             var key = matcher.group(1);

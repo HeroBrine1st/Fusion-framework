@@ -28,9 +28,8 @@ public class TestModule {
                         GenericArguments.integer("integer", "Пиши блять сюда число")
                                 .addChoice("test", 1L)
                                 .addChoice("test2", 2L)
-                        )
-                .setExecutor(ctx -> ctx
-                        .reply(ctx.getEmbedBase()
+                )
+                .setExecutor(ctx -> ctx.reply(ctx.getEmbedBase()
                                         .setDescription(ctx.<String>getOne("string").orElse("Успешный тест!"))
                                         .addField("Тест 2", ctx.<Long>getOne("integer").orElse(0L).toString(), false)
                                         .build(),
