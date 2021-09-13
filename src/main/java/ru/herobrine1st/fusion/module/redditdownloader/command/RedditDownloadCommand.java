@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.utils.AttachmentOption;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.herobrine1st.fusion.api.Fusion;
 import ru.herobrine1st.fusion.api.command.CommandContext;
 import ru.herobrine1st.fusion.api.command.CommandExecutor;
 import ru.herobrine1st.fusion.api.exception.CommandException;
@@ -17,6 +18,7 @@ import ru.herobrine1st.fusion.module.redditdownloader.RedditDownloaderModule;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class RedditDownloadCommand implements CommandExecutor {
@@ -26,12 +28,16 @@ public class RedditDownloadCommand implements CommandExecutor {
     public void execute(@NotNull CommandContext ctx) throws CommandException {
         String url = ctx.<String>getOne("url").orElseThrow();
         JsonObject json;
+        byte[] file;
         try {
             json = RedditDownloaderModule.getJson(url).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new CommandException("Could not download video", e);
+            file = downloadFile(json.get("url").getAsString()).get();
+        } catch (InterruptedException e) {
+            throw new CommandException("Could not download video: download interrupted", e);
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof CommandException commandException) throw commandException;
+            else throw new CommandException("Could not download video", e.getCause());
         }
-        var file = downloadFile(json.get("url").getAsString());
         logger.trace("Downloaded video from " + json.get("url").getAsString());
         logger.trace("Creating embed");
         var embed = ctx.getEmbedBase()
@@ -63,23 +69,27 @@ public class RedditDownloadCommand implements CommandExecutor {
         }
     }
 
-    private static byte[] downloadFile(String url) throws CommandException {
-        HttpURLConnection connection;
-        try {
-            connection = (HttpURLConnection) new URL(url).openConnection();
-            connection.connect();
-        } catch (IOException e) {
-            throw new CommandException("Could not download video", e);
-        }
-        if (connection.getContentLength() > Message.MAX_FILE_SIZE) {
-            throw new CommandException("File size exceed 8 megabytes: $url");
-        } else {
+    private static CompletableFuture<byte[]> downloadFile(String url) {
+        CompletableFuture<byte[]> completableFuture = new CompletableFuture<>();
+        Fusion.getConnectionPool().execute(() -> {
+            HttpURLConnection connection;
             try {
-                return connection.getInputStream().readAllBytes();
+                connection = (HttpURLConnection) new URL(url).openConnection();
+                connection.connect();
             } catch (IOException e) {
-                throw new CommandException("Could not download video", e);
+                completableFuture.completeExceptionally(new CommandException("Could not download video", e));
+                return;
             }
-        }
-
+            if (connection.getContentLength() > Message.MAX_FILE_SIZE) {
+                completableFuture.completeExceptionally(new CommandException("File size exceed 8 megabytes: $url"));
+            } else {
+                try {
+                    completableFuture.complete(connection.getInputStream().readAllBytes());
+                } catch (IOException e) {
+                    completableFuture.completeExceptionally(new CommandException("Could not download video", e));
+                }
+            }
+        });
+        return completableFuture;
     }
 }

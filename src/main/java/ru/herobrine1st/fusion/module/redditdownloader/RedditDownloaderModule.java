@@ -64,7 +64,6 @@ public class RedditDownloaderModule {
                 .addOptions(GenericArguments.string("url", "Link to a post"))
                 .setExecutor(new RedditDownloadCommand())
                 .setShortName("Reddit Downloader")
-                .setAsync(true)
         );
     }
 

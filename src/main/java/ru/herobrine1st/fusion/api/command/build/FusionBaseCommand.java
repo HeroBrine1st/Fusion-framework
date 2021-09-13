@@ -18,7 +18,6 @@ public abstract class FusionBaseCommand<T extends FusionBaseCommand<T, R>, R ext
     private PermissionHandler permissionHandler = PermissionHandler.DEFAULT;
     private String shortName;
     private boolean testing = false;
-    private boolean async = false;
 
     protected final List<R> options = new ArrayList<>();
 
@@ -108,17 +107,5 @@ public abstract class FusionBaseCommand<T extends FusionBaseCommand<T, R>, R ext
     public T setTesting(boolean testing) {
         this.testing = testing;
         return (T) this;
-    }
-
-    @Nonnull
-    @SuppressWarnings("unchecked")
-    public T setAsync(boolean async) {
-        this.async = async;
-        return (T) this;
-    }
-
-
-    public boolean isAsync() {
-        return async;
     }
 }

@@ -18,7 +18,6 @@ import ru.herobrine1st.fusion.internal.command.args.CommandArgsImpl;
 import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class MessageCommandHandler {
@@ -121,20 +120,10 @@ public class MessageCommandHandler {
         }
         logger.info("Processing %s by %s (%s)".formatted(event.getMessage().getContentRaw(),
                 event.getAuthor().getAsTag(), event.getAuthor().getIdLong()));
-        if (targetCommand.isAsync()) {
-            CompletableFuture.runAsync(() -> {
-                try {
-                    targetCommand.getExecutor().execute(context);
-                } catch (Throwable t) {
-                    context.replyException(t);
-                }
-            });
-        } else {
-            try {
-                targetCommand.getExecutor().execute(context);
-            } catch (Throwable t) {
-                context.replyException(t);
-            }
+        try {
+            targetCommand.getExecutor().execute(context);
+        } catch (Throwable t) {
+            context.replyException(t);
         }
     }
 }
