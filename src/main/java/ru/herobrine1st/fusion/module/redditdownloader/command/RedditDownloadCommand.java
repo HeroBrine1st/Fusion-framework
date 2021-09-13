@@ -5,8 +5,6 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
-import net.dv8tion.jda.api.requests.restaction.WebhookMessageAction;
 import net.dv8tion.jda.api.utils.AttachmentOption;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -62,17 +60,11 @@ public class RedditDownloadCommand implements CommandExecutor {
         var strings = json.get("url").getAsString().split("/");
         var filename = strings[strings.length - 1];
         if (ctx.getEvent() instanceof SlashCommandEvent slashCommandEvent) {
-            WebhookMessageAction<?> webhookMessageAction = slashCommandEvent.getHook().sendMessage(message);
-            if (nsfw)
-                webhookMessageAction.addFile(file, filename, AttachmentOption.SPOILER).queue();
-            else
-                webhookMessageAction.addFile(file, filename).queue();
-        } else if(ctx.getEvent() instanceof MessageReceivedEvent messageReceivedEvent) {
-            MessageAction messageAction = messageReceivedEvent.getMessage().getChannel().sendMessage(message);
-            if (nsfw)
-                messageAction.addFile(file, filename, AttachmentOption.SPOILER).queue();
-            else
-                messageAction.addFile(file, filename).queue();
+            slashCommandEvent.getHook().sendMessage(message).addFile(file, filename,
+                    nsfw ? new AttachmentOption[]{AttachmentOption.SPOILER} : new AttachmentOption[0]).queue();
+        } else if (ctx.getEvent() instanceof MessageReceivedEvent messageReceivedEvent) {
+            messageReceivedEvent.getMessage().getChannel().sendMessage(message).addFile(file, filename,
+                    nsfw ? new AttachmentOption[]{AttachmentOption.SPOILER} : new AttachmentOption[0]).queue();
         } else {
             throw new RuntimeException();
         }

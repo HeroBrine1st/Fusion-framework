@@ -91,13 +91,10 @@ public interface CommandContext {
 
     /**
      * Whether this execution is triggered by slash interaction or not.<br>
-     * This method is a shortcut for {@code getEvent() instanceof SlashCommandEvent}
      *
      * @return true if triggered by a slash interaction
      */
-    default boolean isExecutedAsSlashCommand() {
-        return getEvent() instanceof SlashCommandEvent;
-    }
+    boolean isExecutedAsSlashCommand();
 
     /**
      * User that triggered this execution

@@ -57,7 +57,7 @@ public class IntegerParserElement extends ChoicesParserElement<IntegerParserElem
     public OptionData getOptionData() {
         OptionData optionData = new OptionData(OptionType.INTEGER, name, description, required);
         for(Map.Entry<String, Long> entry: choices.entrySet()) {
-            optionData.addChoice(entry.getKey(), entry.getValue().intValue()); // FIXME range -2^32..2^32-1; Waiting library fix
+            optionData.addChoice(entry.getKey(), entry.getValue().intValue()); // FIXME range -2^31..2^31-1; Waiting library fix
         }
         return optionData;
     }

@@ -22,10 +22,10 @@ public class JsonRequest {
     private static final OkHttpClient client = new OkHttpClient();
 
 
-    public static class Unsuccessful extends Exception {
+    public static class UnsuccessfulRequestException extends Exception {
         private final Response response;
 
-        public Unsuccessful(Response response) {
+        public UnsuccessfulRequestException(Response response) {
             super();
             this.response = response;
         }
@@ -57,7 +57,7 @@ public class JsonRequest {
             if (response.isSuccessful()) {
                 ResponseBody body = response.body();
                 if (body == null) {
-                    completableFuture.completeExceptionally(new NullPointerException());
+                    completableFuture.completeExceptionally(new NullPointerException("Body is null"));
                     return;
                 }
                 String bodyString;
@@ -76,7 +76,7 @@ public class JsonRequest {
                 }
                 completableFuture.complete(json);
             } else {
-                completableFuture.completeExceptionally(new Unsuccessful(response));
+                completableFuture.completeExceptionally(new UnsuccessfulRequestException(response));
             }
         });
         return CompletableFutureRestAction.of(completableFuture);

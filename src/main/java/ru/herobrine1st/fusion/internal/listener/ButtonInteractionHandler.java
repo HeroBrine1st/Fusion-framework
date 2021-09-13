@@ -58,10 +58,7 @@ public class ButtonInteractionHandler {
             }
         }
         interactionCache.remove(event.getMessageIdLong());
-        if (context.getEditOriginal())
-            event.deferEdit().queue();
-        else
-            event.deferReply().queue();
+        event.deferEdit().queue();
         context.applyButtonClickEvent(event);
     }
 }

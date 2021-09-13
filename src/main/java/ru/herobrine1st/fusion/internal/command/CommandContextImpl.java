@@ -33,11 +33,13 @@ public class CommandContextImpl implements CommandContext {
     private final FusionBaseCommand<?, ?> command;
     private Event event;
     private boolean editOriginal = false;
+    private final boolean executedAsSlashCommand;
     private CompletableFuture<ButtonClickEvent> buttonClickEventCompletableFuture = null;
 
     public CommandContextImpl(Event event, FusionBaseCommand<?, ?> command) {
         this.event = event;
         this.command = command;
+        this.executedAsSlashCommand = event instanceof SlashCommandEvent;
     }
 
     @Nullable
@@ -80,6 +82,11 @@ public class CommandContextImpl implements CommandContext {
     @SuppressWarnings("unchecked")
     public <T> Collection<T> getAll(String name) {
         return (Collection<T>) arguments.getOrDefault(name, Collections.emptyList());
+    }
+
+    @Override
+    public boolean isExecutedAsSlashCommand() {
+        return executedAsSlashCommand;
     }
 
     @Override

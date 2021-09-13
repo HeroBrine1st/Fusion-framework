@@ -1,7 +1,6 @@
 package ru.herobrine1st.fusion.module.googlesearch.command;
 
 import com.google.gson.JsonObject;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -37,14 +36,15 @@ public class ImageCommand implements CommandExecutor {
         return httpBuilder.build().url();
     }
 
-    private MessageEmbed getEmbedFromImage(JsonObject image, int index, int count) {
-        var builder = new EmbedBuilder()
+    private MessageEmbed getEmbedFromImage(CommandContext ctx, JsonObject image, int index, int count) {
+        var builder = ctx.getEmbedBase()
                 .setTitle(
                         image.get("title").getAsString(),
                         image.getAsJsonObject("image").get("contextLink").getAsString())
                 .setImage(image.get("link").getAsString());
-        if(image.get("mime").getAsString().equals("image/svg+xml")) builder.setDescription("SVG images may be not displayed on some clients.");
-        return builder.setFooter("Image %s/%s".formatted(index + 1, count))
+        if (image.get("mime").getAsString().equals("image/svg+xml"))
+            builder.setDescription("SVG images may not display on some clients.");
+        return builder.setFooter(ctx.getFooter("Image %s/%s".formatted(index + 1, count)))
                 .build();
     }
 
@@ -54,13 +54,14 @@ public class ImageCommand implements CommandExecutor {
             Button prevButton = Button.primary("prev", "< Previous").withDisabled(index == 0);
             Button nextButton = Button.primary("next", "Next >").withDisabled(index == size - 1);
             ActionRow actionRow = ActionRow.of(prevButton, nextButton);
-            return ctx.setEditOriginal(true).replyThenWaitUserClick(getEmbedFromImage(
+            return ctx.replyThenWaitUserClick(getEmbedFromImage(ctx,
                             json.getAsJsonArray("items").get(index).getAsJsonObject(), index, size), actionRow)
                     .flatMap(it -> {
                         String componentId = it.getComponentId();
                         int newIndex = index;
                         if (componentId.equals("prev")) newIndex--;
                         else if (componentId.equals("next")) newIndex++;
+                        ctx.setEditOriginal(true);
                         return doCycle(ctx, json, newIndex);
                     });
         } else {
@@ -73,11 +74,16 @@ public class ImageCommand implements CommandExecutor {
         if (Config.getKey() == null || Config.getCX() == null) {
             throw new CommandException("No API key found");
         }
-
         JsonRequest.makeRequest(getUrl(ctx))
-                .flatMap(json -> doCycle(ctx, json,
-                        (json.getAsJsonArray("items") != null && json.getAsJsonArray("items").size() != 0) ?
-                                random.nextInt(json.getAsJsonArray("items").size()) : 0)
+                .flatMap(json -> {
+                            int size;
+                            if (json.getAsJsonArray("items") != null && json.getAsJsonArray("items").size() != 0)
+                                size = json.getAsJsonArray("items").size();
+                            else size = 0;
+                            return doCycle(ctx, json, ctx.<Integer>getOne("index")
+                                    .map(integer -> Math.max(Math.min(size - 1, integer), 0))
+                                    .orElseGet(() -> random.nextInt(size)));
+                        }
                 )
                 .queue(null, ctx::replyException);
     }
