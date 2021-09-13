@@ -17,6 +17,7 @@ import ru.herobrine1st.fusion.module.redditdownloader.RedditDownloaderModule;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 public class RedditDownloadCommand implements CommandExecutor {
     private static final Logger logger = LoggerFactory.getLogger(RedditDownloadCommand.class);
@@ -26,17 +27,9 @@ public class RedditDownloadCommand implements CommandExecutor {
         String url = ctx.<String>getOne("url").orElseThrow();
         JsonObject json;
         try {
-            json = RedditDownloaderModule.getJson(url);
-        } catch (IOException e) {
+            json = RedditDownloaderModule.getJson(url).get();
+        } catch (InterruptedException | ExecutionException e) {
             throw new CommandException("Could not download video", e);
-        }
-        if (!"ok".equals(json.get("status").getAsString())) {
-            if ("error".equals(json.get("status").getAsString()) && json.get("msg") != null) {
-                throw new CommandException(json.get("msg").getAsString());
-            } else {
-                logger.error(json.toString());
-                throw new CommandException("Unknown API error occurred.");
-            }
         }
         var file = downloadFile(json.get("url").getAsString());
         logger.trace("Downloaded video from " + json.get("url").getAsString());
