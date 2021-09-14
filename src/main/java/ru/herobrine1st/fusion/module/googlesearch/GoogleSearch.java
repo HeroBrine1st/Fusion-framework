@@ -30,6 +30,6 @@ public class GoogleSearch {
                         GenericArguments.integer("index", "Image index", 0, 49).setRequired(false),
                         GenericArguments.integer("max", "Maximum results count", 1, 50).setRequired(false))
                 .setExecutor(new YoutubeCommand())
-                .setTesting(true));
+                .setShortName("Youtube Search"));
     }
 }
