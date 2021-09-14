@@ -46,14 +46,18 @@ public class CompletableFutureRestAction<R> implements RestAction<R> {
     }
 
     private static <T> void tryOrElse(Consumer<T> consumer, T t, Consumer<? super Throwable> failure) {
-        try {
-            if (consumer != null)
+        if (consumer != null)
+            try {
                 consumer.accept(t);
-        } catch (Throwable e) {
-            logger.error("Exception in handler", e);
-            if (failure != null)
-                failure.accept(e);
-        }
+            } catch (Throwable e) {
+                logger.error("Exception in handler", e);
+                if (failure != null)
+                    try {
+                        failure.accept(e);
+                    } catch (Throwable ex) {
+                        logger.error("Exception in failure handler", ex);
+                    }
+            }
     }
 
     @Override
