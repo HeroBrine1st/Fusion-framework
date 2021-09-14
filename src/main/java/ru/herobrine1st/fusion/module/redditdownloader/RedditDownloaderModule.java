@@ -36,7 +36,7 @@ public class RedditDownloaderModule {
             .cookieJar(new CookieJar() {
                 private final List<Cookie> cookies = new ArrayList<>();
                 @Override
-                public void saveFromResponse(@NotNull HttpUrl httpUrl, @NotNull List<Cookie> list) {
+                synchronized public void saveFromResponse(@NotNull HttpUrl httpUrl, @NotNull List<Cookie> list) {
                     cookies.addAll(list);
                 }
 

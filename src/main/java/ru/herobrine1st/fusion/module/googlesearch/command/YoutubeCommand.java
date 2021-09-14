@@ -1,7 +1,7 @@
 package ru.herobrine1st.fusion.module.googlesearch.command;
 
 import com.google.gson.JsonObject;
-import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -19,33 +19,29 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Random;
 
-public class ImageCommand implements CommandExecutor {
+public class YoutubeCommand implements CommandExecutor {
+    private static final String URL = "https://www.googleapis.com/youtube/v3/search";
     private final Random random = new Random();
-    private final static String URL = "https://www.googleapis.com/customsearch/v1";
 
     private URL getUrl(CommandContext ctx) {
         HttpUrl.Builder httpBuilder = Objects.requireNonNull(HttpUrl.parse(URL)).newBuilder()
-                .addQueryParameter("num", "10")
-                .addQueryParameter("start", "1")
-                .addQueryParameter("searchType", "image")
-                .addQueryParameter("cx", Config.getGoogleCustomSearchEngineId())
+                .addQueryParameter("part", "snippet")
+                .addQueryParameter("type", ctx.<String>getOne("type").orElse("video")) // channel, playlist
                 .addQueryParameter("key", Config.getGoogleCustomSearchApiKey())
-                .addQueryParameter("safe", "1")
+                .addQueryParameter("maxResults", ctx.<Integer>getOne("max").orElse(25).toString())
                 .addQueryParameter("q", URLEncoder.encode(ctx.<String>getOne("query").orElseThrow(), StandardCharsets.UTF_8));
         ctx.<String>getOne("type").ifPresent(it -> httpBuilder.addQueryParameter("fileType", it));
         return httpBuilder.build().url();
     }
 
-    private MessageEmbed getEmbedFromJson(CommandContext ctx, JsonObject image, int index, int count) {
-        var builder = ctx.getEmbedBase()
-                .setTitle(
-                        image.get("title").getAsString(),
-                        image.getAsJsonObject("image").get("contextLink").getAsString())
-                .setImage(image.get("link").getAsString());
-        if (image.get("mime").getAsString().equals("image/svg+xml"))
-            builder.setDescription("SVG images may not display on some clients.");
-        return builder.setFooter(ctx.getFooter("Image %s/%s".formatted(index + 1, count)))
-                .build();
+    private static String getUrl(JsonObject json) {
+        JsonObject idObject = json.getAsJsonObject("id");
+        return switch (idObject.get("kind").getAsString()) {
+            case "youtube#video" -> "https://youtube.com/watch?v=" + idObject.get("videoId").getAsString();
+            case "youtube#channel" -> "https://youtube.com/channel/" + idObject.get("channelId").getAsString();
+            case "youtube#playlist" -> "https://www.youtube.com/playlist?list=" + idObject.get("playlistId").getAsString();
+            default -> throw new RuntimeException("Апи дал йобу");
+        };
     }
 
     private RestAction<?> doCycle(CommandContext ctx, JsonObject json, int index) {
@@ -56,8 +52,12 @@ public class ImageCommand implements CommandExecutor {
                     Button.primary("prev", "< Prev").withDisabled(index == 0),
                     Button.primary("next", "Next >").withDisabled(index == size - 1),
                     Button.secondary("last", "Last >>").withDisabled(index == size - 1));
-            return ctx.replyThenWaitUserClick(getEmbedFromJson(ctx,
-                            json.getAsJsonArray("items").get(index).getAsJsonObject(), index, size), actionRow)
+
+            return ctx.reply(new MessageBuilder()
+                            .setContent("Video %s/%s for query \"%s\": %s".formatted(index+1, size, ctx.<String>getOne("query").orElseThrow(), getUrl(json.getAsJsonArray("items").get(index).getAsJsonObject())))
+                            .setActionRows(actionRow)
+                            .build())
+                    .flatMap(it -> ctx.getButtonClickEventRestAction())
                     .flatMap(it -> {
                         String componentId = it.getComponentId();
                         ctx.setEditOriginal(true);
@@ -73,10 +73,9 @@ public class ImageCommand implements CommandExecutor {
             return ctx.replyError("No results found");
         }
     }
-
     @Override
     public void execute(@NotNull CommandContext ctx) throws CommandException {
-        if (Config.getGoogleCustomSearchApiKey() == null || Config.getGoogleCustomSearchEngineId() == null) {
+        if (Config.getYoutubeSearchApiKey() == null) {
             throw new CommandException("No API key found");
         }
         JsonRequest.makeRequest(getUrl(ctx))

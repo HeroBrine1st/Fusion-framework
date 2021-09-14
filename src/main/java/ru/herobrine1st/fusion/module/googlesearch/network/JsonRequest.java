@@ -6,6 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.Fusion;
+import ru.herobrine1st.fusion.api.exception.CommandException;
 import ru.herobrine1st.fusion.api.restaction.CompletableFutureRestAction;
 
 import javax.annotation.Nullable;
@@ -20,20 +21,6 @@ public class JsonRequest {
     private static final Gson gson = new Gson();
     private static final MediaType MEDIA_TYPE = MediaType.parse("application/json; charset=utf-8");
     private static final OkHttpClient client = new OkHttpClient();
-
-
-    public static class UnsuccessfulRequestException extends Exception {
-        private final Response response;
-
-        public UnsuccessfulRequestException(Response response) {
-            super();
-            this.response = response;
-        }
-
-        public Response getResponse() {
-            return response;
-        }
-    }
 
     public static @NotNull CompletableFutureRestAction<JsonObject> makeRequest(URL url) {
         return makeRequest(url, null);
@@ -54,29 +41,34 @@ public class JsonRequest {
                 completableFuture.completeExceptionally(e);
                 return;
             }
+            ResponseBody body = response.body();
+            if (body == null) {
+                completableFuture.completeExceptionally(new NullPointerException("Body is null"));
+                return;
+            }
+            String bodyString;
+            try {
+                bodyString = body.string();
+            } catch (IOException e) {
+                completableFuture.completeExceptionally(e);
+                return;
+            }
+            JsonObject json;
+            try {
+                json = gson.fromJson(bodyString, JsonObject.class);
+            } catch (JsonSyntaxException e) {
+                completableFuture.completeExceptionally(e);
+                return;
+            }
             if (response.isSuccessful()) {
-                ResponseBody body = response.body();
-                if (body == null) {
-                    completableFuture.completeExceptionally(new NullPointerException("Body is null"));
-                    return;
-                }
-                String bodyString;
-                try {
-                    bodyString = body.string();
-                } catch (IOException e) {
-                    completableFuture.completeExceptionally(e);
-                    return;
-                }
-                JsonObject json;
-                try {
-                    json = gson.fromJson(bodyString, JsonObject.class);
-                } catch (JsonSyntaxException e) {
-                    completableFuture.completeExceptionally(e);
-                    return;
-                }
                 completableFuture.complete(json);
             } else {
-                completableFuture.completeExceptionally(new UnsuccessfulRequestException(response));
+                JsonObject errorObject = json.getAsJsonObject("error");
+                if(errorObject != null) {
+                    String status = errorObject.get("status").getAsString();
+                    String message = errorObject.get("message").getAsString();
+                    completableFuture.completeExceptionally(new CommandException(message).addField("Status", status, false));
+                } else completableFuture.completeExceptionally(new CommandException("Unknown HTTP error occurred. Code %s".formatted(response.code())));
             }
         });
         return CompletableFutureRestAction.of(completableFuture);

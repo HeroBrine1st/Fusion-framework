@@ -245,16 +245,17 @@ public class CommandContextImpl implements CommandContext {
     @Override
     public void replyException(Throwable t) {
         var embed = getEmbedBase().setColor(getErrorColor());
-        if (t instanceof CommandException) {
-            embed.setDescription("Ошибка выполнения команды: " + t.getMessage());
+        if (t instanceof CommandException commandException) {
+            embed.setDescription("Command execution exception: " + commandException.getMessage());
+            commandException.getFields().forEach(embed::addField);
         } else if (t instanceof CancellationException) {
             logger.trace("Caught CancellationException", t);
             return;
         } else if (t instanceof RuntimeException) {
-            embed.setDescription("Неизвестная ошибка. Дополнительные данные отправлены в журнал.");
+            embed.setDescription("Unknown runtime exception when executing command ");
             logger.error("Runtime exception occurred when executing command", t);
         } else {
-            embed.setDescription("Неизвестная ошибка. Дополнительные данные отправлены в журнал.");
+            embed.setDescription("Unknown exception when executing command");
             logger.error("Error executing command", t);
         }
         reply(embed.build()).queue();

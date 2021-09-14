@@ -5,6 +5,8 @@ import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -12,7 +14,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 public class CompletableFutureRestAction<R> implements RestAction<R> {
-
+    private final static Logger logger = LoggerFactory.getLogger(CompletableFutureRestAction.class);
     private final CompletableFuture<R> completableFuture;
     private BooleanSupplier checks = null;
 
@@ -43,11 +45,22 @@ public class CompletableFutureRestAction<R> implements RestAction<R> {
         return checks;
     }
 
+    private static <T> void tryOrElse(Consumer<T> consumer, T t, Consumer<? super Throwable> failure) {
+        try {
+            if (consumer != null)
+                consumer.accept(t);
+        } catch (Throwable e) {
+            logger.error("Exception in handler", e);
+            if (failure != null)
+                failure.accept(e);
+        }
+    }
+
     @Override
     public void queue(@Nullable Consumer<? super R> success, @Nullable Consumer<? super Throwable> failure) {
         completableFuture.whenCompleteAsync((result, throwable) -> {
-            if (result != null && success != null) success.accept(result);
-            if (throwable != null && failure != null) failure.accept(throwable);
+            if (result != null && success != null) tryOrElse(success, result, failure);
+            if (throwable != null && failure != null) tryOrElse(failure, throwable, null);
         });
     }
 
