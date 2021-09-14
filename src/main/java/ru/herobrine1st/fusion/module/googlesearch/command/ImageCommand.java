@@ -44,7 +44,7 @@ public class ImageCommand implements CommandExecutor {
                 .setImage(image.get("link").getAsString());
         if (image.get("mime").getAsString().equals("image/svg+xml"))
             builder.setDescription("SVG images may not display on some clients.");
-        return builder.setFooter(ctx.getFooter("Image %s/%s".formatted(index + 1, count)))
+        return builder.setFooter(ctx.getFooter("Image %s/%s\nQuery: \"%s\"".formatted(index + 1, count, ctx.<String>getOne("query").orElseThrow())))
                 .build();
     }
 
