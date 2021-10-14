@@ -1,2 +1,2 @@
-rootProject.name = "Fusion"
+rootProject.name = "Fusion-framework"
 
