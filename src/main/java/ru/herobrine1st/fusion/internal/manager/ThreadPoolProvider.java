@@ -7,7 +7,7 @@ import java.util.concurrent.ScheduledExecutorService;
 public final class ThreadPoolProvider {
     private ThreadPoolProvider() {}
 
-    private static final ScheduledExecutorService scheduledPool = Executors.newScheduledThreadPool(2, it -> {
+    private static final ScheduledExecutorService scheduledPool = Executors.newScheduledThreadPool(1, it -> {
         var t = new Thread(it);
         t.setDaemon(true);
         return t;

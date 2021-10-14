@@ -12,7 +12,7 @@ import ru.herobrine1st.fusion.api.command.build.FusionCommand;
 import ru.herobrine1st.fusion.api.command.build.FusionSubcommand;
 import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroup;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
-import ru.herobrine1st.fusion.internal.Config;
+import ru.herobrine1st.fusion.internal.Fusion;
 import ru.herobrine1st.fusion.internal.command.CommandContextImpl;
 import ru.herobrine1st.fusion.internal.command.args.CommandArgsImpl;
 import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
@@ -27,9 +27,9 @@ public class MessageCommandHandler {
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.isWebhookMessage() || event.getAuthor().isBot())
             return;
-        if (!event.getMessage().getContentRaw().startsWith(Config.INSTANCE.getDiscordPrefix()))
+        if (!event.getMessage().getContentRaw().startsWith(Fusion.INSTANCE.getConfig().getDiscordPrefix()))
             return;
-        CommandArgsImpl args = new CommandArgsImpl(event.getMessage().getContentRaw().substring(Config.INSTANCE.getDiscordPrefix().length()));
+        CommandArgsImpl args = new CommandArgsImpl(event.getMessage().getContentRaw().substring(Fusion.INSTANCE.getConfig().getDiscordPrefix().length()));
         if (!args.hasNext())
             return;
         String commandName = args.next().getValue();
