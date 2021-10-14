@@ -66,9 +66,9 @@ public class TestModule {
     @SubscribeEvent
     public void onMessage(MessageReceivedEvent event) {
         if (event.getMessage().getEmbeds().isEmpty()) return;
-        var author = event.getMessage().getEmbeds().get(0).getAuthor();
-        if (author == null) return;
-        if ("КГБ на связи!".equals(author.getName())) {
+        var title = event.getMessage().getEmbeds().get(0).getTitle();
+        if (title == null) return;
+        if (title.contains("удалил своё сообщение!") || title.contains("изменил своё сообщение!")) {
             event.getMessage().delete().queue();
         }
     }

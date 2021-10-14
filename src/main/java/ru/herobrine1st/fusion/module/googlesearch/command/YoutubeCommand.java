@@ -60,7 +60,6 @@ public class YoutubeCommand implements CommandExecutor {
                     .flatMap(it -> ctx.getButtonClickEventRestAction())
                     .flatMap(it -> {
                         String componentId = it.getComponentId();
-                        ctx.setEditOriginal(true);
                         return doCycle(ctx, json, switch (componentId) {
                             case "prev" -> index - 1;
                             case "next" -> index + 1;
@@ -78,6 +77,7 @@ public class YoutubeCommand implements CommandExecutor {
         if (Config.getYoutubeSearchApiKey() == null) {
             throw new CommandException("No API key found");
         }
+        ctx.setEditOriginal(true);
         JsonRequest.makeRequest(getUrl(ctx))
                 .flatMap(json -> {
                             int size;

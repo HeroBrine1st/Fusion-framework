@@ -60,7 +60,6 @@ public class ImageCommand implements CommandExecutor {
                             json.getAsJsonArray("items").get(index).getAsJsonObject(), index, size), actionRow)
                     .flatMap(it -> {
                         String componentId = it.getComponentId();
-                        ctx.setEditOriginal(true);
                         return doCycle(ctx, json, switch (componentId) {
                             case "prev" -> index - 1;
                             case "next" -> index + 1;
@@ -79,6 +78,7 @@ public class ImageCommand implements CommandExecutor {
         if (Config.getGoogleCustomSearchApiKey() == null || Config.getGoogleCustomSearchEngineId() == null) {
             throw new CommandException("No API key found");
         }
+        ctx.setEditOriginal(true);
         JsonRequest.makeRequest(getUrl(ctx))
                 .flatMap(json -> {
                             int size;
