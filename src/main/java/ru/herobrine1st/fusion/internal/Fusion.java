@@ -24,7 +24,7 @@ import static ru.herobrine1st.fusion.api.Fusion.Internal;
 public class Fusion implements Internal {
     private static final Logger logger = LoggerFactory.getLogger(Fusion.class);
     private final AnnotatedEventManager eventManager = new AnnotatedEventManager();
-    private Config config = new Config();
+    private ru.herobrine1st.fusion.api.Fusion.Config config = new Config();
     public static final Fusion INSTANCE = new Fusion();
 
     static {
@@ -85,7 +85,7 @@ public class Fusion implements Internal {
                 .complete();
     }
 
-    public Config getConfig() {
+    public ru.herobrine1st.fusion.api.Fusion.Config getConfig() {
         return config;
     }
 
@@ -99,7 +99,7 @@ public class Fusion implements Internal {
         return eventManager;
     }
 
-    public void setConfig(Config config) {
+    public void setConfig(ru.herobrine1st.fusion.api.Fusion.Config config) {
         this.config = config;
     }
 }

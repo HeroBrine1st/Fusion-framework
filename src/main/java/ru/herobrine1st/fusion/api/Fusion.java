@@ -11,7 +11,15 @@ public final class Fusion {
 
         IEventManager getEventManager();
 
+        void setConfig(Config config);
+
         void start(JDA jda) throws InterruptedException;
+    }
+
+    public interface Config {
+        String getDiscordPrefix();
+
+        String getTestGuildId();
     }
 
     private Fusion() {}
