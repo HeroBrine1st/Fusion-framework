@@ -1,5 +1,6 @@
 plugins {
     java
+    `maven-publish`
 }
 
 group = "ru.herobrine1st.fusion"
@@ -34,5 +35,17 @@ tasks {
     }
     compileTestJava {
         options.encoding = "UTF-8"
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = rootProject.group as String
+            artifactId = rootProject.name
+            version = rootProject.version as String
+
+            from(components["java"])
+        }
     }
 }
