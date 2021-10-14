@@ -6,6 +6,7 @@ plugins {
 group = "ru.herobrine1st.fusion"
 version = "3.0-SNAPSHOT"
 
+
 repositories {
     mavenCentral()
     maven(url="https://m2.dv8tion.net/releases")
@@ -24,6 +25,10 @@ dependencies {
 
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_16
 }
 
 tasks {
