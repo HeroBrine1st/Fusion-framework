@@ -1,5 +1,5 @@
 plugins {
-    application
+    java
 }
 
 group = "ru.herobrine1st.fusion"
@@ -8,10 +8,6 @@ version = "3.0-SNAPSHOT"
 repositories {
     mavenCentral()
     maven(url="https://m2.dv8tion.net/releases")
-}
-
-application {
-    mainClass.set("ru.herobrine1st.fusion.internal.Fusion")
 }
 
 dependencies {
