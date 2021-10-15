@@ -51,4 +51,6 @@ public abstract class CommandManager {
     public void sendSlashCommands() {
         sendSlashCommands(null);
     }
+
+    public abstract void registerListeners();
 }

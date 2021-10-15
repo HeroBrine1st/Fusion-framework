@@ -1,8 +1,11 @@
 package ru.herobrine1st.fusion.internal.listener;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
@@ -17,7 +20,7 @@ import ru.herobrine1st.fusion.internal.command.args.CommandArgsImpl;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class MessageCommandHandler {
+public class MessageCommandHandler implements EventListener {
     private final static Logger logger = LoggerFactory.getLogger(MessageCommandHandler.class);
     private final CommandManager commandManager;
     public MessageCommandHandler(CommandManager manager) {
@@ -123,5 +126,10 @@ public class MessageCommandHandler {
         } catch (Throwable t) {
             context.replyException(t);
         }
+    }
+
+    @Override
+    public void onEvent(@NotNull GenericEvent event) {
+        if(event instanceof MessageReceivedEvent messageReceivedEvent) onMessageReceived(messageReceivedEvent);
     }
 }

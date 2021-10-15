@@ -9,6 +9,9 @@ import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.command.build.FusionCommand;
 import ru.herobrine1st.fusion.api.manager.CommandManager;
 import ru.herobrine1st.fusion.internal.command.SlashCommandBuilder;
+import ru.herobrine1st.fusion.internal.listener.ButtonInteractionHandler;
+import ru.herobrine1st.fusion.internal.listener.MessageCommandHandler;
+import ru.herobrine1st.fusion.internal.listener.SlashCommandHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +88,11 @@ public class CommandManagerImpl extends CommandManager {
                         .map(SlashCommandBuilder::buildCommand)
                         .toList())
                 .queue(null, throwable -> logger.error("Could not send slash commands", throwable));
+    }
+
+    @Override
+    public void registerListeners() {
+        jda.addEventListener(ButtonInteractionHandler.INSTANCE, new MessageCommandHandler(this), new SlashCommandHandler(this));
     }
 
 

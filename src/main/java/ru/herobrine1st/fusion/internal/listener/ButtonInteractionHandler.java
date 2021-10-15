@@ -1,6 +1,8 @@
 package ru.herobrine1st.fusion.internal.listener;
 
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -15,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 import static net.dv8tion.jda.api.utils.TimeUtil.DISCORD_EPOCH;
 import static net.dv8tion.jda.api.utils.TimeUtil.TIMESTAMP_OFFSET;
 
-public class ButtonInteractionHandler {
+public class ButtonInteractionHandler implements EventListener {
     public final static ButtonInteractionHandler INSTANCE = new ButtonInteractionHandler();
     private final static Logger logger = LoggerFactory.getLogger(ButtonInteractionHandler.class);
     private final static long TTL = 15 * 60 * 1000;
@@ -65,5 +67,10 @@ public class ButtonInteractionHandler {
         if (context.getEditOriginal()) event.deferEdit().queue();
         else event.deferReply().queue();
         context.applyButtonClickEvent(event);
+    }
+
+    @Override
+    public void onEvent(@NotNull GenericEvent event) {
+        if(event instanceof ButtonClickEvent buttonClickEvent) onButtonClick(buttonClickEvent);
     }
 }

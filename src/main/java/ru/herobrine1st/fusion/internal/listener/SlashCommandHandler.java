@@ -1,6 +1,8 @@
 package ru.herobrine1st.fusion.internal.listener;
 
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -18,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class SlashCommandHandler {
+public class SlashCommandHandler implements EventListener {
     private final static Logger logger = LoggerFactory.getLogger(SlashCommandHandler.class);
     private final CommandManager commandManager;
 
@@ -97,5 +99,10 @@ public class SlashCommandHandler {
         } catch (Throwable t) {
             context.replyException(t);
         }
+    }
+
+    @Override
+    public void onEvent(@NotNull GenericEvent event) {
+        if(event instanceof SlashCommandEvent slashCommandEvent) onSlashCommand(slashCommandEvent);
     }
 }
