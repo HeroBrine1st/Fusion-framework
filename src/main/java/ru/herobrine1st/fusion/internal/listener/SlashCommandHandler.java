@@ -9,11 +9,9 @@ import ru.herobrine1st.fusion.api.command.PermissionHandler;
 import ru.herobrine1st.fusion.api.command.args.parser.ParserElement;
 import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.command.build.FusionCommand;
-import ru.herobrine1st.fusion.api.command.build.FusionSubcommand;
-import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroup;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
+import ru.herobrine1st.fusion.api.manager.CommandManager;
 import ru.herobrine1st.fusion.internal.command.CommandContextImpl;
-import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +20,11 @@ import java.util.stream.Collectors;
 
 public class SlashCommandHandler {
     private final static Logger logger = LoggerFactory.getLogger(SlashCommandHandler.class);
+    private final CommandManager commandManager;
+
+    public SlashCommandHandler(CommandManager manager) {
+        this.commandManager = manager;
+    }
 
     @SubscribeEvent
     public void onSlashCommand(@NotNull SlashCommandEvent event) {
@@ -29,7 +32,7 @@ public class SlashCommandHandler {
         final String subcommandName = event.getSubcommandName();
         final String commandName = event.getName();
         final List<PermissionHandler> permissionHandlers = new ArrayList<>();
-        Optional<FusionCommand<?>> commandDataOptional = CommandManagerImpl.INSTANCE.commands.stream()
+        Optional<FusionCommand<?>> commandDataOptional = commandManager.getCommands().stream()
                 .filter(it -> it.getName().equals(commandName))
                 .limit(1)
                 .peek(it -> permissionHandlers.add(it.getPermissionHandler()))
@@ -39,10 +42,9 @@ public class SlashCommandHandler {
         FusionCommand<?> sourceCommand = commandDataOptional.get();
         FusionBaseCommand<?, ParserElement<?, ?>> targetCommand;
         permissionHandlers.add(sourceCommand.getPermissionHandler());
-        if (sourceCommand.hasSubcommandGroups()) {
+        if (sourceCommand instanceof FusionCommand.WithSubcommandGroups command) {
             if (groupName == null || subcommandName == null) return; // На невалидный запрос отвечаем невалидным ответом
-            var subcommandData = sourceCommand.getOptions().stream()
-                    .map(it -> (FusionSubcommandGroup) it)
+            var subcommandData = command.getOptions().stream()
                     .filter(it -> it.getName().equals(groupName))
                     .limit(1)
                     .peek(it -> permissionHandlers.add(it.getPermissionHandler()))
@@ -53,20 +55,19 @@ public class SlashCommandHandler {
                     .findAny();
             if (subcommandData.isEmpty()) return;
             targetCommand = subcommandData.get();
-        } else if (sourceCommand.hasSubcommands()) {
+        } else if (sourceCommand instanceof FusionCommand.WithSubcommands command) {
             if (subcommandName == null) return;
-            var subcommandData = sourceCommand.getOptions().stream()
-                    .map(it -> (FusionSubcommand) it)
+            var subcommandData = command.getOptions().stream()
                     .filter(it -> it.getName().equals(subcommandName))
                     .limit(1)
                     .peek(it -> permissionHandlers.add(it.getPermissionHandler()))
                     .findAny();
             if (subcommandData.isEmpty()) return;
             targetCommand = subcommandData.get();
+        } else if (sourceCommand instanceof FusionCommand.WithArguments command) {
+            targetCommand = command;
         } else {
-            // Can't check type of R because of type erasure, but sure it's always the ParserElement
-            //noinspection unchecked
-            targetCommand = (FusionBaseCommand<?, ParserElement<?, ?>>) sourceCommand;
+            throw new RuntimeException(); // TODO Sealed class
         }
         if (permissionHandlers.get(0).shouldNotBeFound(event.getGuild())) {
             return;

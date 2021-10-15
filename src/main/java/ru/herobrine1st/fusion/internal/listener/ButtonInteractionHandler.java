@@ -16,6 +16,7 @@ import static net.dv8tion.jda.api.utils.TimeUtil.DISCORD_EPOCH;
 import static net.dv8tion.jda.api.utils.TimeUtil.TIMESTAMP_OFFSET;
 
 public class ButtonInteractionHandler {
+    public final static ButtonInteractionHandler INSTANCE = new ButtonInteractionHandler();
     private final static Logger logger = LoggerFactory.getLogger(ButtonInteractionHandler.class);
     private final static long TTL = 15 * 60 * 1000;
     private final static Map<Long, CommandContextImpl> interactionCache = new HashMap<>();

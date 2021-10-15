@@ -9,32 +9,33 @@ import ru.herobrine1st.fusion.api.command.PermissionHandler;
 import ru.herobrine1st.fusion.api.command.args.parser.ParserElement;
 import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.command.build.FusionCommand;
-import ru.herobrine1st.fusion.api.command.build.FusionSubcommand;
-import ru.herobrine1st.fusion.api.command.build.FusionSubcommandGroup;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
-import ru.herobrine1st.fusion.internal.Fusion;
+import ru.herobrine1st.fusion.api.manager.CommandManager;
 import ru.herobrine1st.fusion.internal.command.CommandContextImpl;
 import ru.herobrine1st.fusion.internal.command.args.CommandArgsImpl;
-import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class MessageCommandHandler {
     private final static Logger logger = LoggerFactory.getLogger(MessageCommandHandler.class);
+    private final CommandManager commandManager;
+    public MessageCommandHandler(CommandManager manager) {
+        this.commandManager = manager;
+    }
 
     @SubscribeEvent
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.isWebhookMessage() || event.getAuthor().isBot())
             return;
-        if (!event.getMessage().getContentRaw().startsWith(Fusion.INSTANCE.getConfig().getDiscordPrefix()))
+        if (!event.getMessage().getContentRaw().startsWith(commandManager.getCommandPrefix()))
             return;
-        CommandArgsImpl args = new CommandArgsImpl(event.getMessage().getContentRaw().substring(Fusion.INSTANCE.getConfig().getDiscordPrefix().length()));
+        CommandArgsImpl args = new CommandArgsImpl(event.getMessage().getContentRaw().substring(commandManager.getCommandPrefix().length()));
         if (!args.hasNext())
             return;
         String commandName = args.next().getValue();
         final List<PermissionHandler> permissionHandlers = new ArrayList<>();
-        Optional<FusionCommand<?>> commandDataOptional = CommandManagerImpl.INSTANCE.commands.stream()
+        Optional<FusionCommand<?>> commandDataOptional = commandManager.getCommands().stream()
                 .filter(it -> it.getName().equals(commandName))
                 .limit(1)
                 .peek(it -> permissionHandlers.add(it.getPermissionHandler()))
@@ -45,7 +46,7 @@ public class MessageCommandHandler {
         FusionCommand<?> sourceCommand = commandDataOptional.get();
         FusionBaseCommand<?, ParserElement<?, ?>> targetCommand;
         permissionHandlers.add(sourceCommand.getPermissionHandler());
-        if (sourceCommand.hasSubcommandGroups()) {
+        if (sourceCommand instanceof FusionCommand.WithSubcommandGroups command) {
             String groupName;
             String subcommandName;
             try {
@@ -54,8 +55,7 @@ public class MessageCommandHandler {
             } catch (NoSuchElementException e) {
                 return;
             }
-            var subcommandData = sourceCommand.getOptions().stream()
-                    .map(it -> (FusionSubcommandGroup) it)
+            var subcommandData = command.getOptions().stream()
                     .filter(it -> it.getName().equals(groupName))
                     .limit(1)
                     .peek(it -> permissionHandlers.add(it.getPermissionHandler()))
@@ -66,26 +66,24 @@ public class MessageCommandHandler {
                     .findAny();
             if (subcommandData.isEmpty()) return;
             targetCommand = subcommandData.get();
-        } else if (sourceCommand.hasSubcommands()) {
+        } else if (sourceCommand instanceof FusionCommand.WithSubcommands command) {
             String subcommandName;
             try {
                 subcommandName = args.next().value();
             } catch (NoSuchElementException e) {
                 return;
             }
-            if (subcommandName == null) return;
-            var subcommandData = sourceCommand.getOptions().stream()
-                    .map(it -> (FusionSubcommand) it)
+            var subcommandData = command.getOptions().stream()
                     .filter(it -> it.getName().equals(subcommandName))
                     .limit(1)
                     .peek(it -> permissionHandlers.add(it.getPermissionHandler()))
                     .findAny();
             if (subcommandData.isEmpty()) return;
             targetCommand = subcommandData.get();
+        } else if (sourceCommand instanceof FusionCommand.WithArguments command) {
+            targetCommand = command;
         } else {
-            // Can't check type of R because of type erasure, but sure it's always the ParserElement
-            //noinspection unchecked
-            targetCommand = (FusionBaseCommand<?, ParserElement<?, ?>>) sourceCommand;
+            throw new RuntimeException(); // TODO Sealed class
         }
         if (permissionHandlers.get(0).shouldNotBeFound(event.getGuild())) {
             return;
