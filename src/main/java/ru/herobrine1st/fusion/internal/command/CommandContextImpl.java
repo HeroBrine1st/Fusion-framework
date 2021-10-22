@@ -1,30 +1,21 @@
 package ru.herobrine1st.fusion.internal.command;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.requests.RestAction;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.CommandContext;
 import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
-import ru.herobrine1st.fusion.api.exception.CommandException;
-import ru.herobrine1st.fusion.api.restaction.CompletableFutureRestAction;
 import ru.herobrine1st.fusion.internal.listener.ButtonInteractionHandler;
 
 import java.awt.*;
 import java.util.List;
 import java.util.*;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 
 public class CommandContextImpl implements CommandContext {
@@ -33,30 +24,26 @@ public class CommandContextImpl implements CommandContext {
     private final Map<String, List<Object>> arguments = new HashMap<>();
     private final FusionBaseCommand<?, ?> command;
     private Event event;
-    private boolean editOriginal = false;
-    private final boolean executedAsSlashCommand;
     private CompletableFuture<ButtonClickEvent> buttonClickEventCompletableFuture = null;
 
     public CommandContextImpl(Event event, FusionBaseCommand<?, ?> command) {
         this.event = event;
         this.command = command;
-        this.executedAsSlashCommand = event instanceof SlashCommandEvent;
-    }
-
-    @Nullable
-    @Override
-    public Optional<Message> getMessage() {
-        if (getEvent() instanceof MessageReceivedEvent messageReceivedEvent) {
-            return Optional.of(messageReceivedEvent.getMessage());
-        } else if (getEvent() instanceof ButtonClickEvent buttonClickEvent) {
-            return Optional.ofNullable(buttonClickEvent.getMessage());
-        }
-        return Optional.empty();
     }
 
     @Override
     public Event getEvent() {
         return event;
+    }
+
+    @Override
+    public InteractionHook getHook() {
+        if(event instanceof SlashCommandEvent slashCommandEvent) {
+            return slashCommandEvent.getHook();
+        } else if (event instanceof ButtonClickEvent buttonClickEvent) {
+            return buttonClickEvent.getHook();
+        }
+        throw new IllegalStateException("Unexpected event");
     }
 
     @Override
@@ -86,20 +73,13 @@ public class CommandContextImpl implements CommandContext {
     }
 
     @Override
-    public boolean isExecutedAsSlashCommand() {
-        return executedAsSlashCommand;
-    }
-
-    @Override
     public User getUser() {
-        if (this.getEvent() instanceof MessageReceivedEvent messageReceivedEvent) {
-            return messageReceivedEvent.getAuthor();
-        } else if (this.getEvent() instanceof SlashCommandEvent slashCommandEvent) {
+        if (event instanceof SlashCommandEvent slashCommandEvent) {
             return slashCommandEvent.getUser();
-        } else if (this.getEvent() instanceof ButtonClickEvent buttonClickEvent) {
+        } else if (event instanceof ButtonClickEvent buttonClickEvent) {
             return buttonClickEvent.getUser();
         }
-        throw new RuntimeException("Unexpected event");
+        throw new IllegalStateException("Unexpected event");
     }
 
     @Override
@@ -118,7 +98,6 @@ public class CommandContextImpl implements CommandContext {
     public EmbedBuilder getEmbedBase() {
         return new EmbedBuilder()
                 .setTitle(getCommand().getShortName())
-                .setFooter(getFooter())
                 .setColor(getColor());
     }
 
@@ -150,43 +129,11 @@ public class CommandContextImpl implements CommandContext {
     }
 
     @Override
-    public String getFooter(int successCount, int totalCount, String textInFooter) {
-        String text = "";
-        if (!this.isExecutedAsSlashCommand()) {
-            User user = getUser();
-            text += String.format("Requested by %s\n", user.getAsTag());
-        }
-        if (successCount > 0 && (successCount != 1 || totalCount > 0)) {
-            text += "Successful: " + successCount;
-            if (totalCount > 0) {
-                text += "/" + totalCount;
-            }
-            text += "\n";
-        }
-        if (!textInFooter.isBlank())
-            text += textInFooter;
-        return text;
-    }
-
-    public RestAction<ButtonClickEvent> getButtonClickEventRestAction() {
-        if (buttonClickEventCompletableFuture == null) throw new IllegalStateException("No buttons in this context");
-        return CompletableFutureRestAction.of(buttonClickEventCompletableFuture);
-    }
-
-    @Override
-    public CompletableFuture<ButtonClickEvent> getButtonClickEventCompletableFuture() {
-        if (buttonClickEventCompletableFuture == null) throw new IllegalStateException("No buttons in this context");
+    public CompletableFuture<ButtonClickEvent> waitForButtonClick(Message message) {
+        buttonClickEventCompletableFuture = new CompletableFuture<>();
+        ButtonInteractionHandler.open(message.getIdLong(), this);
+        logger.trace("Opening interaction listener to messageId=%s".formatted(message.getIdLong()));
         return buttonClickEventCompletableFuture;
-    }
-
-    @Override
-    public CommandContext setEditOriginal(boolean editOriginal) {
-        this.editOriginal = editOriginal;
-        return this;
-    }
-
-    public boolean getEditOriginal() {
-        return editOriginal;
     }
 
     public void applyButtonClickEvent(ButtonClickEvent event) { // Да, контекст мутабельный
@@ -198,63 +145,5 @@ public class CommandContextImpl implements CommandContext {
 
     public void cancelButtonClickWaiting() {
         buttonClickEventCompletableFuture.cancel(true);
-    }
-
-    private RestAction<Message> handleReply(Message message) {
-        if (event instanceof MessageReceivedEvent messageReceivedEvent) {
-            return messageReceivedEvent.getMessage().reply(message)
-                    .mentionRepliedUser(false);
-        } else if (event instanceof SlashCommandEvent slashCommandEvent) {
-            InteractionHook hook = slashCommandEvent.getHook();
-            return editOriginal ? hook.editOriginal(message) : hook.sendMessage(message);
-        } else if (event instanceof ButtonClickEvent buttonClickEvent) {
-            InteractionHook hook = buttonClickEvent.getHook();
-            return editOriginal ? hook.editOriginal(message) : hook.sendMessage(message);
-        }
-        throw new RuntimeException("Unexpected event");
-    }
-
-    @Override
-    public RestAction<Message> reply(Message message) {
-        return handleReply(message).map(msg -> {
-            if (!msg.getActionRows().isEmpty()) {
-                buttonClickEventCompletableFuture = new CompletableFuture<>();
-                ButtonInteractionHandler.open(msg.getIdLong(), this);
-                logger.trace("Opening interaction listener to messageId=%s".formatted(msg.getIdLong()));
-            }
-            return msg;
-        });
-    }
-
-    @Override
-    public RestAction<Message> reply(MessageEmbed embed) {
-        return reply(new MessageBuilder().setEmbed(embed).build());
-    }
-
-    @Override
-    public RestAction<Message> reply(MessageEmbed embed, ActionRow... rows) {
-        return reply(new MessageBuilder()
-                .setEmbed(embed)
-                .setActionRows(rows)
-                .build());
-    }
-
-    @Override
-    public void replyException(Throwable t) {
-        var embed = getEmbedBase().setColor(getErrorColor());
-        if (t instanceof CommandException commandException) {
-            embed.setDescription("Command execution exception: " + commandException.getMessage());
-            commandException.getFields().forEach(embed::addField);
-        } else if (t instanceof CancellationException) {
-            logger.trace("Caught CancellationException", t);
-            return;
-        } else if (t instanceof RuntimeException) {
-            embed.setDescription("Unknown runtime exception when executing command ");
-            logger.error("Runtime exception occurred when executing command", t);
-        } else {
-            embed.setDescription("Unknown exception when executing command");
-            logger.error("Error executing command", t);
-        }
-        reply(embed.build()).queue();
     }
 }

@@ -5,11 +5,10 @@ import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.FusionOptionData;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FusionSubcommandGroup extends FusionOptionData {
+public final class FusionSubcommandGroup extends FusionOptionData {
     private final List<FusionSubcommand> subcommandData = new ArrayList<>();
     private PermissionHandler permissionHandler = PermissionHandler.DEFAULT;
 
@@ -27,13 +26,13 @@ public class FusionSubcommandGroup extends FusionOptionData {
         return this;
     }
 
-    @Nonnull
+    @NotNull
     public FusionSubcommandGroup setPermissionHandler(PermissionHandler permissionHandler) {
         this.permissionHandler = permissionHandler;
         return this;
     }
 
-    @Nonnull
+    @NotNull
     public PermissionHandler getPermissionHandler() {
         return permissionHandler;
     }

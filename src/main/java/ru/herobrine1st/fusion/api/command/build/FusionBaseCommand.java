@@ -1,19 +1,18 @@
 package ru.herobrine1st.fusion.api.command.build;
 
 import net.dv8tion.jda.internal.utils.Checks;
+import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.CommandExecutor;
 import ru.herobrine1st.fusion.api.command.FusionOptionData;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
 import ru.herobrine1st.fusion.api.command.args.parser.ParserElement;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-// TODO sealed
-public abstract class FusionBaseCommand<T extends FusionBaseCommand<T, R>, R extends FusionOptionData> extends FusionOptionData {
+public abstract sealed class FusionBaseCommand<T extends FusionBaseCommand<T, R>, R extends FusionOptionData> extends FusionOptionData permits FusionCommand, FusionSubcommand {
     private CommandExecutor executor = null;
     private PermissionHandler permissionHandler = PermissionHandler.DEFAULT;
     private String shortName;
@@ -21,34 +20,34 @@ public abstract class FusionBaseCommand<T extends FusionBaseCommand<T, R>, R ext
 
     protected final List<R> options = new ArrayList<>();
 
-    protected FusionBaseCommand(@Nonnull String name, @Nonnull String description) {
+    protected FusionBaseCommand(@NotNull String name, @NotNull String description) {
         super(name, description);
         this.shortName = name.substring(0, 1).toUpperCase(Locale.ROOT) + name.substring(1).toLowerCase(Locale.ROOT);
     }
 
-    @Nonnull
+    @NotNull
     public List<R> getOptions() {
         return options;
     }
 
-    @Nonnull
+    @NotNull
     @SuppressWarnings("unchecked")
     public T setPermissionHandler(PermissionHandler permissionHandler) {
         this.permissionHandler = permissionHandler;
         return (T) this;
     }
 
-    @Nonnull
+    @NotNull
     public PermissionHandler getPermissionHandler() {
         return permissionHandler;
     }
 
-    @Nonnull
+    @NotNull
     public CommandExecutor getExecutor() {
         return executor;
     }
 
-    @Nonnull
+    @NotNull
     @SuppressWarnings("unchecked")
     public T setExecutor(CommandExecutor executor) {
         Checks.check(!hasSubcommandGroups() && !hasSubcommands(), "You cannot mix executor with subcommands/groups");
@@ -56,7 +55,7 @@ public abstract class FusionBaseCommand<T extends FusionBaseCommand<T, R>, R ext
         return (T) this;
     }
 
-    @Nonnull
+    @NotNull
     @SuppressWarnings("unchecked")
     public T addOptions(R... options) {
         Checks.noneNull(options, "Option");
@@ -74,14 +73,14 @@ public abstract class FusionBaseCommand<T extends FusionBaseCommand<T, R>, R ext
         return (T) this;
     }
 
-    @Nonnull
+    @NotNull
     @SuppressWarnings("unchecked")
-    public T setShortName(@Nonnull String name) {
+    public T setShortName(@NotNull String name) {
         this.shortName = name;
         return (T) this;
     }
 
-    @Nonnull
+    @NotNull
     public String getShortName() {
         return shortName;
     }
@@ -102,7 +101,7 @@ public abstract class FusionBaseCommand<T extends FusionBaseCommand<T, R>, R ext
         return testing;
     }
 
-    @Nonnull
+    @NotNull
     @SuppressWarnings("unchecked")
     public T setTesting(boolean testing) {
         this.testing = testing;

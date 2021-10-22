@@ -6,25 +6,10 @@ import ru.herobrine1st.fusion.api.command.args.parser.*;
 
 /**
  * Class containing various {@link ParserElement} provider methods
- * <h2><a id="message-context">Message context</a></h2>
- * Some parsers can function only in message context. They will disable application commands feature in every command that contains any of them.
  */
 public final class GenericArguments {
 
     private GenericArguments() {
-    }
-
-    /**
-     * Implementation of STRING discord option type. Supplies values of {@link String} type.
-     *
-     * @param name        name of the option.
-     * @param description description of the option.
-     * @return {@link StringParserElement} instance
-     * @see #string(String, String, boolean, boolean, boolean)
-     */
-    @Contract("_, _ -> new")
-    public static @NotNull StringParserElement string(String name, String description) {
-        return new StringParserElement(name, description, false, false, false);
     }
 
     /**
@@ -34,47 +19,11 @@ public final class GenericArguments {
      *
      * @param name          name of the option.
      * @param description   description of the option.
-     * @param joinRemaining if true, will cyclically join all remaining arguments provided by user.
-     * @return {@link StringParserElement} instance
-     * @see #string(String, String, boolean, boolean, boolean)
-     */
-    @Contract("_, _, _ -> new")
-    public static @NotNull StringParserElement string(String name, String description, boolean joinRemaining) {
-        return new StringParserElement(name, description, joinRemaining, false, false);
-    }
-
-    /**
-     * Implementation of STRING discord option type. Supplies values of {@link String} type.
-     * <br>
-     * Additional arguments work only in <a href="#message-context">message context</a> and without choices
-     *
-     * @param name           name of the option.
-     * @param description    description of the option.
-     * @param joinRemaining  if true, will cyclically join all remaining arguments provided by user.
-     * @param breakOnNewLine if this and joinRemaining are true, will cyclically join all remaining arguments until newline separator.
-     * @return {@link StringParserElement} instance
-     * @see #string(String, String, boolean, boolean, boolean)
-     */
-    @Contract("_, _, _, _ -> new")
-    public static @NotNull StringParserElement string(String name, String description, boolean joinRemaining, boolean breakOnNewLine) {
-        return new StringParserElement(name, description, joinRemaining, breakOnNewLine, false);
-    }
-
-    /**
-     * Implementation of STRING discord option type. Supplies values of {@link String} type.
-     * <br>
-     * Additional arguments work only in <a href="#message-context">message context</a> and without choices. This means arguments other than name and description will be ignored when handling Slash Interaction or if there are at least one choice.
-     *
-     * @param name           name of the option.
-     * @param description    description of the option.
-     * @param joinRemaining  if true, will cyclically join all remaining arguments provided by user.
-     * @param breakOnNewLine if this and joinRemaining are true, will cyclically join all remaining arguments until newline separator.
-     * @param canBeEmpty     if false, will throw an exception if no arguments remaining. If true, will become optional.
      * @return {@link StringParserElement} instance
      */
-    @Contract("_, _, _, _, _ -> new")
-    public static @NotNull StringParserElement string(String name, String description, boolean joinRemaining, boolean breakOnNewLine, boolean canBeEmpty) {
-        return new StringParserElement(name, description, joinRemaining, breakOnNewLine, canBeEmpty);
+    @Contract("_, _ -> new")
+    public static @NotNull StringParserElement string(String name, String description) {
+        return new StringParserElement(name, description);
     }
 
     /**
@@ -83,11 +32,11 @@ public final class GenericArguments {
      * @param name        name of the option.
      * @param description description of the option.
      * @return {@link IntegerParserElement} instance
-     * @see #integer(String, String, int, int, int)
+     * @see #integer(String, String, long, long)
      */
     @Contract("_, _ -> new")
     public static @NotNull IntegerParserElement integer(String name, String description) {
-        return new IntegerParserElement(name, description, Long.MIN_VALUE, Long.MAX_VALUE, 10);
+        return new IntegerParserElement(name, description, Long.MIN_VALUE, Long.MAX_VALUE);
     }
 
     /**
@@ -98,11 +47,11 @@ public final class GenericArguments {
      * @param description description of the option.
      * @param min         minimal value of integer
      * @return {@link IntegerParserElement} instance
-     * @see #integer(String, String, int, int, int)
+     * @see #integer(String, String, long, long)
      */
     @Contract("_, _, _ -> new")
     public static @NotNull IntegerParserElement integer(String name, String description, long min) {
-        return new IntegerParserElement(name, description, min, Long.MAX_VALUE, 10);
+        return new IntegerParserElement(name, description, min, Long.MAX_VALUE);
     }
 
     /**
@@ -114,27 +63,11 @@ public final class GenericArguments {
      * @param min         minimal value of integer
      * @param max         maximum value of integer
      * @return {@link IntegerParserElement} instance
-     * @see #integer(String, String, int, int, int)
+     * @see #integer(String, String, long, long)
      */
     @Contract("_, _, _, _ -> new")
     public static @NotNull IntegerParserElement integer(String name, String description, long min, long max) {
-        return new IntegerParserElement(name, description, min, max, 10);
-    }
-
-    /**
-     * Implementation of INTEGER discord option type. Supplies values of {@link Long} type<br>
-     * Additional arguments work only without choices. This means arguments other than name and description will be ignored if there are at least one choice.
-     *
-     * @param name        name of the option.
-     * @param description description of the option.
-     * @param min         minimal value of integer
-     * @param max         maximum value of integer
-     * @param radix       radix used when parsing integer in <a href="#message-context">message context</a>
-     * @return {@link IntegerParserElement} instance
-     */
-    @Contract("_, _, _, _, _ -> new")
-    public static @NotNull IntegerParserElement integer(String name, String description, int min, int max, int radix) {
-        return new IntegerParserElement(name, description, min, max, radix);
+        return new IntegerParserElement(name, description, min, max);
     }
 
     /**
@@ -196,57 +129,5 @@ public final class GenericArguments {
     public static @NotNull MentionableParserElement mentionable(String name, String description) {
         return new MentionableParserElement(name, description);
     }
-
-    /**
-     * Wrapper around any ParserElement. Allows using option as {@code --name=value}: {@code name} is name of element, {@code value} is user input.
-     *
-     * @param element element inside wrapper
-     * @param <T>     Parse result type.
-     * @return {@link KeyParserElement} instance
-     */
-    @Contract("_ -> new")
-    public static <T> @NotNull KeyParserElement<T> key(ParserElement<?, T> element) {
-        return new KeyParserElement<>(element, null);
-    }
-
-    /**
-     * Wrapper around any ParserElement. Allows using option as {@code --name=value}: {@code name} is name of element, {@code value} is user input.
-     *
-     * @param element element inside wrapper
-     * @param <T>     Parse result type.
-     * @return {@link KeyParserElement} instance
-     */
-    @Contract("_, _ -> new")
-    public static <T> @NotNull KeyParserElement<T> key(ParserElement<?, T> element, T defaultValue) {
-        return new KeyParserElement<>(element, defaultValue);
-    }
-
-    /**
-     * Wrapper around BooleanParserElement. Allows using as {@code --flag} (flag {@code flag} will be set to true) or even {@code -abc} (flags {@code a}, {@code b} and {@code c} will be set to true)
-     *
-     * @param name        name of the option.
-     * @param description description of the option.
-     * @return {@link FlagParserElement} instance
-     */
-    @Contract("_, _ -> new")
-    public static @NotNull FlagParserElement flag(String name, String description) {
-        return new FlagParserElement(name, description);
-    }
-
-    /**
-     * Wrapper around any element. Continually parses using provided element until there are remaining arguments.
-     *
-     * @param element element inside wrapper
-     * @param <T>     Parse result type.
-     * @return {@link ParseUntilEndsParserElement} instance
-     */
-    @Contract("_ -> new")
-    public static <T> @NotNull ParseUntilEndsParserElement<T> untilEnds(ParserElement<?, T> element) {
-        return new ParseUntilEndsParserElement<>(element, 1);
-    }
-
-    @Contract("_, _ -> new")
-    public static <T> @NotNull ParseUntilEndsParserElement<T> untilEnds(ParserElement<?, T> element, int minCount) {
-        return new ParseUntilEndsParserElement<>(element, minCount);
-    }
 }
+

@@ -15,6 +15,7 @@ repositories {
 dependencies {
     implementation("net.dv8tion:JDA:4.3.0_277")
     implementation("org.slf4j:slf4j-api:1.7.32")
+    implementation("org.jetbrains:annotations:22.0.0")
 }
 
 tasks.getByName<Test>("test") {
@@ -22,7 +23,7 @@ tasks.getByName<Test>("test") {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_16
+    sourceCompatibility = JavaVersion.VERSION_17
 }
 
 tasks {

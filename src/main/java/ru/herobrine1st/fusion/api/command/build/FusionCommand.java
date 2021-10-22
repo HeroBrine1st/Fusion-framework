@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.FusionOptionData;
 import ru.herobrine1st.fusion.api.command.args.parser.ParserElement;
 
-public class FusionCommand<R extends FusionOptionData> extends FusionBaseCommand<FusionCommand<R>, R> {
+public sealed class FusionCommand<R extends FusionOptionData> extends FusionBaseCommand<FusionCommand<R>, R> {
     private FusionCommand(@NotNull String name, @NotNull String description) {
         super(name, description);
     }
@@ -25,19 +25,19 @@ public class FusionCommand<R extends FusionOptionData> extends FusionBaseCommand
         return new WithSubcommandGroups(name, description);
     }
 
-    public static class WithArguments extends FusionCommand<ParserElement<?, ?>> {
+    public static non-sealed class WithArguments extends FusionCommand<ParserElement<?, ?>> {
         private WithArguments(@NotNull String name, @NotNull String description) {
             super(name, description);
         }
     }
 
-    public static class WithSubcommands extends FusionCommand<FusionSubcommand> {
+    public static non-sealed class WithSubcommands extends FusionCommand<FusionSubcommand> {
         private WithSubcommands(@NotNull String name, @NotNull String description) {
             super(name, description);
         }
     }
 
-    public static class WithSubcommandGroups extends FusionCommand<FusionSubcommandGroup> {
+    public static non-sealed class WithSubcommandGroups extends FusionCommand<FusionSubcommandGroup> {
         private WithSubcommandGroups(@NotNull String name, @NotNull String description) {
             super(name, description);
         }

@@ -64,8 +64,6 @@ public class ButtonInteractionHandler implements EventListener {
             }
         }
         interactionCache.remove(event.getMessageIdLong());
-        if (context.getEditOriginal()) event.deferEdit().queue();
-        else event.deferReply().queue();
         context.applyButtonClickEvent(event);
     }
 

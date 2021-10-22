@@ -12,12 +12,14 @@ import ru.herobrine1st.fusion.api.command.args.parser.ParserElement;
 import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.command.build.FusionCommand;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
+import ru.herobrine1st.fusion.api.exception.CommandException;
 import ru.herobrine1st.fusion.api.manager.CommandManager;
 import ru.herobrine1st.fusion.internal.command.CommandContextImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 
 public class SlashCommandHandler implements EventListener {
@@ -91,13 +93,26 @@ public class SlashCommandHandler implements EventListener {
                 return;
             }
         }
-        event.deferReply(false).queue();
         logger.info("Processing %s %s %s by %s (%s)".formatted(commandName, groupName, subcommandName,
                 event.getUser().getAsTag(), event.getUser().getIdLong()));
         try {
             targetCommand.getExecutor().execute(context);
         } catch (Throwable t) {
-            context.replyException(t);
+            var embed = context.getEmbedBase().setColor(context.getErrorColor());
+            if (t instanceof CommandException commandException) {
+                embed.setDescription("Command execution exception: " + commandException.getMessage());
+                commandException.getFields().forEach(embed::addField);
+            } else if (t instanceof CancellationException) {
+                logger.trace("Caught CancellationException", t);
+                return;
+            } else if (t instanceof RuntimeException) {
+                embed.setDescription("Unknown runtime exception when executing command ");
+                logger.error("Runtime exception occurred when executing command", t);
+            } else {
+                embed.setDescription("Unknown exception when executing command");
+                logger.error("Error executing command", t);
+            }
+            event.getHook().sendMessageEmbeds(embed.build()).queue();
         }
     }
 

@@ -10,20 +10,17 @@ import ru.herobrine1st.fusion.api.command.build.FusionCommand;
 import ru.herobrine1st.fusion.api.manager.CommandManager;
 import ru.herobrine1st.fusion.internal.command.SlashCommandBuilder;
 import ru.herobrine1st.fusion.internal.listener.ButtonInteractionHandler;
-import ru.herobrine1st.fusion.internal.listener.MessageCommandHandler;
 import ru.herobrine1st.fusion.internal.listener.SlashCommandHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommandManagerImpl extends CommandManager {
+public class CommandManagerImpl implements CommandManager {
     public final static Logger logger = LoggerFactory.getLogger(CommandManagerImpl.class);
     public final List<FusionCommand<?>> commands = new ArrayList<>();
-    private String commandPrefix;
     private final JDA jda;
 
-    public CommandManagerImpl(JDA jda, String commandPrefix) {
-        this.commandPrefix = commandPrefix;
+    public CommandManagerImpl(JDA jda) {
         this.jda = jda;
     }
 
@@ -57,20 +54,7 @@ public class CommandManagerImpl extends CommandManager {
     }
 
     @Override
-    public String getCommandPrefix() {
-        return commandPrefix;
-    }
-
-    @Override
-    public void setCommandPrefix(String prefix) {
-        commandPrefix = prefix;
-    }
-
-    @Override
     public void sendSlashCommands(Guild testingGuild) {
-        List<FusionCommand<?>> commands = this.commands.stream()
-                .filter(SlashCommandBuilder::hasSlashSupport)
-                .toList();
         if (testingGuild != null) {
             testingGuild.updateCommands()
                     .addCommands(commands.stream()
@@ -92,6 +76,6 @@ public class CommandManagerImpl extends CommandManager {
 
     @Override
     public void registerListeners() {
-        jda.addEventListener(ButtonInteractionHandler.INSTANCE, new MessageCommandHandler(this), new SlashCommandHandler(this));
+        jda.addEventListener(ButtonInteractionHandler.INSTANCE, new SlashCommandHandler(this));
     }
 }

@@ -1,8 +1,8 @@
 package ru.herobrine1st.fusion.api.command.args.parser;
 
 import net.dv8tion.jda.internal.utils.Checks;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,7 +15,7 @@ public abstract class ChoicesParserElement<T, R> extends ParserElement<ChoicesPa
         choices = new HashMap<>();
     }
 
-    @Nonnull
+    @NotNull
     @SuppressWarnings("unchecked")
     public T addChoice(String name, R value) {
         Checks.notEmpty(name, "Name");
@@ -25,14 +25,14 @@ public abstract class ChoicesParserElement<T, R> extends ParserElement<ChoicesPa
         return (T) this;
     }
 
-    @Nonnull
+    @NotNull
     @SuppressWarnings("unchecked")
     public T addChoices(Map<String, R> choices) {
         choices.forEach(this::addChoice);
         return (T) this;
     }
 
-    @Nonnull
+    @NotNull
     public Map<String, R> getChoices() {
         return choices;
     }
