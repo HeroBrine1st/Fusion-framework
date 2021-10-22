@@ -94,6 +94,4 @@ public class CommandManagerImpl extends CommandManager {
     public void registerListeners() {
         jda.addEventListener(ButtonInteractionHandler.INSTANCE, new MessageCommandHandler(this), new SlashCommandHandler(this));
     }
-
-
 }

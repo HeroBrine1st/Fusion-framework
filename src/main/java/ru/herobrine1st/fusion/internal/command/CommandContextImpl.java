@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.Nullable;
@@ -204,15 +205,11 @@ public class CommandContextImpl implements CommandContext {
             return messageReceivedEvent.getMessage().reply(message)
                     .mentionRepliedUser(false);
         } else if (event instanceof SlashCommandEvent slashCommandEvent) {
-            if (editOriginal)
-                return slashCommandEvent.getHook().editOriginal(message);
-            else
-                return slashCommandEvent.getHook().sendMessage(message);
+            InteractionHook hook = slashCommandEvent.getHook();
+            return editOriginal ? hook.editOriginal(message) : hook.sendMessage(message);
         } else if (event instanceof ButtonClickEvent buttonClickEvent) {
-            if (editOriginal)
-                return buttonClickEvent.getHook().editOriginal(message);
-            else
-                return buttonClickEvent.getHook().sendMessage(message);
+            InteractionHook hook = buttonClickEvent.getHook();
+            return editOriginal ? hook.editOriginal(message) : hook.sendMessage(message);
         }
         throw new RuntimeException("Unexpected event");
     }
