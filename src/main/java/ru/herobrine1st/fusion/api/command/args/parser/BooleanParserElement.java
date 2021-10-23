@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.CommandContext;
 
 import java.util.NoSuchElementException;
@@ -15,12 +16,7 @@ public class BooleanParserElement extends ParserElement<BooleanParserElement, Bo
     }
 
     @Override
-    public boolean hasSlashSupport() {
-        return true;
-    }
-
-    @Override
-    public OptionData getOptionData() {
+    public @NotNull OptionData getOptionData() {
         return new OptionData(OptionType.BOOLEAN, name, description, required);
     }
 

@@ -18,12 +18,7 @@ public class StringParserElement extends ChoicesParserElement<StringParserElemen
     }
 
     @Override
-    public boolean hasSlashSupport() {
-        return true;
-    }
-
-    @Override
-    public OptionData getOptionData() {
+    public @NotNull OptionData getOptionData() {
         OptionData optionData = new OptionData(OptionType.STRING, getName(), getDescription(), required);
         for(Map.Entry<String, String> entry: choices.entrySet()) {
             optionData.addChoice(entry.getKey(), entry.getValue());

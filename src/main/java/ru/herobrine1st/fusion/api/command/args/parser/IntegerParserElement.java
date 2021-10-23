@@ -23,12 +23,7 @@ public class IntegerParserElement extends ChoicesParserElement<IntegerParserElem
     }
 
     @Override
-    public boolean hasSlashSupport() {
-        return true;
-    }
-
-    @Override
-    public OptionData getOptionData() {
+    public @NotNull OptionData getOptionData() {
         OptionData optionData = new OptionData(OptionType.INTEGER, name, description, required);
         for (Map.Entry<String, Long> entry : choices.entrySet()) {
             optionData.addChoice(entry.getKey(), entry.getValue().intValue()); // FIXME range -2^31..2^31-1; Waiting library fix

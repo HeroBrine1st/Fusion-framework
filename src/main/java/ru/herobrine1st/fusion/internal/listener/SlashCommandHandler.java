@@ -1,5 +1,6 @@
 package ru.herobrine1st.fusion.internal.listener;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -93,12 +94,13 @@ public class SlashCommandHandler implements EventListener {
                 return;
             }
         }
-        logger.info("Processing %s %s %s by %s (%s)".formatted(commandName, groupName, subcommandName,
+        logger.info("Processing %s by %s (%s)".formatted(event.getCommandPath(),
                 event.getUser().getAsTag(), event.getUser().getIdLong()));
         try {
             targetCommand.getExecutor().execute(context);
         } catch (Throwable t) {
-            var embed = context.getEmbedBase().setColor(context.getErrorColor());
+            var embed = new EmbedBuilder()
+                    .setColor(0xFF0000);
             if (t instanceof CommandException commandException) {
                 embed.setDescription("Command execution exception: " + commandException.getMessage());
                 commandException.getFields().forEach(embed::addField);
@@ -112,7 +114,7 @@ public class SlashCommandHandler implements EventListener {
                 embed.setDescription("Unknown exception when executing command");
                 logger.error("Error executing command", t);
             }
-            event.getHook().sendMessageEmbeds(embed.build()).queue();
+            event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
         }
     }
 

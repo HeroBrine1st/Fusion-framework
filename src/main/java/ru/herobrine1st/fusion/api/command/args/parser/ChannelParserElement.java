@@ -21,12 +21,7 @@ public class ChannelParserElement extends ParserElement<ChannelParserElement, Gu
     }
 
     @Override
-    public boolean hasSlashSupport() {
-        return true;
-    }
-
-    @Override
-    public OptionData getOptionData() {
+    public @NotNull OptionData getOptionData() {
         return new OptionData(OptionType.CHANNEL, name, description, required);
     }
 

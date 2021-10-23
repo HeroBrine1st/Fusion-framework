@@ -32,7 +32,7 @@ public abstract non-sealed class ParserElement<T extends ParserElement<T, R>, R>
         return required;
     }
 
-    public abstract boolean hasSlashSupport();
+    @NotNull
     public abstract OptionData getOptionData();
 
     public void parseSlash(CommandContext ctx) throws ArgumentParseException {

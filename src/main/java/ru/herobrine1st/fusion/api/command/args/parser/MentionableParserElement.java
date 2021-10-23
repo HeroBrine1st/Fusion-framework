@@ -16,12 +16,7 @@ public class MentionableParserElement extends ParserElement<MentionableParserEle
     }
 
     @Override
-    public boolean hasSlashSupport() {
-        return true;
-    }
-
-    @Override
-    public OptionData getOptionData() {
+    public @NotNull OptionData getOptionData() {
         return new OptionData(OptionType.MENTIONABLE, name, description, required);
     }
 

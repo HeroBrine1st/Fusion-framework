@@ -45,26 +45,20 @@ public class CompletableFutureRestAction<R> implements RestAction<R> {
         return checks;
     }
 
-    private static <T> void tryOrElse(Consumer<T> consumer, T t, Consumer<? super Throwable> failure) {
+    private static <T> void tryCallback(Consumer<T> consumer, T t) {
         if (consumer != null)
             try {
                 consumer.accept(t);
             } catch (Throwable e) {
                 logger.error("Exception in handler", e);
-                if (failure != null)
-                    try {
-                        failure.accept(e);
-                    } catch (Throwable ex) {
-                        logger.error("Exception in failure handler", ex);
-                    }
             }
     }
 
     @Override
     public void queue(@Nullable Consumer<? super R> success, @Nullable Consumer<? super Throwable> failure) {
         completableFuture.whenCompleteAsync((result, throwable) -> {
-            if (result != null && success != null) tryOrElse(success, result, failure);
-            if (throwable != null && failure != null) tryOrElse(failure, throwable, null);
+            if (result != null) tryCallback(success, result);
+            if (throwable != null) tryCallback(failure, throwable);
         });
     }
 
