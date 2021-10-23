@@ -7,9 +7,9 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.CommandContext;
+import ru.herobrine1st.fusion.api.exception.NoSuchArgumentException;
 
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 public class StringParserElement extends ChoicesParserElement<StringParserElement, String> {
 
@@ -27,9 +27,9 @@ public class StringParserElement extends ChoicesParserElement<StringParserElemen
     }
 
     @Override
-    public String parseSlash(CommandContext ctx, @NotNull CommandInteraction interaction) {
+    public String parseSlash(CommandContext ctx, @NotNull CommandInteraction interaction) throws NoSuchArgumentException {
         OptionMapping optionMapping = interaction.getOption(getName());
-        if (optionMapping == null) throw new NoSuchElementException();
+        if (optionMapping == null) throw new NoSuchArgumentException(this);
         return optionMapping.getAsString();
     }
 

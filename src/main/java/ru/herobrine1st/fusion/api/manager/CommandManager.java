@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.build.FusionCommand;
+import ru.herobrine1st.fusion.api.exception.ExceptionHandler;
 import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 
 import java.util.List;
@@ -20,11 +21,13 @@ public interface CommandManager {
 
     List<FusionCommand<?>> getCommands();
 
-    void sendSlashCommands(Guild testingGuild);
+    void updateCommands(Guild testingGuild);
 
-    default void sendSlashCommands() {
-        sendSlashCommands(null);
+    default void updateCommands() {
+        updateCommands(null);
     }
 
     void registerListeners();
+
+    void setExceptionHandler(ExceptionHandler exceptionHandler);
 }

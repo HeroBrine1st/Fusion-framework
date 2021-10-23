@@ -5,8 +5,10 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.internal.utils.Checks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.herobrine1st.fusion.api.command.CommandContext;
 import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.command.build.FusionCommand;
+import ru.herobrine1st.fusion.api.exception.ExceptionHandler;
 import ru.herobrine1st.fusion.api.manager.CommandManager;
 import ru.herobrine1st.fusion.internal.command.SlashCommandBuilder;
 import ru.herobrine1st.fusion.internal.listener.ButtonInteractionHandler;
@@ -19,9 +21,11 @@ public class CommandManagerImpl implements CommandManager {
     public final static Logger logger = LoggerFactory.getLogger(CommandManagerImpl.class);
     public final List<FusionCommand<?>> commands = new ArrayList<>();
     private final JDA jda;
+    private ExceptionHandler exceptionHandler;
 
     public CommandManagerImpl(JDA jda) {
         this.jda = jda;
+        exceptionHandler = (ctx, exception) -> ctx.getEvent().reply(exception.getMessage()).setEphemeral(true).queue();
     }
 
     @Override
@@ -54,7 +58,7 @@ public class CommandManagerImpl implements CommandManager {
     }
 
     @Override
-    public void sendSlashCommands(Guild testingGuild) {
+    public void updateCommands(Guild testingGuild) {
         if (testingGuild != null) {
             testingGuild.updateCommands()
                     .addCommands(commands.stream()
@@ -77,5 +81,14 @@ public class CommandManagerImpl implements CommandManager {
     @Override
     public void registerListeners() {
         jda.addEventListener(ButtonInteractionHandler.INSTANCE, new SlashCommandHandler(this));
+    }
+
+    @Override
+    public void setExceptionHandler(ExceptionHandler exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
+    }
+
+    public void handleException(CommandContext ctx, Exception exception) {
+        exceptionHandler.handle(ctx, exception);
     }
 }

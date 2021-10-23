@@ -7,9 +7,9 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.CommandContext;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
+import ru.herobrine1st.fusion.api.exception.NoSuchArgumentException;
 
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 public class IntegerParserElement extends ChoicesParserElement<IntegerParserElement, Long> {
 
@@ -34,7 +34,7 @@ public class IntegerParserElement extends ChoicesParserElement<IntegerParserElem
     @Override
     public Long parseSlash(CommandContext ctx, @NotNull CommandInteraction interaction) throws ArgumentParseException {
         OptionMapping option = interaction.getOption(name);
-        if (option == null) throw new NoSuchElementException();
+        if (option == null) throw new NoSuchArgumentException(this);
         long res = option.getAsLong();
         if (res < min || res > max)
             throw new ArgumentParseException("Integer %S is out of range %s..%s".formatted(name, min, max));

@@ -12,10 +12,10 @@ import ru.herobrine1st.fusion.api.command.PermissionHandler;
 import ru.herobrine1st.fusion.api.command.args.parser.ParserElement;
 import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.command.build.FusionCommand;
-import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
 import ru.herobrine1st.fusion.api.exception.CommandException;
-import ru.herobrine1st.fusion.api.manager.CommandManager;
+import ru.herobrine1st.fusion.api.exception.PermissionException;
 import ru.herobrine1st.fusion.internal.command.CommandContextImpl;
+import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +25,9 @@ import java.util.stream.Collectors;
 
 public class SlashCommandHandler implements EventListener {
     private final static Logger logger = LoggerFactory.getLogger(SlashCommandHandler.class);
-    private final CommandManager commandManager;
+    private final CommandManagerImpl commandManager;
 
-    public SlashCommandHandler(CommandManager manager) {
+    public SlashCommandHandler(CommandManagerImpl manager) {
         this.commandManager = manager;
     }
 
@@ -72,25 +72,26 @@ public class SlashCommandHandler implements EventListener {
         } else if (sourceCommand instanceof FusionCommand.WithArguments command) {
             targetCommand = command;
         } else {
-            throw new RuntimeException(); // TODO Sealed class
+            throw new RuntimeException("This fucking won't happen");
         }
         if (permissionHandlers.get(0).shouldNotBeFound(event.getGuild())) {
             return;
         }
         CommandContextImpl context = new CommandContextImpl(event, targetCommand);
         if (!permissionHandlers.stream().allMatch(it -> it.shouldBeExecuted(context))) {
-            event.reply("Нет прав! Требования:\n" + permissionHandlers.stream()
+            String requirements = permissionHandlers.stream()
                     .map(it -> it.requirements(context))
-                    .collect(Collectors.joining("\n"))
-            ).setEphemeral(true).queue();
+                    .collect(Collectors.joining("\n"));
+            commandManager.handleException(context,
+                    new PermissionException("Not enough permissions to execute this command. Requirements:\n" + requirements, requirements));
             return;
         }
 
         for (ParserElement<?, ?> it : targetCommand.getOptions()) {
             try {
                 it.parseSlash(context);
-            } catch (ArgumentParseException e) {
-                event.reply("Ошибка обработки аргументов!\n" + e.getMessage()).setEphemeral(true).queue();
+            } catch (Exception e) {
+                commandManager.handleException(context, e);
                 return;
             }
         }
@@ -102,8 +103,10 @@ public class SlashCommandHandler implements EventListener {
             var embed = new EmbedBuilder()
                     .setColor(0xFF0000);
             if (t instanceof CommandException commandException) {
-                embed.setDescription("Command execution exception: " + commandException.getMessage());
-                commandException.getFields().forEach(embed::addField);
+                if(t.getCause() != null) {
+                    logger.error(commandException.getMessage(), t.getCause());
+                }
+                embed.setDescription(commandException.getMessage());
             } else if (t instanceof CancellationException) {
                 logger.trace("Caught CancellationException", t);
                 return;

@@ -4,5 +4,4 @@ public class ArgumentParseException extends CommandException {
     public ArgumentParseException(String message) {
         super(message);
     }
-
 }

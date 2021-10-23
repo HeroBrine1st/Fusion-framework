@@ -6,8 +6,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.CommandContext;
-
-import java.util.NoSuchElementException;
+import ru.herobrine1st.fusion.api.exception.NoSuchArgumentException;
 
 public class BooleanParserElement extends ParserElement<BooleanParserElement, Boolean> {
 
@@ -21,9 +20,9 @@ public class BooleanParserElement extends ParserElement<BooleanParserElement, Bo
     }
 
     @Override
-    public Boolean parseSlash(CommandContext ctx, CommandInteraction interaction) {
+    public Boolean parseSlash(CommandContext ctx, CommandInteraction interaction) throws NoSuchArgumentException {
         OptionMapping option = interaction.getOption(name);
-        if(option == null) throw new NoSuchElementException();
+        if(option == null) throw new NoSuchArgumentException(this);
         return option.getAsBoolean();
     }
 

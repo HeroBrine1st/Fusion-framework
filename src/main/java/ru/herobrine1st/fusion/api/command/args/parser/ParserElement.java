@@ -3,11 +3,12 @@ package ru.herobrine1st.fusion.api.command.args.parser;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.CommandContext;
 import ru.herobrine1st.fusion.api.command.FusionOptionData;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
-
-import java.util.NoSuchElementException;
+import ru.herobrine1st.fusion.api.exception.NoSuchArgumentException;
 
 /**
  * An generic argument parser.
@@ -15,6 +16,7 @@ import java.util.NoSuchElementException;
  * @param <R> Parse result type.
  */
 public abstract non-sealed class ParserElement<T extends ParserElement<T, R>, R> extends FusionOptionData {
+    private static final Logger logger = LoggerFactory.getLogger(ParserElement.class);
     protected boolean required = true;
 
     public ParserElement(String name, String description) {
@@ -39,8 +41,11 @@ public abstract non-sealed class ParserElement<T extends ParserElement<T, R>, R>
         R value;
         try {
             value = parseSlash(ctx, (CommandInteraction) ctx.getEvent());
-        } catch(NoSuchElementException e) {
-            if (required) throw new ArgumentParseException("Обработчик не обнаружил аргумента " + e.getMessage());
+        } catch(NoSuchArgumentException e) {
+            if (required) {
+                logger.error("Unexpected NoSuchArgumentException", e);
+                throw e;
+            }
             else return;
         }
         if(name != null && value != null) {
