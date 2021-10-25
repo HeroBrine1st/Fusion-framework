@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import ru.herobrine1st.fusion.api.command.build.FusionCommand;
+import ru.herobrine1st.fusion.api.command.FusionCommand;
 import ru.herobrine1st.fusion.api.exception.ExceptionHandler;
 import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 

@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.RestAction;
-import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.exception.CommandException;
 
 import java.util.Collection;
@@ -96,7 +95,7 @@ public interface CommandContext {
      * Command executing in this context
      * @return {@link FusionBaseCommand}<?, ?> object describing command that (usually) called this method.
      */
-    FusionBaseCommand<?, ?> getCommand();
+    FusionBaseCommand<?> getCommand();
 
     /**
      * CompletableFuture that will be completed when user clicked any button in your message.

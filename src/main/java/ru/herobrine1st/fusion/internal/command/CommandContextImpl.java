@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.CommandContext;
-import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
+import ru.herobrine1st.fusion.api.command.FusionBaseCommand;
 import ru.herobrine1st.fusion.internal.listener.ButtonInteractionHandler;
 
 import java.util.*;
@@ -18,11 +18,11 @@ public class CommandContextImpl implements CommandContext {
     private static final Logger logger = LoggerFactory.getLogger(CommandContextImpl.class);
 
     private final Map<String, List<Object>> arguments = new HashMap<>();
-    private final FusionBaseCommand<?, ?> command;
+    private final FusionBaseCommand<?> command;
     private GenericInteractionCreateEvent event;
     private CompletableFuture<ButtonClickEvent> buttonClickEventCompletableFuture = null;
 
-    public CommandContextImpl(GenericInteractionCreateEvent event, FusionBaseCommand<?, ?> command) {
+    public CommandContextImpl(GenericInteractionCreateEvent event, FusionBaseCommand<?> command) {
         this.event = event;
         this.command = command;
     }
@@ -69,7 +69,7 @@ public class CommandContextImpl implements CommandContext {
     }
 
     @Override
-    public FusionBaseCommand<?, ?> getCommand() {
+    public FusionBaseCommand<?> getCommand() {
         return command;
     }
 

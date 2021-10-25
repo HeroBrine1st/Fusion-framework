@@ -2,12 +2,11 @@ package ru.herobrine1st.fusion.internal.manager;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.internal.utils.Checks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.CommandContext;
-import ru.herobrine1st.fusion.api.command.build.FusionBaseCommand;
-import ru.herobrine1st.fusion.api.command.build.FusionCommand;
+import ru.herobrine1st.fusion.api.command.FusionBaseCommand;
+import ru.herobrine1st.fusion.api.command.FusionCommand;
 import ru.herobrine1st.fusion.api.exception.ExceptionHandler;
 import ru.herobrine1st.fusion.api.manager.CommandManager;
 import ru.herobrine1st.fusion.internal.command.SlashCommandBuilder;
@@ -33,22 +32,6 @@ public class CommandManagerImpl implements CommandManager {
         if (commands.stream().map(FusionBaseCommand::getName).anyMatch(it -> it.equals(data.getName()))) {
             throw new RuntimeException("Intersecting name: " + data.getName());
         }
-        // Валидация
-        if (data instanceof FusionCommand.WithSubcommandGroups command) {
-            Checks.notEmpty(command.getOptions(), "Subcommand groups");
-            Checks.check(command.getOptions().stream()
-                            .allMatch(it -> it.getSubcommandData().size() > 0),
-                    "All groups must have at least one subcommand");
-            Checks.check(command.getOptions().stream()
-                            .flatMap(it -> it.getSubcommandData().stream())
-                            .allMatch(FusionBaseCommand::hasExecutor),
-                    "All subcommands must have an executor");
-        } else if (data instanceof FusionCommand.WithSubcommands command) {
-            Checks.notEmpty(command.getOptions(), "Subcommands");
-            Checks.check(command.getOptions().stream()
-                            .allMatch(FusionBaseCommand::hasExecutor),
-                    "All subcommands must have an executor");
-        } else Checks.check(data.hasExecutor(), "Command must have an executor");
         commands.add(data);
     }
 
