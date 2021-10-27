@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.option.FusionCommand;
 import ru.herobrine1st.fusion.api.command.option.FusionSubcommand;
 
-public final class WithSubcommandsBuilder extends CommandBuilder<WithSubcommandsBuilder, FusionSubcommand> {
+public final class WithSubcommandsBuilder extends BaseCommandBuilder<WithSubcommandsBuilder, FusionSubcommand> {
     public WithSubcommandsBuilder(@NotNull String name, @NotNull String description) {
         super(name, description);
     }

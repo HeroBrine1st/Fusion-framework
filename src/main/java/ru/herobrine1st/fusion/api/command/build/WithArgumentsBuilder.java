@@ -5,7 +5,7 @@ import ru.herobrine1st.fusion.api.command.CommandExecutor;
 import ru.herobrine1st.fusion.api.command.option.FusionCommand;
 import ru.herobrine1st.fusion.api.command.option.parser.ParserElement;
 
-public final class WithArgumentsBuilder extends CommandBuilder<WithArgumentsBuilder, ParserElement<?, ?>> {
+public final class WithArgumentsBuilder extends BaseCommandBuilder<WithArgumentsBuilder, ParserElement<?, ?>> {
     private CommandExecutor executor = null;
 
     public WithArgumentsBuilder(@NotNull String name, @NotNull String description) {

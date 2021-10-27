@@ -100,6 +100,7 @@ public class SlashCommandHandler implements EventListener {
         try {
             targetCommand.getExecutor().execute(context);
         } catch (Throwable t) {
+            if(!event.isAcknowledged()) event.deferReply(true).queue();
             var embed = new EmbedBuilder()
                     .setColor(0xFF0000);
             if (t instanceof CommandException commandException) {
@@ -111,13 +112,13 @@ public class SlashCommandHandler implements EventListener {
                 logger.trace("Caught CancellationException", t);
                 return;
             } else if (t instanceof RuntimeException) {
-                embed.setDescription("Unknown runtime exception when executing command ");
+                embed.setDescription("Unknown runtime exception occurred.");
                 logger.error("Runtime exception occurred when executing command", t);
             } else {
-                embed.setDescription("Unknown exception when executing command");
+                embed.setDescription("Unknown exception occurred.");
                 logger.error("Error executing command", t);
             }
-            event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
+            event.getHook().sendMessageEmbeds(embed.build()).queue();
         }
     }
 

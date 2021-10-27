@@ -12,7 +12,7 @@ import java.util.List;
 
 public abstract sealed class BaseCommandBuilder<T extends BaseCommandBuilder<T, R>, R extends FusionOptionData>
         extends OptionBuilder<BaseCommandBuilder<T, R>>
-        permits CommandBuilder, SubcommandBuilder {
+        permits SubcommandBuilder, WithArgumentsBuilder, WithSubcommandGroupsBuilder, WithSubcommandsBuilder {
 
     protected final List<R> options = new ArrayList<>();
     protected PermissionHandler permissionHandler = PermissionHandler.DEFAULT;
