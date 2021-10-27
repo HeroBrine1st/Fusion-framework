@@ -2,7 +2,6 @@ package ru.herobrine1st.fusion.api.command.option;
 
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import ru.herobrine1st.fusion.api.command.CommandExecutor;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
 import ru.herobrine1st.fusion.api.command.build.SubcommandBuilder;
@@ -11,7 +10,7 @@ import ru.herobrine1st.fusion.api.command.option.parser.ParserElement;
 import java.util.List;
 
 public final class FusionSubcommand extends FusionBaseCommand<ParserElement<?, ?>> {
-    public FusionSubcommand(@NotNull String name, @NotNull String description, @Nullable CommandExecutor executor,
+    public FusionSubcommand(@NotNull String name, @NotNull String description, @NotNull CommandExecutor executor,
                             @NotNull List<ParserElement<?, ?>> options,
                             @NotNull PermissionHandler permissionHandler) {
         super(name, description, executor, options, permissionHandler);

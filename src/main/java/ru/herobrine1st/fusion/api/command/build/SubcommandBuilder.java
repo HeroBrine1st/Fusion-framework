@@ -1,6 +1,5 @@
 package ru.herobrine1st.fusion.api.command.build;
 
-import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.CommandExecutor;
 import ru.herobrine1st.fusion.api.command.option.FusionSubcommand;
@@ -20,7 +19,6 @@ public final class SubcommandBuilder extends BaseCommandBuilder<SubcommandBuilde
 
     @Override
     public FusionSubcommand build() {
-        Checks.check(this.options.size() <= 25, "Cannot have more than 25 options for a command!");
         return new FusionSubcommand(name, description, executor, options, permissionHandler);
     }
 }
