@@ -11,6 +11,6 @@ public final class WithSubcommandsBuilder extends CommandBuilder<WithSubcommands
 
     @Override
     public FusionCommand<FusionSubcommand> build() {
-        return new FusionCommand.WithSubcommands(name, description, options, permissionHandler, testing);
+        return new FusionCommand.WithSubcommands(name, description, options, permissionHandler);
     }
 }

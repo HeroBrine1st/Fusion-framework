@@ -14,17 +14,11 @@ import ru.herobrine1st.fusion.api.command.option.parser.ParserElement;
 import java.util.List;
 
 public sealed class FusionCommand<R extends FusionOptionData> extends FusionBaseCommand<R> {
-    private final boolean testing;
 
     private FusionCommand(@NotNull String name, @NotNull String description, @Nullable CommandExecutor executor,
                           @NotNull List<R> options,
-                          @NotNull PermissionHandler permissionHandler, boolean testing) {
+                          @NotNull PermissionHandler permissionHandler) {
         super(name, description, executor, options, permissionHandler);
-        this.testing = testing;
-    }
-
-    public boolean isTesting() {
-        return testing;
     }
 
     @Contract("_, _ -> new")
@@ -45,8 +39,8 @@ public sealed class FusionCommand<R extends FusionOptionData> extends FusionBase
     public static final class WithArguments extends FusionCommand<ParserElement<?, ?>> {
         public WithArguments(@NotNull String name, @NotNull String description, @NotNull CommandExecutor executor,
                              @NotNull List<ParserElement<?, ?>> options,
-                             @NotNull PermissionHandler permissionHandler, boolean testing) {
-            super(name, description, executor, options, permissionHandler, testing);
+                             @NotNull PermissionHandler permissionHandler) {
+            super(name, description, executor, options, permissionHandler);
             Checks.check(
                     options.stream()
                             .dropWhile(it -> it.getOptionData().isRequired())
@@ -59,8 +53,8 @@ public sealed class FusionCommand<R extends FusionOptionData> extends FusionBase
     public static final class WithSubcommands extends FusionCommand<FusionSubcommand> {
         public WithSubcommands(@NotNull String name, @NotNull String description,
                                @NotNull List<FusionSubcommand> options,
-                               @NotNull PermissionHandler permissionHandler, boolean testing) {
-            super(name, description, null, options, permissionHandler, testing);
+                               @NotNull PermissionHandler permissionHandler) {
+            super(name, description, null, options, permissionHandler);
         }
 
     }
@@ -68,8 +62,8 @@ public sealed class FusionCommand<R extends FusionOptionData> extends FusionBase
     public static final class WithSubcommandGroups extends FusionCommand<FusionSubcommandGroup> {
         public WithSubcommandGroups(@NotNull String name, @NotNull String description,
                                     @NotNull List<FusionSubcommandGroup> options,
-                                    @NotNull PermissionHandler permissionHandler, boolean testing) {
-            super(name, description, null, options, permissionHandler, testing);
+                                    @NotNull PermissionHandler permissionHandler) {
+            super(name, description, null, options, permissionHandler);
         }
 
     }

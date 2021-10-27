@@ -19,6 +19,6 @@ public final class WithArgumentsBuilder extends CommandBuilder<WithArgumentsBuil
 
     @Override
     public FusionCommand<ParserElement<?, ?>> build() {
-        return new FusionCommand.WithArguments(name, description, executor, options, permissionHandler, testing);
+        return new FusionCommand.WithArguments(name, description, executor, options, permissionHandler);
     }
 }
