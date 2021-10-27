@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.CommandContext;
-import ru.herobrine1st.fusion.api.command.FusionBaseCommand;
+import ru.herobrine1st.fusion.api.command.option.FusionBaseCommand;
 import ru.herobrine1st.fusion.internal.listener.ButtonInteractionHandler;
 
 import java.util.*;
@@ -46,7 +46,7 @@ public class CommandContextImpl implements CommandContext {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> getOne(String name) {
+    public <T> Optional<T> getArgument(String name) {
         var list = arguments.get(name);
         if (list != null && list.size() > 0) {
             Object argument = list.get(0);
@@ -59,7 +59,7 @@ public class CommandContextImpl implements CommandContext {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Collection<T> getAll(String name) {
+    public <T> Collection<T> getArguments(String name) {
         return (Collection<T>) arguments.getOrDefault(name, Collections.emptyList());
     }
 

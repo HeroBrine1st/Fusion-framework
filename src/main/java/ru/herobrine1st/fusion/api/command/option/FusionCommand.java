@@ -1,12 +1,15 @@
-package ru.herobrine1st.fusion.api.command;
+package ru.herobrine1st.fusion.api.command.option;
 
+import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.herobrine1st.fusion.api.command.args.parser.ParserElement;
+import ru.herobrine1st.fusion.api.command.CommandExecutor;
+import ru.herobrine1st.fusion.api.command.PermissionHandler;
 import ru.herobrine1st.fusion.api.command.build.WithArgumentsBuilder;
 import ru.herobrine1st.fusion.api.command.build.WithSubcommandGroupsBuilder;
 import ru.herobrine1st.fusion.api.command.build.WithSubcommandsBuilder;
+import ru.herobrine1st.fusion.api.command.option.parser.ParserElement;
 
 import java.util.List;
 
@@ -14,9 +17,9 @@ public sealed class FusionCommand<R extends FusionOptionData> extends FusionBase
     private final boolean testing;
 
     private FusionCommand(@NotNull String name, @NotNull String description, @Nullable CommandExecutor executor,
-                          @NotNull List<R> options, @NotNull String shortName,
+                          @NotNull List<R> options,
                           @NotNull PermissionHandler permissionHandler, boolean testing) {
-        super(name, description, executor, options, shortName, permissionHandler);
+        super(name, description, executor, options, permissionHandler);
         this.testing = testing;
     }
 
@@ -40,27 +43,33 @@ public sealed class FusionCommand<R extends FusionOptionData> extends FusionBase
     }
 
     public static final class WithArguments extends FusionCommand<ParserElement<?, ?>> {
-        public WithArguments(@NotNull String name, @NotNull String description, @Nullable CommandExecutor executor,
-                             @NotNull List<ParserElement<?, ?>> options, @NotNull String shortName,
+        public WithArguments(@NotNull String name, @NotNull String description, @NotNull CommandExecutor executor,
+                             @NotNull List<ParserElement<?, ?>> options,
                              @NotNull PermissionHandler permissionHandler, boolean testing) {
-            super(name, description, executor, options, shortName, permissionHandler, testing);
+            super(name, description, executor, options, permissionHandler, testing);
+            Checks.check(
+                    options.stream()
+                            .dropWhile(it -> it.getOptionData().isRequired())
+                            .noneMatch(it -> it.getOptionData().isRequired()),
+                    "You should add non-required arguments after required ones");
+            Checks.notNull(executor, "Executor");
         }
     }
 
     public static final class WithSubcommands extends FusionCommand<FusionSubcommand> {
         public WithSubcommands(@NotNull String name, @NotNull String description,
-                               @NotNull List<FusionSubcommand> options, @NotNull String shortName,
+                               @NotNull List<FusionSubcommand> options,
                                @NotNull PermissionHandler permissionHandler, boolean testing) {
-            super(name, description, null, options, shortName, permissionHandler, testing);
+            super(name, description, null, options, permissionHandler, testing);
         }
 
     }
 
     public static final class WithSubcommandGroups extends FusionCommand<FusionSubcommandGroup> {
         public WithSubcommandGroups(@NotNull String name, @NotNull String description,
-                                    @NotNull List<FusionSubcommandGroup> options, @NotNull String shortName,
+                                    @NotNull List<FusionSubcommandGroup> options,
                                     @NotNull PermissionHandler permissionHandler, boolean testing) {
-            super(name, description, null, options, shortName, permissionHandler, testing);
+            super(name, description, null, options, permissionHandler, testing);
         }
 
     }

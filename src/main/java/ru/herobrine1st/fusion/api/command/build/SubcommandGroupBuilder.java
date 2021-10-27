@@ -2,9 +2,9 @@ package ru.herobrine1st.fusion.api.command.build;
 
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
-import ru.herobrine1st.fusion.api.command.FusionSubcommand;
-import ru.herobrine1st.fusion.api.command.FusionSubcommandGroup;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
+import ru.herobrine1st.fusion.api.command.option.FusionSubcommand;
+import ru.herobrine1st.fusion.api.command.option.FusionSubcommandGroup;
 
 import java.util.ArrayList;
 import java.util.List;

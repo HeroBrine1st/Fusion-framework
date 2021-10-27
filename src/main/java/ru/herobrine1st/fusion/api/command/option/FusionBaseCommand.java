@@ -1,25 +1,27 @@
-package ru.herobrine1st.fusion.api.command;
+package ru.herobrine1st.fusion.api.command.option;
 
+import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.herobrine1st.fusion.api.command.CommandExecutor;
+import ru.herobrine1st.fusion.api.command.PermissionHandler;
 
 import java.util.List;
 
 public abstract sealed class FusionBaseCommand<R extends FusionOptionData> extends FusionOptionData permits FusionCommand, FusionSubcommand {
     private final CommandExecutor executor;
     private final List<R> options;
-    private final String shortName;
     private final PermissionHandler permissionHandler;
 
 
 
     protected FusionBaseCommand(@NotNull String name, @NotNull String description,
                                 @Nullable CommandExecutor executor, @NotNull List<R> options,
-                                @NotNull String shortName, @NotNull PermissionHandler permissionHandler) {
+                                @NotNull PermissionHandler permissionHandler) {
         super(name, description);
+        Checks.check(options.size() <= 25, "Cannot have more than 25 options for a command!");
         this.executor = executor;
         this.options = options;
-        this.shortName = shortName;
         this.permissionHandler = permissionHandler;
     }
 
@@ -35,12 +37,8 @@ public abstract sealed class FusionBaseCommand<R extends FusionOptionData> exten
 
     @NotNull
     public CommandExecutor getExecutor() {
+        if(executor == null) // If there's no executor, there are subcommands with executor, so there's always executor in tree hierarchy
+            throw new IllegalStateException("Executor is null");
         return executor;
     }
-
-    @NotNull
-    public String getShortName() {
-        return shortName;
-    }
-
 }

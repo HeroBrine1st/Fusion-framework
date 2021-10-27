@@ -1,6 +1,6 @@
 package ru.herobrine1st.fusion.api.exception;
 
-import ru.herobrine1st.fusion.api.command.args.parser.ParserElement;
+import ru.herobrine1st.fusion.api.command.option.parser.ParserElement;
 
 public class NoSuchArgumentException extends ArgumentParseException {
     private final ParserElement<?, ?> element;

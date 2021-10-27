@@ -1,4 +1,4 @@
-package ru.herobrine1st.fusion.api.command.args.parser;
+package ru.herobrine1st.fusion.api.command.option.parser;
 
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.CommandContext;
-import ru.herobrine1st.fusion.api.command.FusionOptionData;
+import ru.herobrine1st.fusion.api.command.option.FusionOptionData;
 import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
 import ru.herobrine1st.fusion.api.exception.NoSuchArgumentException;
 
@@ -48,7 +48,7 @@ public abstract non-sealed class ParserElement<T extends ParserElement<T, R>, R>
             }
             else return;
         }
-        if(name != null && value != null) {
+        if(value != null) {
             ctx.putArg(name, value);
         }
     }

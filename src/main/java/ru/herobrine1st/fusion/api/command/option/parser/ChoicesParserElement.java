@@ -1,4 +1,4 @@
-package ru.herobrine1st.fusion.api.command.args.parser;
+package ru.herobrine1st.fusion.api.command.option.parser;
 
 import net.dv8tion.jda.internal.utils.Checks;
 import org.jetbrains.annotations.NotNull;

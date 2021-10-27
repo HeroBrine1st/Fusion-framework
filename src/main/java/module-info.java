@@ -4,9 +4,10 @@ module Fusion.framework {
     requires org.slf4j;
 
     exports ru.herobrine1st.fusion.api.command;
-    exports ru.herobrine1st.fusion.api.command.args.parser;
+    exports ru.herobrine1st.fusion.api.command.option.parser;
     exports ru.herobrine1st.fusion.api.command.build;
     exports ru.herobrine1st.fusion.api.exception;
     exports ru.herobrine1st.fusion.api.manager;
     exports ru.herobrine1st.fusion.api.restaction;
+    exports ru.herobrine1st.fusion.api.command.option;
 }

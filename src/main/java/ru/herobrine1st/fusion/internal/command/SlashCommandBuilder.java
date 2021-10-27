@@ -3,9 +3,9 @@ package ru.herobrine1st.fusion.internal.command;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
-import ru.herobrine1st.fusion.api.command.FusionCommand;
-import ru.herobrine1st.fusion.api.command.FusionSubcommand;
-import ru.herobrine1st.fusion.api.command.args.parser.ParserElement;
+import ru.herobrine1st.fusion.api.command.option.FusionCommand;
+import ru.herobrine1st.fusion.api.command.option.FusionSubcommand;
+import ru.herobrine1st.fusion.api.command.option.parser.ParserElement;
 
 import java.util.Collection;
 

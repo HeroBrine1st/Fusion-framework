@@ -1,8 +1,8 @@
-package ru.herobrine1st.fusion.api.command.args;
+package ru.herobrine1st.fusion.api.command;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import ru.herobrine1st.fusion.api.command.args.parser.*;
+import ru.herobrine1st.fusion.api.command.option.parser.*;
 
 /**
  * Class containing various {@link ParserElement} provider methods

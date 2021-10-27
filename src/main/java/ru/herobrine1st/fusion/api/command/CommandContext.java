@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.RestAction;
+import ru.herobrine1st.fusion.api.command.option.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.exception.CommandException;
 
 import java.util.Collection;
@@ -70,9 +71,9 @@ public interface CommandContext {
      * @param name name of the argument
      * @param <T>  type of the argument. Will be used in <b>unsafe cast</b>.
      * @return {@link Optional}<T> container with argument
-     * @see #getAll(String)
+     * @see #getArguments(String)
      */
-    <T> Optional<T> getOne(String name);
+    <T> Optional<T> getArgument(String name);
 
     /**
      * Get collection of arguments with certain name from context
@@ -80,9 +81,9 @@ public interface CommandContext {
      * @param name name of the argument
      * @param <T>  type of the argument. Will be used in <b>unsafe cast</b>.
      * @return {@link Collection}<T> of arguments. Empty if no arguments.
-     * @see #getOne(String)
+     * @see #getArgument(String)
      */
-    <T> Collection<T> getAll(String name);
+    <T> Collection<T> getArguments(String name);
 
     /**
      * User that triggered this execution
@@ -99,7 +100,7 @@ public interface CommandContext {
 
     /**
      * CompletableFuture that will be completed when user clicked any button in your message.
-     * Also will be cancelled after 15 minutes.
+     * Will be cancelled after 15 minutes.
      * @return {@link CompletableFuture}<{@link ButtonClickEvent}> instance
      * @param message message with commands that you send and got back with {@link RestAction}'s callback
      */

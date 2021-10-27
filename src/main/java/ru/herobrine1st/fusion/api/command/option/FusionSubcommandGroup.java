@@ -1,6 +1,7 @@
-package ru.herobrine1st.fusion.api.command;
+package ru.herobrine1st.fusion.api.command.option;
 
 import org.jetbrains.annotations.NotNull;
+import ru.herobrine1st.fusion.api.command.PermissionHandler;
 import ru.herobrine1st.fusion.api.command.build.SubcommandGroupBuilder;
 
 import java.util.List;
