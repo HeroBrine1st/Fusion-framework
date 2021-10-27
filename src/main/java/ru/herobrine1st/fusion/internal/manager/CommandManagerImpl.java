@@ -2,6 +2,8 @@ package ru.herobrine1st.fusion.internal.manager;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.CommandContext;
@@ -35,30 +37,23 @@ public class CommandManagerImpl implements CommandManager {
         commands.add(data);
     }
 
-    @Override
     public List<FusionCommand<?>> getCommands() {
         return commands;
     }
 
     @Override
-    public void updateCommands(Guild testingGuild) {
-        if (testingGuild != null) {
-            testingGuild.updateCommands()
-                    .addCommands(commands.stream()
-                            .filter(FusionCommand::isTesting)
-                            .peek(it -> logger.debug("Registering command %s in testing context".formatted(it.getName())))
-                            .map(SlashCommandBuilder::buildCommand)
-                            .toList())
-                    .queue(null, throwable -> logger.error("Could not send slash commands", throwable));
-        } else if (logger.isDebugEnabled())
-            logger.warn("No testingGuild provided - skipping commands marked as testing");
-        jda.updateCommands()
+    public CommandListUpdateAction updateCommands(@NotNull Guild guild) {
+        return guild.updateCommands()
                 .addCommands(commands.stream()
-                        .filter(it -> !it.isTesting())
-                        .peek(it -> logger.debug("Registering command %s in production context".formatted(it.getName())))
                         .map(SlashCommandBuilder::buildCommand)
-                        .toList())
-                .queue(null, throwable -> logger.error("Could not send slash commands", throwable));
+                        .toList());
+    }
+
+    public CommandListUpdateAction updateCommands() {
+        return jda.updateCommands()
+                .addCommands(commands.stream()
+                        .map(SlashCommandBuilder::buildCommand)
+                        .toList());
     }
 
     @Override
