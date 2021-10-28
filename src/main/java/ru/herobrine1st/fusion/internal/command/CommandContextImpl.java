@@ -28,6 +28,10 @@ public class CommandContextImpl implements CommandContext {
     private final FusionBaseCommand<?> command;
     // Защита от долбоёба. Тут конечно ни хуя не случится, но всякое бывает
     private final Object lock = new Object();
+    @SuppressWarnings("rawtypes")
+    List<ReactiveData> reactiveDataList = new ArrayList<>();
+    // Это к реактивности относится
+    int currentIndex = -1;
     private GenericInteractionCreateEvent event;
     private CompletableFuture<ButtonClickEvent> buttonClickEventCompletableFuture = null;
     private boolean waitingForComponentInteraction = false;
@@ -103,54 +107,6 @@ public class CommandContextImpl implements CommandContext {
         submitComponents(message, false, validateUser);
         return message;
     }
-
-    static class ReactiveData<T> {
-        private T value;
-
-        private ReactiveData(T initialValue) {
-            value = initialValue;
-        }
-
-        public T getValue() {
-            return value;
-        }
-
-        public void setValue(T value) {
-            this.value = value;
-        }
-    }
-
-    static class StateData<T> extends ReactiveData<T> {
-        private StateData(T initialValue) {
-            super(initialValue);
-        }
-    }
-
-    static class EffectData<T> extends ReactiveData<T> {
-        private List<Object> dependencies = new ArrayList<>();
-
-        private EffectData() {
-            super(null);
-        }
-
-        private boolean compareDependencies(List<Object> other) {
-            if (dependencies.size() != other.size()) return false;
-            for (int i = 0; i < other.size(); i++) { // containsAll будет медленнее
-                if (dependencies.get(i) != other.get(i)) return false;
-            }
-            return true;
-        }
-
-        private void setDependencies(List<Object> dependencies) {
-            this.dependencies = dependencies;
-        }
-    }
-
-
-    @SuppressWarnings("rawtypes")
-    List<ReactiveData> reactiveDataList = new ArrayList<>();
-    // Это к реактивности относится
-    int currentIndex = -1;
 
     // Так, объясняю алгоритм, пока помню
     // Смотрим, существует ли элемент в списке
@@ -276,5 +232,47 @@ public class CommandContextImpl implements CommandContext {
 
     public boolean shouldValidateUser() {
         return validateUser;
+    }
+
+    static class ReactiveData<T> {
+        private T value;
+
+        private ReactiveData(T initialValue) {
+            value = initialValue;
+        }
+
+        public T getValue() {
+            return value;
+        }
+
+        public void setValue(T value) {
+            this.value = value;
+        }
+    }
+
+    static class StateData<T> extends ReactiveData<T> {
+        private StateData(T initialValue) {
+            super(initialValue);
+        }
+    }
+
+    static class EffectData<T> extends ReactiveData<T> {
+        private List<Object> dependencies = new ArrayList<>();
+
+        private EffectData() {
+            super(null);
+        }
+
+        private boolean compareDependencies(List<Object> other) {
+            if (dependencies.size() != other.size()) return false;
+            for (int i = 0; i < other.size(); i++) { // containsAll будет медленнее
+                if (dependencies.get(i) != other.get(i)) return false;
+            }
+            return true;
+        }
+
+        private void setDependencies(List<Object> dependencies) {
+            this.dependencies = dependencies;
+        }
     }
 }
