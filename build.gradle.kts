@@ -34,6 +34,7 @@ tasks {
     }
     compileJava {
         options.encoding = "UTF-8"
+        options.compilerArgs.add("-Xlint:unchecked")
     }
     compileTestJava {
         options.encoding = "UTF-8"

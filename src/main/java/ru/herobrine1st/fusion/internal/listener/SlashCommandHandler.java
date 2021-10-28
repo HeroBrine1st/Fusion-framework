@@ -1,6 +1,5 @@
 package ru.herobrine1st.fusion.internal.listener;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
@@ -9,10 +8,8 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.PermissionHandler;
-import ru.herobrine1st.fusion.api.command.option.FusionBaseCommand;
-import ru.herobrine1st.fusion.api.command.option.FusionCommand;
+import ru.herobrine1st.fusion.api.command.option.*;
 import ru.herobrine1st.fusion.api.command.option.parser.ParserElement;
-import ru.herobrine1st.fusion.api.exception.CommandException;
 import ru.herobrine1st.fusion.api.exception.PermissionException;
 import ru.herobrine1st.fusion.internal.command.CommandContextImpl;
 import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
@@ -20,7 +17,6 @@ import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 
 public class SlashCommandHandler implements EventListener {
@@ -47,7 +43,7 @@ public class SlashCommandHandler implements EventListener {
         FusionCommand<?> sourceCommand = commandDataOptional.get();
         FusionBaseCommand<ParserElement<?, ?>> targetCommand;
         permissionHandlers.add(sourceCommand.getPermissionHandler());
-        if (sourceCommand instanceof FusionCommand.WithSubcommandGroups command) {
+        if (sourceCommand instanceof FusionCommandWithSubcommandGroups command) {
             if (groupName == null || subcommandName == null) return; // На невалидный запрос отвечаем невалидным ответом
             var subcommandData = command.getOptions().stream()
                     .filter(it -> it.getName().equals(groupName))
@@ -60,7 +56,7 @@ public class SlashCommandHandler implements EventListener {
                     .findAny();
             if (subcommandData.isEmpty()) return;
             targetCommand = subcommandData.get();
-        } else if (sourceCommand instanceof FusionCommand.WithSubcommands command) {
+        } else if (sourceCommand instanceof FusionCommandWithSubcommands command) {
             if (subcommandName == null) return;
             var subcommandData = command.getOptions().stream()
                     .filter(it -> it.getName().equals(subcommandName))
@@ -69,7 +65,7 @@ public class SlashCommandHandler implements EventListener {
                     .findAny();
             if (subcommandData.isEmpty()) return;
             targetCommand = subcommandData.get();
-        } else if (sourceCommand instanceof FusionCommand.WithArguments command) {
+        } else if (sourceCommand instanceof FusionCommandWithArguments command) {
             targetCommand = command;
         } else {
             throw new RuntimeException("This fucking won't happen");
@@ -97,29 +93,7 @@ public class SlashCommandHandler implements EventListener {
         }
         logger.info("Processing %s by %s (%s)".formatted(event.getCommandPath(),
                 event.getUser().getAsTag(), event.getUser().getIdLong()));
-        try {
-            targetCommand.getExecutor().execute(context);
-        } catch (Throwable t) {
-            if(!event.isAcknowledged()) event.deferReply(true).queue();
-            var embed = new EmbedBuilder()
-                    .setColor(0xFF0000);
-            if (t instanceof CommandException commandException) {
-                if(t.getCause() != null) {
-                    logger.error(commandException.getMessage(), t.getCause());
-                }
-                embed.setDescription(commandException.getMessage());
-            } else if (t instanceof CancellationException) {
-                logger.trace("Caught CancellationException", t);
-                return;
-            } else if (t instanceof RuntimeException) {
-                embed.setDescription("Unknown runtime exception occurred.");
-                logger.error("Runtime exception occurred when executing command", t);
-            } else {
-                embed.setDescription("Unknown exception occurred.");
-                logger.error("Error executing command", t);
-            }
-            event.getHook().sendMessageEmbeds(embed.build()).queue();
-        }
+        context.execute();
     }
 
     @Override

@@ -2,6 +2,7 @@ package ru.herobrine1st.fusion.api.command.build;
 
 import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.option.FusionCommand;
+import ru.herobrine1st.fusion.api.command.option.FusionCommandWithSubcommandGroups;
 import ru.herobrine1st.fusion.api.command.option.FusionSubcommandGroup;
 
 public final class WithSubcommandGroupsBuilder extends BaseCommandBuilder<WithSubcommandGroupsBuilder, FusionSubcommandGroup> {
@@ -11,6 +12,6 @@ public final class WithSubcommandGroupsBuilder extends BaseCommandBuilder<WithSu
 
     @Override
     public FusionCommand<FusionSubcommandGroup> build() {
-        return new FusionCommand.WithSubcommandGroups(name, description, options, permissionHandler);
+        return new FusionCommandWithSubcommandGroups(name, description, options, permissionHandler);
     }
 }

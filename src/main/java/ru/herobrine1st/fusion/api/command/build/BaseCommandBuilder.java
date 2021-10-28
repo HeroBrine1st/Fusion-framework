@@ -21,20 +21,21 @@ public abstract sealed class BaseCommandBuilder<T extends BaseCommandBuilder<T, 
         super(name, description);
     }
 
+
     @NotNull
     @SafeVarargs
+    @SuppressWarnings("unchecked")
     public final T addOptions(R... options) {
         Checks.notNull(options, "Options");
         Checks.noneNull(options, "Option");
         Checks.notEmpty(options, "Options");
         this.options.addAll(Arrays.asList(options));
-        //noinspection unchecked
         return (T) this;
     }
 
+    @SuppressWarnings("unchecked")
     public T setPermissionHandler(PermissionHandler permissionHandler) {
         this.permissionHandler = permissionHandler;
-        //noinspection unchecked
         return (T) this;
     }
 

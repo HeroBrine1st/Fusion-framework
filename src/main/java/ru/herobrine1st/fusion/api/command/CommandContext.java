@@ -1,5 +1,6 @@
 package ru.herobrine1st.fusion.api.command;
 
+import net.dv8tion.jda.annotations.Incubating;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -7,8 +8,10 @@ import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.interactions.InteractionCallbackAction;
 import ru.herobrine1st.fusion.api.command.option.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.exception.CommandException;
 
@@ -27,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
  * <pre><code>
  *     class HelloUserCommand implements {@link CommandExecutor} {
  *         public void execute(CommandContext ctx) throws {@link CommandException} {
- *             ctx.{@link #getHook() getHook}().{@link InteractionHook#sendMessage(String) sendMessage}("Hello, " + ctx.{@link #getUser() getUser}().getName() + "!").queue();
+ *             ctx.{@link #getEvent() getEvent}().{@link GenericInteractionCreateEvent#reply(String) reply}("Hello, " + ctx.{@link #getUser() getUser}().getName() + "!").queue();
  *         }
  *     }
  * </code></pre>
@@ -43,9 +46,29 @@ public interface CommandContext {
 
     /**
      * Interaction hook
+     *
      * @return {@link InteractionHook} instance
      */
     InteractionHook getHook();
+
+    /**
+     * Acknowledge this interaction and defer the reply to a later time.<br>
+     * You can use {@code deferReply()} or {@code deferReply(false)} to send a non-ephemeral deferred reply.
+     * @param ephemeral True, if this message should only be visible to the interaction user
+     * @return {@link InteractionCallbackAction}
+     * @see Interaction#deferReply(boolean)
+     */
+    InteractionCallbackAction deferReply(boolean ephemeral);
+
+    /**
+     * Acknowledge this interaction and defer the reply to a later time.<br>
+     * You can use {@code deferReply(true)} to send a deferred ephemeral reply.
+     * @return {@link InteractionCallbackAction}
+     * @see Interaction#deferReply(boolean)
+     */
+    default InteractionCallbackAction deferReply() {
+        return deferReply(false);
+    }
 
     /**
      * JDA API object
@@ -94,15 +117,26 @@ public interface CommandContext {
 
     /**
      * Command executing in this context
-     * @return {@link FusionBaseCommand}<?, ?> object describing command that (usually) called this method.
+     *
+     * @return {@link FusionBaseCommand}<?> object describing command that (usually) called this method.
      */
     FusionBaseCommand<?> getCommand();
 
     /**
      * CompletableFuture that will be completed when user clicked any button in your message.
      * Will be cancelled after 15 minutes.
+     *
+     * @param message message with commands that you sent and got back with {@link RestAction}'s callback
      * @return {@link CompletableFuture}<{@link ButtonClickEvent}> instance
-     * @param message message with commands that you send and got back with {@link RestAction}'s callback
+     * @see ru.herobrine1st.fusion.api.restaction.CompletableFutureRestAction
      */
-    CompletableFuture<ButtonClickEvent> waitForButtonClick(Message message);
+    CompletableFuture<ButtonClickEvent> waitForComponentInteraction(Message message);
+
+    /**
+     * Wait for any component interaction in your message and re-execute in this context with new event
+     * @param message message with commands that you sent and got back with {@link RestAction}'s callback
+     * @return The same message object
+     */
+    @Incubating
+    Message submitComponents(Message message);
 }

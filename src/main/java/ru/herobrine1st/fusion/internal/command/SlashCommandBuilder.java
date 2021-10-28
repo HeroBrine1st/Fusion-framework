@@ -3,8 +3,7 @@ package ru.herobrine1st.fusion.internal.command;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
-import ru.herobrine1st.fusion.api.command.option.FusionCommand;
-import ru.herobrine1st.fusion.api.command.option.FusionSubcommand;
+import ru.herobrine1st.fusion.api.command.option.*;
 import ru.herobrine1st.fusion.api.command.option.parser.ParserElement;
 
 import java.util.Collection;
@@ -23,17 +22,17 @@ public final class SlashCommandBuilder {
 
     public static CommandData buildCommand(FusionCommand<?> fusionCommand) {
         var commandData = new CommandData(fusionCommand.getName(), fusionCommand.getDescription());
-        if (fusionCommand instanceof FusionCommand.WithArguments withArguments) {
-            return commandData.addOptions(withArguments.getOptions().stream()
+        if (fusionCommand instanceof FusionCommandWithArguments fusionCommandWithArguments) {
+            return commandData.addOptions(fusionCommandWithArguments.getOptions().stream()
                     .map(ParserElement::getOptionData)
                     .toList());
         }
-        if (fusionCommand instanceof FusionCommand.WithSubcommands withSubcommands) {
-            return commandData.addSubcommands(subcommandDataFromSubcommands(withSubcommands.getOptions()));
+        if (fusionCommand instanceof FusionCommandWithSubcommands fusionCommandWithSubcommands) {
+            return commandData.addSubcommands(subcommandDataFromSubcommands(fusionCommandWithSubcommands.getOptions()));
         }
-        if (fusionCommand instanceof FusionCommand.WithSubcommandGroups withSubcommandGroups) {
+        if (fusionCommand instanceof FusionCommandWithSubcommandGroups fusionCommandWithSubcommandGroups) {
             return commandData.addSubcommandGroups(
-                    withSubcommandGroups.getOptions().stream()
+                    fusionCommandWithSubcommandGroups.getOptions().stream()
                             .map(it -> new SubcommandGroupData(it.getName(), it.getDescription())
                                     .addSubcommands(subcommandDataFromSubcommands(it.getSubcommandData()))
                             ).toList()
