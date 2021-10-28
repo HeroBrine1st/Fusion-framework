@@ -9,21 +9,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
-public class CompletableFutureRestAction<R> implements RestAction<R> {
-    private final static Logger logger = LoggerFactory.getLogger(CompletableFutureRestAction.class);
+public class CompletableFutureAction<R> implements RestAction<R> {
+    private final static Logger logger = LoggerFactory.getLogger(CompletableFutureAction.class);
     private final CompletableFuture<R> completableFuture;
     private BooleanSupplier checks = null;
 
     @Contract(value = "_ -> new", pure = true)
-    public static <R> @NotNull CompletableFutureRestAction<R> of(CompletableFuture<R> completableFuture) {
-        return new CompletableFutureRestAction<>(completableFuture);
+    public static <R> @NotNull CompletableFutureAction<R> of(CompletableFuture<R> completableFuture) {
+        return new CompletableFutureAction<>(completableFuture);
     }
 
-    private CompletableFutureRestAction(CompletableFuture<R> completableFuture) {
+    private CompletableFutureAction(CompletableFuture<R> completableFuture) {
         this.completableFuture = completableFuture;
     }
 
@@ -64,16 +63,12 @@ public class CompletableFutureRestAction<R> implements RestAction<R> {
 
     @Override
     public R complete(boolean shouldQueue) {
-        try {
-            return completableFuture.get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+        return completableFuture.join();
     }
 
     @NotNull
     @Override
     public CompletableFuture<R> submit(boolean shouldQueue) {
-        return completableFuture;
+        return completableFuture.toCompletableFuture();
     }
 }

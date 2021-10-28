@@ -45,6 +45,7 @@ public class ButtonInteractionHandler implements EventListener {
     @SubscribeEvent
     public void onButtonClick(@NotNull ButtonClickEvent event) {
         if (!interactionCache.containsKey(event.getMessageIdLong())) {
+            event.reply("Данное сообщение больше не принимает взаимодействий.").setEphemeral(true).queue();
             return;
         } else if ((event.getIdLong() >>> TIMESTAMP_OFFSET) - (event.getMessageIdLong() >>> TIMESTAMP_OFFSET) >= TTL) {
             event.reply("Данное сообщение больше не принимает взаимодействий.").setEphemeral(true).queue();
@@ -54,7 +55,7 @@ public class ButtonInteractionHandler implements EventListener {
             return;
         }
         var context = interactionCache.get(event.getMessageIdLong());
-        if (context.getUser().getIdLong() != event.getUser().getIdLong()) {
+        if (context.shouldValidateUser() && context.getUser().getIdLong() != event.getUser().getIdLong()) {
             event.reply("Вы не являетесь автором команды.").setEphemeral(true).queue();
             return;
         }
