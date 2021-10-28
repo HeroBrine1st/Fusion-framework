@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.requests.restaction.interactions.InteractionCallbackA
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.api.command.CommandContext;
+import ru.herobrine1st.fusion.api.command.State;
 import ru.herobrine1st.fusion.api.command.option.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.exception.CommandException;
 import ru.herobrine1st.fusion.internal.listener.ButtonInteractionHandler;
@@ -115,7 +116,7 @@ public class CommandContextImpl implements CommandContext {
     // Все if с последующим throw - проверки, которые конечно ни хуя не помогут, но хоть отобразят прогеру, что он сделал то, о чем предупреждалось в джавадоке
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T useState(T initialState, BiFunction<String, T, T> onComponentInteraction, String... componentIds) {
+    public <T> T useComponent(T initialState, BiFunction<String, T, T> onComponentInteraction, String... componentIds) {
         currentIndex++;
         if (currentIndex >= reactiveDataList.size()) {
             if (event instanceof ComponentInteraction)
@@ -132,6 +133,44 @@ public class CommandContextImpl implements CommandContext {
             }
             return (T) data.getValue();
         } else throw new RuntimeException("Cannot be thrown");
+    }
+
+    static class StateImpl<T> implements State<T> {
+        private T value;
+
+        public StateImpl(T initialValue) {
+            value = initialValue;
+        }
+        
+        @Override
+        public T getValue() {
+            return value;
+        }
+
+        @Override
+        public void setValue(T value) {
+            this.value = value;
+        }
+    }
+    
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> State<T> useState(T initialState) {
+        currentIndex++;
+        if (currentIndex >= reactiveDataList.size()) {
+            if (event instanceof ComponentInteraction)
+                throw new IllegalStateException("Conditional use of reactive methods"); // На втором проходе уже не должно быть никаких налов и подобной хуеты
+            StateImpl<T> state = new StateImpl<>(initialState);
+            reactiveDataList.add(new StateData<>(state));
+            return state;
+        }
+        @SuppressWarnings("rawtypes") ReactiveData data = reactiveDataList.get(currentIndex);
+        if (!(data instanceof StateData stateData))
+            throw new IllegalStateException("Conditional use of reactive methods"); // А это на случай, если мы получим EffectData
+        if (!(stateData.getValue() instanceof StateImpl))
+            throw new IllegalStateException("Conditional use of reactive methods"); // А это на случай, если мы получим ещё какую-нибудь хуету
+        return (State<T>) stateData.getValue();
     }
 
     @Override
