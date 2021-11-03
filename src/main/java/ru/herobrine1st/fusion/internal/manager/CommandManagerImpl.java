@@ -58,7 +58,10 @@ public class CommandManagerImpl implements CommandManager {
 
     @Override
     public void registerListeners() {
-        jda.addEventListener(ButtonInteractionHandler.INSTANCE, new SlashCommandHandler(this));
+        jda.addEventListener(new SlashCommandHandler(this));
+        if(!jda.getEventManager().getRegisteredListeners().contains(ButtonInteractionHandler.INSTANCE)) {
+            jda.addEventListener(ButtonInteractionHandler.INSTANCE);
+        }
     }
 
     @Override

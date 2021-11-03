@@ -59,10 +59,8 @@ public class ButtonInteractionHandler implements EventListener {
             event.reply("Вы не являетесь автором команды.").setEphemeral(true).queue();
             return;
         }
-        if (event.getMessage() != null) {
-            if (event.getMessage().getButtonById(event.getComponentId()) == null) {
-                return;
-            }
+        if (event.getMessage().getButtonById(event.getComponentId()) == null) {
+            return;
         }
         interactionCache.remove(event.getMessageIdLong());
         context.applyButtonClickEvent(event);

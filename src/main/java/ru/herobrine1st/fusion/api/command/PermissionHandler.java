@@ -33,7 +33,7 @@ public abstract class PermissionHandler {
         public boolean shouldBeExecuted(CommandContext ctx) {
             Member member;
             if((member = ctx.getEvent().getMember()) != null) {
-                return member.hasPermission(permissions);
+                return member.hasPermission(ctx.getEvent().getGuildChannel(), permissions);
             }
             return false;
         }
