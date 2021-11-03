@@ -70,9 +70,6 @@ public class SlashCommandHandler implements EventListener {
         } else {
             throw new RuntimeException("This fucking won't happen");
         }
-        if (permissionHandlers.get(0).shouldNotBeFound(event.getGuild())) {
-            return;
-        }
         CommandContextImpl context = new CommandContextImpl(event, targetCommand);
         if (!permissionHandlers.stream().allMatch(it -> it.shouldBeExecuted(context))) {
             String requirements = permissionHandlers.stream()

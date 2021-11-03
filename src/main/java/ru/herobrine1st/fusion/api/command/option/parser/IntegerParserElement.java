@@ -26,7 +26,7 @@ public class IntegerParserElement extends ChoicesParserElement<IntegerParserElem
     public @NotNull OptionData getOptionData() {
         OptionData optionData = new OptionData(OptionType.INTEGER, name, description, required);
         for (Map.Entry<String, Long> entry : choices.entrySet()) {
-            optionData.addChoice(entry.getKey(), entry.getValue().intValue()); // FIXME range -2^31..2^31-1; Waiting library fix
+            optionData.addChoice(entry.getKey(), entry.getValue());
         }
         return optionData;
     }
@@ -37,7 +37,7 @@ public class IntegerParserElement extends ChoicesParserElement<IntegerParserElem
         if (option == null) throw new NoSuchArgumentException(this);
         long res = option.getAsLong();
         if (res < min || res > max)
-            throw new ArgumentParseException("Integer %S is out of range %s..%s".formatted(name, min, max));
+            throw new ArgumentParseException("Integer %s is out of range %s..%s".formatted(name, min, max));
         return res;
     }
 
