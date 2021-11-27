@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract sealed class BaseCommandBuilder<T extends BaseCommandBuilder<T, R>, R extends FusionOptionData>
+public abstract /*sealed*/ class BaseCommandBuilder<T extends BaseCommandBuilder<T, R>, R extends FusionOptionData>
         extends OptionBuilder<BaseCommandBuilder<T, R>>
-        permits SubcommandBuilder, WithArgumentsBuilder, WithSubcommandGroupsBuilder, WithSubcommandsBuilder {
+        /*permits SubcommandBuilder, WithArgumentsBuilder, WithSubcommandGroupsBuilder, WithSubcommandsBuilder*/ {
 
     protected final List<R> options = new ArrayList<>();
     protected PermissionHandler permissionHandler = PermissionHandler.DEFAULT;

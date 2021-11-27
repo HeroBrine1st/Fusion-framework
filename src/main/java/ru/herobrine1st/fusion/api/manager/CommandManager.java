@@ -9,6 +9,8 @@ import ru.herobrine1st.fusion.api.command.option.FusionCommand;
 import ru.herobrine1st.fusion.api.exception.ExceptionHandler;
 import ru.herobrine1st.fusion.internal.manager.CommandManagerImpl;
 
+import javax.annotation.CheckReturnValue;
+
 public interface CommandManager {
 
     @Contract("_ -> new")
@@ -31,6 +33,7 @@ public interface CommandManager {
      * This will replace the existing command list for bot. You should only use this once on startup!
      * @return {@link CommandListUpdateAction}
      */
+    @CheckReturnValue
     CommandListUpdateAction updateCommands();
 
     void registerListeners();

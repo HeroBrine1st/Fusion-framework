@@ -3,7 +3,7 @@ package ru.herobrine1st.fusion.api.command.build;
 import org.jetbrains.annotations.NotNull;
 import ru.herobrine1st.fusion.api.command.option.FusionOptionData;
 
-public abstract sealed class OptionBuilder<T extends OptionBuilder<T>> permits BaseCommandBuilder, SubcommandGroupBuilder {
+public abstract /*sealed*/ class OptionBuilder<T extends OptionBuilder<T>> /*permits BaseCommandBuilder, SubcommandGroupBuilder*/ {
     protected final String name;
     protected final String description;
 

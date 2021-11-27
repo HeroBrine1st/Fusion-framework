@@ -11,9 +11,9 @@ import ru.herobrine1st.fusion.api.command.build.WithSubcommandsBuilder;
 
 import java.util.List;
 
-public sealed class FusionCommand<R extends FusionOptionData>
+public /*sealed*/ class FusionCommand<R extends FusionOptionData>
         extends FusionBaseCommand<R>
-        permits FusionCommandWithArguments, FusionCommandWithSubcommandGroups, FusionCommandWithSubcommands {
+        /*permits FusionCommandWithArguments, FusionCommandWithSubcommandGroups, FusionCommandWithSubcommands*/ {
 
     public FusionCommand(@NotNull String name, @NotNull String description, @Nullable CommandExecutor executor,
                           @NotNull List<R> options,

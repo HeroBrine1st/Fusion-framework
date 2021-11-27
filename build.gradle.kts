@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    implementation("net.dv8tion:JDA:4.3.0_339") {
+    implementation("net.dv8tion:JDA:4.4.+") {
         exclude(module="opus-java")
     }
     implementation("org.slf4j:slf4j-api:1.7.32")
@@ -25,7 +25,7 @@ tasks.getByName<Test>("test") {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_16
 }
 
 tasks {

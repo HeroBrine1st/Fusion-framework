@@ -8,7 +8,8 @@ import ru.herobrine1st.fusion.api.command.PermissionHandler;
 
 import java.util.List;
 
-public abstract sealed class FusionBaseCommand<R extends FusionOptionData> extends FusionOptionData permits FusionCommand, FusionSubcommand {
+public abstract /*sealed*/ class FusionBaseCommand<R extends FusionOptionData>
+        extends FusionOptionData /*permits FusionCommand, FusionSubcommand*/ {
     private final CommandExecutor executor;
     private final List<R> options;
     private final PermissionHandler permissionHandler;

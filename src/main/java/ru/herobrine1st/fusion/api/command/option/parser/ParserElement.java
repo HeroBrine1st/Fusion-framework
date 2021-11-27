@@ -11,11 +11,11 @@ import ru.herobrine1st.fusion.api.exception.ArgumentParseException;
 import ru.herobrine1st.fusion.api.exception.NoSuchArgumentException;
 
 /**
- * An generic argument parser.
+ * A generic argument parser.
  * @param <T> Type of class extending this class.
  * @param <R> Parse result type.
  */
-public abstract non-sealed class ParserElement<T extends ParserElement<T, R>, R> extends FusionOptionData {
+public abstract /*non-sealed*/ class ParserElement<T extends ParserElement<T, R>, R> extends FusionOptionData {
     private static final Logger logger = LoggerFactory.getLogger(ParserElement.class);
     protected boolean required = true;
 
