@@ -2,6 +2,7 @@ package ru.herobrine1st.fusion.internal.manager;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -16,6 +17,7 @@ import ru.herobrine1st.fusion.internal.listener.ButtonInteractionHandler;
 import ru.herobrine1st.fusion.internal.listener.SlashCommandHandler;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class CommandManagerImpl implements CommandManager {
@@ -43,23 +45,24 @@ public class CommandManagerImpl implements CommandManager {
 
     @Override
     public CommandListUpdateAction updateCommands(@NotNull Guild guild) {
-        return guild.updateCommands()
-                .addCommands(commands.stream()
-                        .map(SlashCommandBuilder::buildCommand)
-                        .toList());
+        return guild.updateCommands().addCommands(getCommandData());
     }
 
     public CommandListUpdateAction updateCommands() {
-        return jda.updateCommands()
-                .addCommands(commands.stream()
-                        .map(SlashCommandBuilder::buildCommand)
-                        .toList());
+        return jda.updateCommands().addCommands(getCommandData());
+    }
+
+    @Override
+    public Collection<CommandData> getCommandData() {
+        return commands.stream()
+                .map(SlashCommandBuilder::buildCommand)
+                .toList();
     }
 
     @Override
     public void registerListeners() {
         jda.addEventListener(new SlashCommandHandler(this));
-        if(!jda.getEventManager().getRegisteredListeners().contains(ButtonInteractionHandler.INSTANCE)) {
+        if (!jda.getEventManager().getRegisteredListeners().contains(ButtonInteractionHandler.INSTANCE)) {
             jda.addEventListener(ButtonInteractionHandler.INSTANCE);
         }
     }
