@@ -83,7 +83,7 @@ public class SlashCommandHandler implements EventListener {
         for (ParserElement<?, ?> it : targetCommand.getOptions()) {
             try {
                 it.parseSlash(context);
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 commandManager.handleException(context, e);
                 return;
             }

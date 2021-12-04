@@ -9,5 +9,5 @@ public interface ExceptionHandler {
      * @param ctx Context exception happened in
      * @param exception may be either {@link CommandException} or {@link RuntimeException}
      */
-    void handle(CommandContext ctx, Exception exception);
+    void handle(CommandContext ctx, RuntimeException exception);
 }

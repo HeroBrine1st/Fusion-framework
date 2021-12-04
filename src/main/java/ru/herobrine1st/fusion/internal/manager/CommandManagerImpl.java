@@ -72,7 +72,7 @@ public class CommandManagerImpl implements CommandManager {
         this.exceptionHandler = exceptionHandler;
     }
 
-    public void handleException(CommandContext ctx, Exception exception) {
+    public void handleException(CommandContext ctx, RuntimeException exception) {
         exceptionHandler.handle(ctx, exception);
     }
 }
