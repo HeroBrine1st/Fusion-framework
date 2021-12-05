@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.InteractionCallbackAction;
 
+import javax.annotation.CheckReturnValue;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -23,6 +24,7 @@ public interface ReactiveContext {
      * @return {@link InteractionCallbackAction}
      * @see Interaction#deferReply(boolean)
      */
+    @CheckReturnValue
     InteractionCallbackAction deferReply(boolean ephemeral);
 
     /**
@@ -32,6 +34,7 @@ public interface ReactiveContext {
      * @return {@link InteractionCallbackAction}
      * @see Interaction#deferReply(boolean)
      */
+    @CheckReturnValue
     default InteractionCallbackAction deferReply() {
         return deferReply(false);
     }

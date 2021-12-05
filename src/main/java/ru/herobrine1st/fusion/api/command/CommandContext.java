@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -109,7 +110,7 @@ public interface CommandContext extends ReactiveContext {
      * @return {@link CompletableFuture}<{@link ButtonClickEvent}> instance
      * @see CompletableFutureAction
      */
-    CompletableFuture<ButtonClickEvent> waitForComponentInteraction(Message message, boolean validateUser);
+    CompletableFuture<GenericComponentInteractionCreateEvent> waitForComponentInteraction(Message message, boolean validateUser);
 
     /**
      * CompletableFuture that will be completed when user clicked any button in your message.
@@ -120,7 +121,7 @@ public interface CommandContext extends ReactiveContext {
      * @see CompletableFutureAction
      * @see #waitForComponentInteraction(Message, boolean)
      */
-    default CompletableFuture<ButtonClickEvent> waitForComponentInteraction(Message message) {
+    default CompletableFuture<GenericComponentInteractionCreateEvent> waitForComponentInteraction(Message message) {
         return waitForComponentInteraction(message, true);
     }
 }

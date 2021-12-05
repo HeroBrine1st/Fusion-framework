@@ -13,7 +13,7 @@ import ru.herobrine1st.fusion.api.command.option.FusionCommand;
 import ru.herobrine1st.fusion.api.exception.ExceptionHandler;
 import ru.herobrine1st.fusion.api.manager.CommandManager;
 import ru.herobrine1st.fusion.internal.command.SlashCommandBuilder;
-import ru.herobrine1st.fusion.internal.listener.ButtonInteractionHandler;
+import ru.herobrine1st.fusion.internal.listener.ComponentInteractionHandler;
 import ru.herobrine1st.fusion.internal.listener.SlashCommandHandler;
 
 import java.util.ArrayList;
@@ -62,8 +62,8 @@ public class CommandManagerImpl implements CommandManager {
     @Override
     public void registerListeners() {
         jda.addEventListener(new SlashCommandHandler(this));
-        if (!jda.getEventManager().getRegisteredListeners().contains(ButtonInteractionHandler.INSTANCE)) {
-            jda.addEventListener(ButtonInteractionHandler.INSTANCE);
+        if (!jda.getEventManager().getRegisteredListeners().contains(ComponentInteractionHandler.INSTANCE)) {
+            jda.addEventListener(ComponentInteractionHandler.INSTANCE);
         }
     }
 

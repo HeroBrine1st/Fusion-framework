@@ -1,7 +1,7 @@
 package ru.herobrine1st.fusion.internal.listener;
 
 import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
@@ -17,9 +17,9 @@ import java.util.concurrent.TimeUnit;
 import static net.dv8tion.jda.api.utils.TimeUtil.DISCORD_EPOCH;
 import static net.dv8tion.jda.api.utils.TimeUtil.TIMESTAMP_OFFSET;
 
-public class ButtonInteractionHandler implements EventListener {
-    public final static ButtonInteractionHandler INSTANCE = new ButtonInteractionHandler();
-    private final static Logger logger = LoggerFactory.getLogger(ButtonInteractionHandler.class);
+public class ComponentInteractionHandler implements EventListener {
+    public final static ComponentInteractionHandler INSTANCE = new ComponentInteractionHandler();
+    private final static Logger logger = LoggerFactory.getLogger(ComponentInteractionHandler.class);
     private final static long TTL = 15 * 60 * 1000;
     private final static Map<Long, CommandContextImpl> interactionCache = new HashMap<>();
     static {
@@ -30,7 +30,7 @@ public class ButtonInteractionHandler implements EventListener {
         }).scheduleAtFixedRate(() -> interactionCache.entrySet()
                         .removeIf(it -> {
                             if (System.currentTimeMillis() - (it.getKey() >>> TIMESTAMP_OFFSET) - DISCORD_EPOCH >= TTL) {
-                                it.getValue().cancelButtonClickWaiting();
+                                it.getValue().cancelComponentInteractionWaiting();
                                 logger.trace("Clearing %s interaction cache due to timeout".formatted(it.getKey()));
                                 return true;
                             } else return false;
@@ -43,31 +43,32 @@ public class ButtonInteractionHandler implements EventListener {
     }
 
     @SubscribeEvent
-    public void onButtonClick(@NotNull ButtonClickEvent event) {
+    public void onComponentInteraction(@NotNull GenericComponentInteractionCreateEvent event) {
         if (!interactionCache.containsKey(event.getMessageIdLong())) {
-            event.reply("Данное сообщение больше не принимает взаимодействий.").setEphemeral(true).queue();
+            event.reply("This message no longer accepts component interactions.").setEphemeral(true).queue();
             return;
         } else if ((event.getIdLong() >>> TIMESTAMP_OFFSET) - (event.getMessageIdLong() >>> TIMESTAMP_OFFSET) >= TTL) {
-            event.reply("Данное сообщение больше не принимает взаимодействий.").setEphemeral(true).queue();
+            event.reply("This message no longer accepts component interactions.").setEphemeral(true).queue();
             CommandContextImpl ctx = interactionCache.remove(event.getMessageIdLong());
-            if (ctx != null) ctx.cancelButtonClickWaiting();
-            logger.trace("Cancelled ButtonClickEvent due to timeout");
+            if (ctx != null) ctx.cancelComponentInteractionWaiting();
+            logger.trace("Cancelled GenericComponentInteractionCreateEvent due to timeout");
             return;
         }
         var context = interactionCache.get(event.getMessageIdLong());
         if (context.shouldValidateUser() && context.getUser().getIdLong() != event.getUser().getIdLong()) {
-            event.reply("Вы не являетесь автором команды.").setEphemeral(true).queue();
+            event.reply("You're not a command caller in this context.").setEphemeral(true).queue();
             return;
         }
         if (event.getMessage().getButtonById(event.getComponentId()) == null) {
             return;
         }
         interactionCache.remove(event.getMessageIdLong());
-        context.applyButtonClickEvent(event);
+        context.applyComponentInteractionEvent(event);
     }
 
     @Override
     public void onEvent(@NotNull GenericEvent event) {
-        if(event instanceof ButtonClickEvent buttonClickEvent) onButtonClick(buttonClickEvent);
+        if(event instanceof GenericComponentInteractionCreateEvent genericComponentInteractionCreateEvent)
+            onComponentInteraction(genericComponentInteractionCreateEvent);
     }
 }

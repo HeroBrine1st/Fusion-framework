@@ -3,7 +3,7 @@ package ru.herobrine1st.fusion.internal.command;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
@@ -14,7 +14,7 @@ import ru.herobrine1st.fusion.api.command.CommandContext;
 import ru.herobrine1st.fusion.api.command.State;
 import ru.herobrine1st.fusion.api.command.option.FusionBaseCommand;
 import ru.herobrine1st.fusion.api.exception.CommandException;
-import ru.herobrine1st.fusion.internal.listener.ButtonInteractionHandler;
+import ru.herobrine1st.fusion.internal.listener.ComponentInteractionHandler;
 
 import java.util.*;
 import java.util.concurrent.CancellationException;
@@ -34,7 +34,7 @@ public class CommandContextImpl implements CommandContext {
     // Это к реактивности относится
     int currentIndex = -1;
     private GenericInteractionCreateEvent event;
-    private CompletableFuture<ButtonClickEvent> buttonClickEventCompletableFuture = null;
+    private CompletableFuture<GenericComponentInteractionCreateEvent> genericComponentInteractionCreateEventCompletableFuture = null;
     private boolean waitingForComponentInteraction = false;
     private boolean validateUser = true;
 
@@ -89,9 +89,9 @@ public class CommandContextImpl implements CommandContext {
     }
 
     @Override
-    public CompletableFuture<ButtonClickEvent> waitForComponentInteraction(Message message, boolean validateUser) {
+    public CompletableFuture<GenericComponentInteractionCreateEvent> waitForComponentInteraction(Message message, boolean validateUser) {
         submitComponents(message, true, validateUser);
-        return buttonClickEventCompletableFuture;
+        return genericComponentInteractionCreateEventCompletableFuture;
     }
 
     @Override
@@ -211,34 +211,34 @@ public class CommandContextImpl implements CommandContext {
                 throw new IllegalStateException("Already waiting for component interaction");
             waitingForComponentInteraction = true;
             this.validateUser = validateUser;
-            this.buttonClickEventCompletableFuture = createCompletableFuture ? new CompletableFuture<>() : null;
-            ButtonInteractionHandler.open(message.getIdLong(), this);
+            this.genericComponentInteractionCreateEventCompletableFuture = createCompletableFuture ? new CompletableFuture<>() : null;
+            ComponentInteractionHandler.open(message.getIdLong(), this);
             logger.trace("Opening interaction listener to messageId=%s".formatted(message.getIdLong()));
         }
     }
 
-    public void applyButtonClickEvent(ButtonClickEvent event) {
+    public void applyComponentInteractionEvent(GenericComponentInteractionCreateEvent event) {
         synchronized (lock) {
             if (!waitingForComponentInteraction) return;
             waitingForComponentInteraction = false;
             this.event = event;
             this.currentIndex = -1;
-            if (buttonClickEventCompletableFuture != null) {
-                if (buttonClickEventCompletableFuture.isDone()) return;
-                buttonClickEventCompletableFuture.complete(event);
+            if (genericComponentInteractionCreateEventCompletableFuture != null) {
+                if (genericComponentInteractionCreateEventCompletableFuture.isDone()) return;
+                genericComponentInteractionCreateEventCompletableFuture.complete(event);
             } else { // This is reactive command
                 execute();
             }
         }
     }
 
-    public void cancelButtonClickWaiting() {
+    public void cancelComponentInteractionWaiting() {
         synchronized (lock) {
             if (!waitingForComponentInteraction) return;
             waitingForComponentInteraction = false;
-            if (buttonClickEventCompletableFuture != null) {
-                buttonClickEventCompletableFuture.cancel(true);
-                buttonClickEventCompletableFuture = null;
+            if (genericComponentInteractionCreateEventCompletableFuture != null) {
+                genericComponentInteractionCreateEventCompletableFuture.cancel(true);
+                genericComponentInteractionCreateEventCompletableFuture = null;
             }
         }
     }
