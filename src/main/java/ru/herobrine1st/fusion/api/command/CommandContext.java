@@ -124,4 +124,6 @@ public interface CommandContext extends ReactiveContext {
     default CompletableFuture<GenericComponentInteractionCreateEvent> waitForComponentInteraction(Message message) {
         return waitForComponentInteraction(message, true);
     }
+
+    void handleException(Throwable t);
 }

@@ -19,6 +19,7 @@ import ru.herobrine1st.fusion.internal.listener.ComponentInteractionHandler;
 import java.util.*;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -92,6 +93,32 @@ public class CommandContextImpl implements CommandContext {
     public CompletableFuture<GenericComponentInteractionCreateEvent> waitForComponentInteraction(Message message, boolean validateUser) {
         submitComponents(message, true, validateUser);
         return genericComponentInteractionCreateEventCompletableFuture;
+    }
+
+    @Override
+    public void handleException(Throwable t) {
+        if (!event.isAcknowledged()) event.deferReply(true).queue();
+        if(t instanceof CompletionException completionException && completionException.getCause() != null) {
+            t = completionException.getCause();
+        }
+        var embed = new EmbedBuilder()
+                .setColor(0xFF0000);
+        if (t instanceof CommandException commandException) {
+            if (t.getCause() != null) {
+                logger.error(commandException.getMessage(), t.getCause());
+            }
+            embed.setDescription(commandException.getMessage());
+        } else if (t instanceof CancellationException) {
+            logger.trace("Caught CancellationException", t);
+            return;
+        } else if (t instanceof RuntimeException) {
+            embed.setDescription("Unknown runtime exception occurred.");
+            logger.error("Runtime exception occurred when executing command", t);
+        } else {
+            embed.setDescription("Unknown exception occurred.");
+            logger.error("Error executing command", t);
+        }
+        event.getHook().sendMessageEmbeds(embed.build()).queue();
     }
 
     @Override
@@ -247,25 +274,7 @@ public class CommandContextImpl implements CommandContext {
         try {
             this.getCommand().getExecutor().execute(this);
         } catch (Throwable t) {
-            if (!event.isAcknowledged()) event.deferReply(true).queue();
-            var embed = new EmbedBuilder()
-                    .setColor(0xFF0000);
-            if (t instanceof CommandException commandException) {
-                if (t.getCause() != null) {
-                    logger.error(commandException.getMessage(), t.getCause());
-                }
-                embed.setDescription(commandException.getMessage());
-            } else if (t instanceof CancellationException) {
-                logger.trace("Caught CancellationException", t);
-                return;
-            } else if (t instanceof RuntimeException) {
-                embed.setDescription("Unknown runtime exception occurred.");
-                logger.error("Runtime exception occurred when executing command", t);
-            } else {
-                embed.setDescription("Unknown exception occurred.");
-                logger.error("Error executing command", t);
-            }
-            event.getHook().sendMessageEmbeds(embed.build()).queue();
+            handleException(t);
         }
     }
 
