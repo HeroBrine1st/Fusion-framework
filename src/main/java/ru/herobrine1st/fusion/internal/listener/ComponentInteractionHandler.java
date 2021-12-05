@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.internal.command.CommandContextImpl;
 
+import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -63,20 +65,19 @@ public class ComponentInteractionHandler implements EventListener {
             event.reply("You're not a command caller in this context.").setEphemeral(true).queue();
             return;
         }
-        // Maybe NPE (discord sends null but library has @Nonnull in methods used below)
         Optional<Component> componentOptional = event.getMessage().getActionRows().stream()
                 .map(ActionRow::getComponents)
                 .flatMap(List::stream)
                 .filter(it -> Objects.equals(it.getId(), event.getComponentId()))
                 .findAny();
         if (componentOptional.isEmpty()) {
-            event.reply("Component spoofing found").queue();
+            logger.trace("Ignored event %s - component spoofing detected".formatted(event.getId()));
             return;
         }
         Component component = componentOptional.get();
         if(component instanceof SelectionMenu selectionMenu && event instanceof SelectionMenuEvent selectionMenuEvent) {
             if(!selectionMenu.getOptions().stream().map(SelectOption::getValue).toList().containsAll(selectionMenuEvent.getValues())) {
-                event.reply("Component spoofing found").queue();
+                logger.trace("Ignored event %s - component spoofing detected".formatted(event.getId()));
                 return;
             }
         }
