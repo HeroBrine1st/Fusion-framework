@@ -1,6 +1,7 @@
 package ru.herobrine1st.fusion.internal.command;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.GenericComponentInteractionCreateEvent;
@@ -118,7 +119,11 @@ public class CommandContextImpl implements CommandContext {
             embed.setDescription("Unknown exception occurred.");
             logger.error("Error executing command", t);
         }
-        event.getHook().sendMessageEmbeds(embed.build()).queue();
+        event.getHook()
+                .editOriginal(new MessageBuilder()
+                        .setEmbeds(embed.build())
+                        .build())
+                .queue();
     }
 
     @Override
