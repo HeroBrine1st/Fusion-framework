@@ -2,15 +2,19 @@ package ru.herobrine1st.fusion.internal.listener;
 
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.interaction.GenericComponentInteractionCreateEvent;
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
+import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.herobrine1st.fusion.internal.command.CommandContextImpl;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -59,8 +63,22 @@ public class ComponentInteractionHandler implements EventListener {
             event.reply("You're not a command caller in this context.").setEphemeral(true).queue();
             return;
         }
-        if (event.getMessage().getButtonById(event.getComponentId()) == null) {
+        // Maybe NPE (discord sends null but library has @Nonnull in methods used below)
+        Optional<Component> componentOptional = event.getMessage().getActionRows().stream()
+                .map(ActionRow::getComponents)
+                .flatMap(List::stream)
+                .filter(it -> Objects.equals(it.getId(), event.getComponentId()))
+                .findAny();
+        if (componentOptional.isEmpty()) {
+            event.reply("Component spoofing found").queue();
             return;
+        }
+        Component component = componentOptional.get();
+        if(component instanceof SelectionMenu selectionMenu && event instanceof SelectionMenuEvent selectionMenuEvent) {
+            if(!selectionMenu.getOptions().stream().map(SelectOption::getValue).toList().containsAll(selectionMenuEvent.getValues())) {
+                event.reply("Component spoofing found").queue();
+                return;
+            }
         }
         interactionCache.remove(event.getMessageIdLong());
         context.applyComponentInteractionEvent(event);
