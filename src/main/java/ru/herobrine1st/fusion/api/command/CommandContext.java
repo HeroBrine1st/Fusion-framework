@@ -125,5 +125,9 @@ public interface CommandContext extends ReactiveContext {
         return waitForComponentInteraction(message, true);
     }
 
+    /**
+     * Send message with error explanation to user if possible, and write to log.
+     * @param t Exception
+     */
     void handleException(Throwable t);
 }

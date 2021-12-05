@@ -28,12 +28,12 @@ public class CommandContextImpl implements CommandContext {
 
     private final Map<String, List<Object>> arguments = new HashMap<>();
     private final FusionBaseCommand<?> command;
-    // Защита от долбоёба. Тут конечно ни хуя не случится, но всякое бывает
-    private final Object lock = new Object();
-    @SuppressWarnings("rawtypes")
-    List<ReactiveData> reactiveDataList = new ArrayList<>();
-    // Это к реактивности относится
-    int currentIndex = -1;
+
+    private final Object lock = new Object(); // Защита от долбоёба. Тут конечно ни хуя не случится, но всякое бывает
+
+    @SuppressWarnings("rawtypes") List<ReactiveData> reactiveDataList = new ArrayList<>();
+
+    int currentIndex = -1; // Это к реактивности относится
     private GenericInteractionCreateEvent event;
     private CompletableFuture<GenericComponentInteractionCreateEvent> genericComponentInteractionCreateEventCompletableFuture = null;
     private boolean waitingForComponentInteraction = false;
@@ -66,7 +66,6 @@ public class CommandContextImpl implements CommandContext {
         var list = arguments.get(name);
         if (list != null && list.size() > 0) {
             Object argument = list.get(0);
-            // Нет, это не костыль. Какой там будет тип компилятор не поймет, хотя на компилтайме можно понять.
             return Optional.of((T) argument);
         } else {
             return Optional.empty();
@@ -98,10 +97,11 @@ public class CommandContextImpl implements CommandContext {
     @Override
     public void handleException(Throwable t) {
         if (!event.isAcknowledged()) event.deferReply(true).queue();
-        if(t instanceof CompletionException completionException && completionException.getCause() != null) {
+        if (t instanceof CompletionException completionException && completionException.getCause() != null) {
             t = completionException.getCause();
         }
         var embed = new EmbedBuilder()
+                .setTitle("Error")
                 .setColor(0xFF0000);
         if (t instanceof CommandException commandException) {
             if (t.getCause() != null) {
@@ -168,7 +168,7 @@ public class CommandContextImpl implements CommandContext {
         public StateImpl(T initialValue) {
             value = initialValue;
         }
-        
+
         @Override
         public T getValue() {
             return value;
@@ -179,7 +179,7 @@ public class CommandContextImpl implements CommandContext {
             this.value = value;
         }
     }
-    
+
 
     @Override
     @SuppressWarnings("unchecked")
